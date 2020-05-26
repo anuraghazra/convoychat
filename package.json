@@ -1,0 +1,29 @@
+{
+  "name": "graphql-chat-app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server/index",
+    "server:watch": "nodemon server/index",
+    "develop": "concurrently \"npm run server:watch\" \"cd client && npm start\"",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Anurag Hazra",
+  "license": "MIT",
+  "dependencies": {
+    "apollo-server-express": "^2.13.1",
+    "bcryptjs": "^2.4.3",
+    "cookie": "^0.4.1",
+    "cookie-parser": "^1.4.5",
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "express-static-gzip": "^2.0.6",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^5.9.15"
+  },
+  "devDependencies": {
+    "concurrently": "^5.2.0"
+  }
+}
