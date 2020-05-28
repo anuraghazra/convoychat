@@ -33,8 +33,13 @@ const typeDefs = gql`
     owner: ID!
   }
 
+  type Me {
+    id: ID!
+    username: String!
+  }
+
   type Query {
-    me: User
+    me: Me!
     listUsers: [User!]!
     listRooms: [Room!]!
     getUser(id: ID!): User!

@@ -1,15 +1,24 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import App from "./App";
-import * as serviceWorker from "./serviceWorker";
+import "./styles/fontFaces.css";
 
+import App from "./App";
+
+import * as serviceWorker from "./serviceWorker";
 import { ApolloProvider } from "@apollo/react-hooks";
-import client from "./Apollo/client";
+import { ThemeProvider } from "styled-components";
+
+import GlobalStyles from "src/styles/GlobalStyles";
+import client from "src/apollo/client";
+import theme from "src/styles/theme";
 
 ReactDOM.render(
   <React.StrictMode>
     <ApolloProvider client={client}>
-      <App />
+      <ThemeProvider theme={theme}>
+        <GlobalStyles />
+        <App />
+      </ThemeProvider>
     </ApolloProvider>
   </React.StrictMode>,
   document.getElementById("root")

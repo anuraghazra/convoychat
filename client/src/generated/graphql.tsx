@@ -121,6 +121,24 @@ export type User = {
   createdAt: Scalars['String'];
 };
 
+export type LoginMutationVariables = {
+  username: Scalars['String'];
+  password: Scalars['String'];
+};
+
+
+export type LoginMutation = (
+  { __typename?: 'Mutation' }
+  & { login: (
+    { __typename?: 'User' }
+    & Pick<User, 'id' | 'username' | 'createdAt'>
+    & { rooms: Array<(
+      { __typename?: 'Room' }
+      & Pick<Room, 'id' | 'name'>
+    )> }
+  ) }
+);
+
 export type ListUsersQueryVariables = {};
 
 
@@ -136,7 +154,63 @@ export type ListUsersQuery = (
   )> }
 );
 
+export type NewMessageSubscriptionVariables = {
+  roomId: Scalars['ID'];
+};
 
+
+export type NewMessageSubscription = (
+  { __typename?: 'Subscription' }
+  & { newMessage: (
+    { __typename?: 'Message' }
+    & Pick<Message, 'id' | 'roomId' | 'content' | 'createdAt'>
+    & { author: (
+      { __typename?: 'Member' }
+      & Pick<Member, 'username'>
+    ) }
+  ) }
+);
+
+
+export const LoginDocument = gql`
+    mutation login($username: String!, $password: String!) {
+  login(username: $username, password: $password) {
+    id
+    username
+    rooms {
+      id
+      name
+    }
+    createdAt
+  }
+}
+    `;
+export type LoginMutationFn = ApolloReactCommon.MutationFunction<LoginMutation, LoginMutationVariables>;
+
+/**
+ * __useLoginMutation__
+ *
+ * To run a mutation, you first call `useLoginMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useLoginMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [loginMutation, { data, loading, error }] = useLoginMutation({
+ *   variables: {
+ *      username: // value for 'username'
+ *      password: // value for 'password'
+ *   },
+ * });
+ */
+export function useLoginMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<LoginMutation, LoginMutationVariables>) {
+        return ApolloReactHooks.useMutation<LoginMutation, LoginMutationVariables>(LoginDocument, baseOptions);
+      }
+export type LoginMutationHookResult = ReturnType<typeof useLoginMutation>;
+export type LoginMutationResult = ApolloReactCommon.MutationResult<LoginMutation>;
+export type LoginMutationOptions = ApolloReactCommon.BaseMutationOptions<LoginMutation, LoginMutationVariables>;
 export const ListUsersDocument = gql`
     query ListUsers {
   listUsers {
@@ -173,3 +247,38 @@ export function useListUsersLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHo
 export type ListUsersQueryHookResult = ReturnType<typeof useListUsersQuery>;
 export type ListUsersLazyQueryHookResult = ReturnType<typeof useListUsersLazyQuery>;
 export type ListUsersQueryResult = ApolloReactCommon.QueryResult<ListUsersQuery, ListUsersQueryVariables>;
+export const NewMessageDocument = gql`
+    subscription newMessage($roomId: ID!) {
+  newMessage(roomId: $roomId) {
+    id
+    roomId
+    author {
+      username
+    }
+    content
+    createdAt
+  }
+}
+    `;
+
+/**
+ * __useNewMessageSubscription__
+ *
+ * To run a query within a React component, call `useNewMessageSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useNewMessageSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useNewMessageSubscription({
+ *   variables: {
+ *      roomId: // value for 'roomId'
+ *   },
+ * });
+ */
+export function useNewMessageSubscription(baseOptions?: ApolloReactHooks.SubscriptionHookOptions<NewMessageSubscription, NewMessageSubscriptionVariables>) {
+        return ApolloReactHooks.useSubscription<NewMessageSubscription, NewMessageSubscriptionVariables>(NewMessageDocument, baseOptions);
+      }
+export type NewMessageSubscriptionHookResult = ReturnType<typeof useNewMessageSubscription>;
+export type NewMessageSubscriptionResult = ApolloReactCommon.SubscriptionResult<NewMessageSubscription>;

@@ -1,7 +1,7 @@
-import { gql } from 'apollo-boost'
+import gql from 'graphql-tag'
 
 const LOGIN = gql`
-  query login($username: String!, $password: String!) {
+  mutation login($username: String!, $password: String!) {
     login(username: $username, password: $password) {
         id,
         username,
@@ -13,6 +13,7 @@ const LOGIN = gql`
     }
   }
 `
+
 const LIST_USERS = gql`
   query ListUsers {
     listUsers {
@@ -25,4 +26,18 @@ const LIST_USERS = gql`
   }
 `
 
-export { LOGIN, LIST_USERS }
+const NEW_MESSAGE_SUBSCRIPTION = gql`
+  subscription newMessage($roomId: ID!) {
+    newMessage(roomId: $roomId) {
+      id
+      roomId
+      author {
+        username
+      }
+      content
+      createdAt
+    }
+  }
+`
+
+export { LOGIN, LIST_USERS, NEW_MESSAGE_SUBSCRIPTION }

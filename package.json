@@ -12,6 +12,7 @@
   "author": "Anurag Hazra",
   "license": "MIT",
   "dependencies": {
+    "@types/styled-components": "^5.1.0",
     "apollo-server-express": "^2.13.1",
     "bcryptjs": "^2.4.3",
     "cookie": "^0.4.1",

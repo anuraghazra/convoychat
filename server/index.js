@@ -31,6 +31,7 @@ const server = new ApolloServer({
   typeDefs: typeDefs,
   resolvers: resolvers,
   subscriptions: {
+    path: "/subscriptions",
     onConnect: async (connectionParams, webSocket) => {
       const cookieStr = webSocket.upgradeReq.headers.cookie;
       const token = cookie.parse(cookieStr);
@@ -82,7 +83,7 @@ server.applyMiddleware({
 const httpServer = http.createServer(app);
 server.installSubscriptionHandlers(httpServer);
 
-// static client 
+// static client
 app.use("/", expressStaticGzip("client/build"));
 if (process.env.NODE_ENV === "production") {
   app.get("/*", function (req, res) {
