@@ -1,5 +1,4 @@
 const { withFilter } = require("apollo-server-express");
-const AuthController = require("../controllers/AuthController");
 const RoomController = require("../controllers/RoomController");
 const UserController = require("../controllers/UserController");
 
@@ -27,8 +26,6 @@ const resolvers = {
     getRoom: useAuth(RoomController.getRoom),
   },
   Mutation: {
-    signup: AuthController.signup,
-    login: AuthController.login,
     createRoom: useAuth(RoomController.createRoom),
     addMembersToRoom: useAuth(RoomController.addMembersToRoom),
     sendMessage: useAuth(UserController.sendMessage),

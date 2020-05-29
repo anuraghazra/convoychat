@@ -4,7 +4,9 @@ const { Room } = require("../models/RoomModel");
 const { Message } = require("../models/MessageModel");
 const { NEW_MESSAGE } = require("../constants");
 
-exports.me = (_, __, context) => context.currentUser;
+exports.me = (_parent, _args, context) => {
+  return context.getUser();
+};
 
 exports.listUsers = async () => {
   try {

@@ -4,19 +4,23 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cookie = require("cookie");
 const cookieParser = require("cookie-parser");
+const cookieSession = require("cookie-session");
 const cors = require("cors");
-const jwt = require("jsonwebtoken");
 const expressStaticGzip = require("express-static-gzip");
+const passport = require("passport");
 
+require("./passport-config");
+
+const { buildContext, createOnConnect } = require("graphql-passport");
 const {
   PubSub,
   ApolloServer,
-  AuthenticationError,
+  ApolloError,
+  AuthenticationError
 } = require("apollo-server-express");
 
 const typeDefs = require("./graphql/typeDefs");
 const resolvers = require("./graphql/resolvers");
-const { verifyToken } = require("./utils/verifyToken");
 
 const pubsub = new PubSub();
 const app = express();
@@ -27,38 +31,52 @@ app.use(
   })
 );
 
+const sessionMiddleware = cookieSession({
+  secure: process.env.NODE_ENV === "production" ? true : false,
+  name: "session",
+  keys: [process.env.SESSION_SECRECT],
+  maxAge: 24 * 60 * 60 * 1000, // session will expire after 24 hours
+});
+const passportMiddleware = passport.initialize();
+const passportSessionMiddleware = passport.session();
+
+app.use(sessionMiddleware);
+app.use(passportMiddleware);
+app.use(passportSessionMiddleware);
+
+const authRoute = require("./routes/auth");
+app.use("/auth", authRoute);
+
 const server = new ApolloServer({
   typeDefs: typeDefs,
   resolvers: resolvers,
   subscriptions: {
     path: "/subscriptions",
-    onConnect: async (connectionParams, webSocket) => {
-      const cookieStr = webSocket.upgradeReq.headers.cookie;
-      const token = cookie.parse(cookieStr);
-      try {
-        if (!token) throw new AuthenticationError("Token not found");
-        const promise = new Promise((resolve, reject) => {
-          const user = jwt.verify(token.jwtToken, process.env.SERVER_SECRET);
-          resolve(user);
-        });
-        const user = await promise;
-        return user;
-      } catch (err) {
-        throw new Error(err);
-      }
-    },
+    // https://github.com/jkettmann/graphql-passport#usage-with-subscriptions
+    onConnect: createOnConnect([
+      sessionMiddleware,
+      passportMiddleware,
+      passportSessionMiddleware,
+    ]),
   },
   context: ({ req, res, connection }) => {
-    let currentUser = verifyToken(req, res);
+    let context = connection && connection.context;
+    let currentUser = connection && connection.context.req.user;
+
+    if (!context) context = buildContext({ req, res });
     if (!currentUser) {
-      currentUser = connection && connection.context && connection.context.user;
+      currentUser = context.getUser();
     }
-    return {
-      currentUser: currentUser,
-      req,
-      res,
-      pubsub,
-    };
+
+    try {
+      return {
+        ...context,
+        pubsub,
+        currentUser,
+      };
+    } catch (err) {
+      throw new ApolloError(err);
+    }
   },
   playground: {
     settings: {

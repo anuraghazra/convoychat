@@ -35,6 +35,7 @@ const typeDefs = gql`
 
   type Me {
     id: ID!
+    email: String!
     username: String!
   }
 
@@ -47,8 +48,6 @@ const typeDefs = gql`
   }
 
   type Mutation {
-    signup(username: String!, password: String!): User!
-    login(username: String!, password: String!): User!
     createRoom(name: String!): Room!
     addMembersToRoom(roomId: ID!, members: [ID!]!): Room!
     sendMessage(roomId: ID!, content: String!): Message!
