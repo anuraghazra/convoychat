@@ -29,6 +29,11 @@ const resolvers = {
     createRoom: useAuth(RoomController.createRoom),
     addMembersToRoom: useAuth(RoomController.addMembersToRoom),
     sendMessage: useAuth(UserController.sendMessage),
+    logout: (_parent, _args, context) => {
+      const { req } = context;
+      req.logout();
+      return true;
+    },
   },
 };
 

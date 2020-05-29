@@ -1,35 +1,27 @@
 require("dotenv").config();
 const http = require("http");
 const express = require("express");
+const passport = require("passport");
 const mongoose = require("mongoose");
-const cookie = require("cookie");
+
+const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const cookieSession = require("cookie-session");
-const cors = require("cors");
 const expressStaticGzip = require("express-static-gzip");
-const passport = require("passport");
 
 require("./passport-config");
 
 const { buildContext, createOnConnect } = require("graphql-passport");
-const {
-  PubSub,
-  ApolloServer,
-  ApolloError,
-  AuthenticationError
-} = require("apollo-server-express");
+const { PubSub, ApolloServer, ApolloError } = require("apollo-server-express");
 
 const typeDefs = require("./graphql/typeDefs");
 const resolvers = require("./graphql/resolvers");
 
 const pubsub = new PubSub();
 const app = express();
+
 app.use(cookieParser());
-app.use(
-  cors({
-    credentials: true,
-  })
-);
+app.use(cors({ credentials: true }));
 
 const sessionMiddleware = cookieSession({
   secure: process.env.NODE_ENV === "production" ? true : false,

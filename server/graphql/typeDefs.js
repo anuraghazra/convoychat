@@ -51,6 +51,7 @@ const typeDefs = gql`
     createRoom(name: String!): Room!
     addMembersToRoom(roomId: ID!, members: [ID!]!): Room!
     sendMessage(roomId: ID!, content: String!): Message!
+    logout: Boolean
   }
 
   type Subscription {
