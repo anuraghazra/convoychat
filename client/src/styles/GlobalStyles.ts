@@ -27,11 +27,23 @@ const GlobalStyles = createGlobalStyle`
     line-height: 1.5em;
     letter-spacing: 0px;
     font-family: inherit;
-    font-weight: 600;
+    font-weight: 400;
+  }
+  p, a {
+    font-size: 16px;
+  }
+
+  a {
+    text-decoration: none;
+    line-height: 1.5em;
+    color: ${p => p.theme.colors.white};
   }
 
   .textcolor--primary {
     color: ${p => p.theme.colors.primary};
+  }
+  .textcolor--gray {
+    color: ${p => p.theme.colors.gray};
   }
 `;
 

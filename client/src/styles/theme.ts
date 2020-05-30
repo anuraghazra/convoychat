@@ -75,8 +75,8 @@ const theme: DefaultTheme = {
   },
   colors,
   spacings: {
-    top: 40,
-    bottom: 40,
+    top: 60,
+    bottom: 60,
     left: 25,
     right: 25,
     my: "20px",

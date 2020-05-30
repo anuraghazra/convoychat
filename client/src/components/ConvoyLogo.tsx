@@ -1,13 +1,13 @@
 import React from "react";
 
-const ConvoyLogo = () => {
+const ConvoyLogo = ({ ...props }) => {
   return (
-    <span>
-      <h2>
+    <div {...props}>
+      <h2 style={{ fontWeight: 600 }}>
         Convoy<span className="textcolor--primary">Chat</span>
       </h2>
       <small>Lets take over the world</small>
-    </span>
+    </div>
   );
 };
 

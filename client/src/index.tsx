@@ -8,15 +8,13 @@ import * as serviceWorker from "./serviceWorker";
 import { ApolloProvider } from "@apollo/react-hooks";
 import { ThemeProvider } from "styled-components";
 
-import GlobalStyles from "styles/GlobalStyles";
-import client from "apollo/client";
+import client from "graphql/client";
 import theme from "styles/theme";
 
 ReactDOM.render(
   <React.StrictMode>
     <ApolloProvider client={client}>
       <ThemeProvider theme={theme}>
-        <GlobalStyles />
         <App />
       </ThemeProvider>
     </ApolloProvider>

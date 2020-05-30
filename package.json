@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node server/index",
     "server:watch": "nodemon server/index",
+    "codegen": "cd client && npm run codegen",
     "develop": "concurrently \"npm run server:watch\" \"cd client && npm start\"",
     "test": "echo \"Error: no test specified\" && exit 1",
     "prettier": "prettier --write **/*.{ts,js,css,html}"

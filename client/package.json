@@ -25,17 +25,18 @@
     "react-apollo": "^3.1.5",
     "react-dom": "^16.13.1",
     "react-hook-form": "^5.7.2",
+    "react-icons": "^3.10.0",
     "react-router-dom": "^5.2.0",
     "react-scripts": "3.4.1",
     "styled-components": "^5.1.1",
     "typescript": "~3.7.2"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "react-scripts start & npm run codegen",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "codegen": "graphql-codegen --config codegen.yml"
+    "codegen": "graphql-codegen --config codegen.yml --watch"
   },
   "eslintConfig": {
     "extends": "react-app"

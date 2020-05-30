@@ -1,15 +1,19 @@
 import React from "react";
-import { useListUsersQuery } from "../../generated/graphql";
+import { Switch } from "react-router-dom";
+
+import { DashboardWrapper } from "./Dashboard.style";
+import AuthRoute from "components/AuthRoute";
+import Sidebar from "components/Sidebar/Sidebar";
+import Room from "pages/Room/Room";
 
 const Dashboard = () => {
-  const { data: users, loading, error } = useListUsersQuery();
-
   return (
-    <div>
-      <p>Dashboard</p>
-
-      {JSON.stringify(users)}
-    </div>
+    <DashboardWrapper>
+      <Sidebar />
+      <Switch>
+        <AuthRoute path="/room/:roomId" component={Room} />
+      </Switch>
+    </DashboardWrapper>
   );
 };
 
