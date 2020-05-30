@@ -1,11 +1,15 @@
-import { DefaultTheme, CSSProp } from 'styled-components';
+import { DefaultTheme, CSSProp } from "styled-components";
 
 // and extend them!
-declare module 'styled-components' {
+declare module "styled-components" {
   export interface DefaultTheme {
     colors: {
       primary: string;
-      secondary: string;
+      dark: string;
+      darken: string;
+      darkest: string;
+      gray: string;
+      white: string;
     };
     font: {
       primary: string;
@@ -38,29 +42,36 @@ declare module 'styled-components' {
       desktop: string;
       desktopL: string;
     };
+    radius: {
+      small: number;
+    };
   }
 }
 
 const colors = {
-  primary: '#586FFA',
-  secondary: '#8B9AF4',
+  primary: "#64FF8F",
+  dark: "#161A2D",
+  darken: "#0D1022",
+  darkest: "#090C1B",
+  gray: "#7A7F96",
+  white: "#F5F5F5",
 };
 
 const size = {
-  mobileS: '320px',
-  mobile: '480px',
-  tablet: '768px',
-  desktop: '1024px',
-  desktopL: '1440px'
+  mobileS: "320px",
+  mobile: "480px",
+  tablet: "768px",
+  desktop: "1024px",
+  desktopL: "1440px",
 };
 
 const theme: DefaultTheme = {
   font: {
-    primary: 'Product Sans Regular',
-    primaryBold: 'Product Sans Bold',
-    primaryItalic: 'Product Sans Italic',
-    primaryMedium: 'Product Sans Medium Regular',
-    primaryLight: 'Product Sans Light Regular'
+    primary: "Product Sans Regular",
+    primaryBold: "Product Sans Bold",
+    primaryItalic: "Product Sans Italic",
+    primaryMedium: "Product Sans Medium Regular",
+    primaryLight: "Product Sans Light Regular",
   },
   colors,
   spacings: {
@@ -68,8 +79,8 @@ const theme: DefaultTheme = {
     bottom: 40,
     left: 25,
     right: 25,
-    my: '20px',
-    mx: '20px'
+    my: "20px",
+    mx: "20px",
   },
   space: {
     none: 0,
@@ -77,7 +88,7 @@ const theme: DefaultTheme = {
     medium: 10,
     large: 15,
     xlarge: 30,
-    huge: 40
+    huge: 40,
   },
   media: {
     mobileS: `max-width: ${size.mobileS}`,
@@ -85,8 +96,11 @@ const theme: DefaultTheme = {
     tablet: `max-width: ${size.tablet}`,
     minTablet: `min-width: ${size.tablet}`,
     desktop: `max-width: ${size.desktop}`,
-    desktopL: `max-width: ${size.desktopL}`
-  }
+    desktopL: `max-width: ${size.desktopL}`,
+  },
+  radius: {
+    small: 5,
+  },
 };
 
 export default theme;

@@ -1,18 +1,4 @@
-import gql from 'graphql-tag'
-
-const LOGIN = gql`
-  mutation login($username: String!, $password: String!) {
-    login(username: $username, password: $password) {
-        id,
-        username,
-        rooms {
-          id
-          name
-        }
-        createdAt
-    }
-  }
-`
+import gql from "graphql-tag";
 
 const LIST_USERS = gql`
   query ListUsers {
@@ -24,7 +10,7 @@ const LIST_USERS = gql`
       }
     }
   }
-`
+`;
 
 const NEW_MESSAGE_SUBSCRIPTION = gql`
   subscription newMessage($roomId: ID!) {
@@ -38,6 +24,6 @@ const NEW_MESSAGE_SUBSCRIPTION = gql`
       createdAt
     }
   }
-`
+`;
 
-export { LOGIN, LIST_USERS, NEW_MESSAGE_SUBSCRIPTION }
+export { LIST_USERS, NEW_MESSAGE_SUBSCRIPTION };

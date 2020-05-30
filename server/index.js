@@ -111,7 +111,7 @@ httpServer.listen({ port: 4000 }, () => {
   mongoose.connect(
     process.env.DB_URL,
     { useUnifiedTopology: true, useNewUrlParser: true },
-    (err) => {
+    err => {
       if (err) throw err;
       console.log("Connected to Database");
     }

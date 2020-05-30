@@ -9,12 +9,11 @@ const initOAuthWindow = (onSuccess: Function) => () => {
     "__blank",
     "width=500&height=800"
   );
-  window.addEventListener("message", (event) => {
+  window.addEventListener("message", event => {
     if (event.data === "success") {
       onSuccess();
     }
   });
 };
 
-
-export { initOAuthWindow }
+export { initOAuthWindow };

@@ -1,11 +1,11 @@
-import { ApolloClient } from 'apollo-client';
-import { InMemoryCache } from 'apollo-cache-inmemory';
-import { HttpLink } from 'apollo-link-http';
-import { onError } from 'apollo-link-error';
-import { ApolloLink, split } from 'apollo-link';
+import { ApolloClient } from "apollo-client";
+import { InMemoryCache } from "apollo-cache-inmemory";
+import { HttpLink } from "apollo-link-http";
+import { onError } from "apollo-link-error";
+import { ApolloLink, split } from "apollo-link";
 
-import { WebSocketLink } from 'apollo-link-ws';
-import { getMainDefinition } from 'apollo-utilities';
+import { WebSocketLink } from "apollo-link-ws";
+import { getMainDefinition } from "apollo-utilities";
 
 const httpLink = new HttpLink({
   uri: "/graphql",
@@ -16,8 +16,8 @@ const wsLink = new WebSocketLink({
   uri: `ws://localhost:4000/subscriptions`,
   options: {
     lazy: true,
-    reconnect: true
-  }
+    reconnect: true,
+  },
 });
 
 const link = split(
@@ -25,12 +25,12 @@ const link = split(
   ({ query }) => {
     const definition = getMainDefinition(query);
     return (
-      definition.kind === 'OperationDefinition' &&
-      definition.operation === 'subscription'
+      definition.kind === "OperationDefinition" &&
+      definition.operation === "subscription"
     );
   },
   wsLink,
-  httpLink,
+  httpLink
 );
 
 const client = new ApolloClient({
@@ -38,16 +38,18 @@ const client = new ApolloClient({
     onError(({ graphQLErrors, networkError }) => {
       if (graphQLErrors) {
         graphQLErrors.map(({ message, locations, path }) =>
-          console.log(`[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`)
+          console.log(
+            `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`
+          )
         );
       }
       if (networkError) {
         console.log(`[Network error]: ${networkError}`);
       }
     }),
-    link
+    link,
   ]),
-  cache: new InMemoryCache()
-})
+  cache: new InMemoryCache(),
+});
 
-export default client
+export default client;

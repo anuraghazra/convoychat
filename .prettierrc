@@ -2,7 +2,7 @@
   "jsxSingleQuote": false,
   "singleQuote": false,
   "printWidth": 80,
-  "arrowParens": "always",
+  "arrowParens": "avoid",
   "trailingComma": "es5",
   "jsxBracketSameLine": false,
   "useTabs": false
