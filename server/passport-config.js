@@ -8,16 +8,17 @@ passport.serializeUser((user, done) => {
 });
 
 passport.deserializeUser(async (id, done) => {
-  const user = await User.findById(id);
+  const user = await User.findById(id).populate("rooms");
   done(null, user);
 });
 
 const UpsertUser = async (
   provider,
-  { socialId, email, username, displayName },
+  { socialId, email, username, displayName, avatarUrl },
   done
 ) => {
   let userData = {
+    avatarUrl: avatarUrl,
     provider: provider,
     socialId: socialId,
     username: username,
@@ -60,6 +61,7 @@ var strategy = new Auth0Strategy(
       {
         socialId: profile.id,
         email: profile.emails[0].value,
+        avatarUrl: profile.picture,
         username: generateUsername(profile.displayName),
         displayName: profile.displayName,
       },

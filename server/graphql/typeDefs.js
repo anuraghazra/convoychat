@@ -19,6 +19,8 @@ const typeDefs = gql`
   # lets add a Member with rooms: ID to avoid recursion
   type Member {
     id: ID!
+    name: String!
+    avatarUrl: String
     username: String!
     rooms: [ID!]!
     createdAt: String!
@@ -35,8 +37,11 @@ const typeDefs = gql`
 
   type Me {
     id: ID!
+    name: String!
     email: String!
     username: String!
+    rooms: [Room!]!
+    avatarUrl: String
   }
 
   type Query {
