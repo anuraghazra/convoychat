@@ -58,6 +58,27 @@ exports.createRoom = async (parent, args, context) => {
   }
 };
 
+exports.deleteRoom = async (parent, args, context) => {
+  try {
+    let room = await Room.findOneAndDelete({
+      _id: args.roomId,
+      owner: context.currentUser.id,
+    });
+
+    await User.update(
+      { _id: context.currentUser.id },
+      {
+        $pull: { rooms: { _id: args.roomId } },
+      },
+      { new: true, multi: true }
+    );
+
+    return room;
+  } catch (err) {
+    throw new ApolloError(err);
+  }
+};
+
 exports.addMembersToRoom = async (parent, args, context) => {
   try {
     let room = await Room.findOneAndUpdate(

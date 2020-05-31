@@ -51,6 +51,7 @@ export type Mutation = {
   __typename?: 'Mutation';
   createRoom: Room;
   addMembersToRoom: Room;
+  deleteRoom?: Maybe<Room>;
   sendMessage: Message;
   logout?: Maybe<Scalars['Boolean']>;
 };
@@ -64,6 +65,11 @@ export type MutationCreateRoomArgs = {
 export type MutationAddMembersToRoomArgs = {
   roomId: Scalars['ID'];
   members: Array<Scalars['ID']>;
+};
+
+
+export type MutationDeleteRoomArgs = {
+  roomId: Scalars['ID'];
 };
 
 
@@ -188,6 +194,32 @@ export type ListRoomsQueryVariables = {};
 export type ListRoomsQuery = (
   { __typename?: 'Query' }
   & { listRooms: Array<(
+    { __typename?: 'Room' }
+    & Pick<Room, 'id' | 'name' | 'createdAt' | 'owner'>
+  )> }
+);
+
+export type CreateRoomMutationVariables = {
+  name: Scalars['String'];
+};
+
+
+export type CreateRoomMutation = (
+  { __typename?: 'Mutation' }
+  & { createRoom: (
+    { __typename?: 'Room' }
+    & Pick<Room, 'id' | 'name' | 'createdAt' | 'owner'>
+  ) }
+);
+
+export type DeleteRoomMutationVariables = {
+  roomId: Scalars['ID'];
+};
+
+
+export type DeleteRoomMutation = (
+  { __typename?: 'Mutation' }
+  & { deleteRoom?: Maybe<(
     { __typename?: 'Room' }
     & Pick<Room, 'id' | 'name' | 'createdAt' | 'owner'>
   )> }
@@ -406,6 +438,76 @@ export function useListRoomsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHo
 export type ListRoomsQueryHookResult = ReturnType<typeof useListRoomsQuery>;
 export type ListRoomsLazyQueryHookResult = ReturnType<typeof useListRoomsLazyQuery>;
 export type ListRoomsQueryResult = ApolloReactCommon.QueryResult<ListRoomsQuery, ListRoomsQueryVariables>;
+export const CreateRoomDocument = gql`
+    mutation createRoom($name: String!) {
+  createRoom(name: $name) {
+    id
+    name
+    createdAt
+    owner
+  }
+}
+    `;
+export type CreateRoomMutationFn = ApolloReactCommon.MutationFunction<CreateRoomMutation, CreateRoomMutationVariables>;
+
+/**
+ * __useCreateRoomMutation__
+ *
+ * To run a mutation, you first call `useCreateRoomMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateRoomMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createRoomMutation, { data, loading, error }] = useCreateRoomMutation({
+ *   variables: {
+ *      name: // value for 'name'
+ *   },
+ * });
+ */
+export function useCreateRoomMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<CreateRoomMutation, CreateRoomMutationVariables>) {
+        return ApolloReactHooks.useMutation<CreateRoomMutation, CreateRoomMutationVariables>(CreateRoomDocument, baseOptions);
+      }
+export type CreateRoomMutationHookResult = ReturnType<typeof useCreateRoomMutation>;
+export type CreateRoomMutationResult = ApolloReactCommon.MutationResult<CreateRoomMutation>;
+export type CreateRoomMutationOptions = ApolloReactCommon.BaseMutationOptions<CreateRoomMutation, CreateRoomMutationVariables>;
+export const DeleteRoomDocument = gql`
+    mutation deleteRoom($roomId: ID!) {
+  deleteRoom(roomId: $roomId) {
+    id
+    name
+    createdAt
+    owner
+  }
+}
+    `;
+export type DeleteRoomMutationFn = ApolloReactCommon.MutationFunction<DeleteRoomMutation, DeleteRoomMutationVariables>;
+
+/**
+ * __useDeleteRoomMutation__
+ *
+ * To run a mutation, you first call `useDeleteRoomMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteRoomMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteRoomMutation, { data, loading, error }] = useDeleteRoomMutation({
+ *   variables: {
+ *      roomId: // value for 'roomId'
+ *   },
+ * });
+ */
+export function useDeleteRoomMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeleteRoomMutation, DeleteRoomMutationVariables>) {
+        return ApolloReactHooks.useMutation<DeleteRoomMutation, DeleteRoomMutationVariables>(DeleteRoomDocument, baseOptions);
+      }
+export type DeleteRoomMutationHookResult = ReturnType<typeof useDeleteRoomMutation>;
+export type DeleteRoomMutationResult = ApolloReactCommon.MutationResult<DeleteRoomMutation>;
+export type DeleteRoomMutationOptions = ApolloReactCommon.BaseMutationOptions<DeleteRoomMutation, DeleteRoomMutationVariables>;
 export const NewMessageDocument = gql`
     subscription newMessage($roomId: ID!) {
   newMessage(roomId: $roomId) {

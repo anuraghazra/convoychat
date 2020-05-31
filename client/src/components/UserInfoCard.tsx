@@ -11,7 +11,7 @@ const StyledUserInfoCard = styled.section<{ isMember?: boolean }>`
     !p.isMember &&
     css`
       padding: 20px;
-      background-color: ${p => p.theme.colors.dark};
+      background-color: ${p => p.theme.colors.dark1};
     `}
 `;
 
@@ -31,14 +31,14 @@ const Avatar = styled.img`
 
 const UserInfoCard: React.FC<IUserInfoCard> = ({
   image,
-  name = "",
+  name,
   username,
   className,
   isMember,
 }) => {
   return (
     <StyledUserInfoCard isMember={isMember} className={className}>
-      <Flex gap="large" justify={isMember ? "" : "space-around"} align="center">
+      <Flex gap="medium" justify={isMember ? "" : "space-around"} align="center">
         <Avatar src={image} />
         <Flex direction="column">
           <span>{name}</span>

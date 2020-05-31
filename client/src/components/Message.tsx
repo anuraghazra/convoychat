@@ -19,14 +19,14 @@ const Avatar = styled.img`
   width: 45px;
   height: 45px;
   border-radius: 50px;
-  margin-right: ${p => p.theme.space.huge}px;
+  margin-right: ${p => p.theme.space.medium}px;
 `;
 
 const Message: React.FC<IMessage> = ({ content, author }) => {
   console.log(author);
   return (
     <StyledMessage>
-      <Flex gap="large" align="center">
+      <Flex gap="medium" align="center">
         <Avatar src={author?.avatarUrl} />
         <Flex direction="column">
           <span className="textcolor--primary">{author?.name}</span>

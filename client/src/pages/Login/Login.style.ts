@@ -25,7 +25,7 @@ const LoginWrapper = styled.div`
     content: '';
     position: absolute;
     transform: rotate(-15deg);
-    background-color: ${p => p.theme.colors.dark};
+    background-color: ${p => p.theme.colors.dark1};
     border-radius: ${p => p.theme.radius.small}px;
   }
   &:before {
@@ -46,11 +46,11 @@ const LoginWrapper = styled.div`
     text-align: center;
     margin: auto;
     width: 500px;
-    margin-top: ${p => p.theme.spacings.top}px;
+    margin-top: ${p => p.theme.space.huge}px;
     
     padding: ${p => p.theme.space.huge}px;
     border-radius: ${p => p.theme.radius.small}px;
-    background-color: ${p => p.theme.colors.dark};
+    background-color: ${p => p.theme.colors.dark1};
     
     &:before {
       ${tiltedBox}

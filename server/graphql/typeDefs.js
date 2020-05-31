@@ -55,6 +55,7 @@ const typeDefs = gql`
   type Mutation {
     createRoom(name: String!): Room!
     addMembersToRoom(roomId: ID!, members: [ID!]!): Room!
+    deleteRoom(roomId: ID!): Room
     sendMessage(roomId: ID!, content: String!): Message!
     logout: Boolean
   }

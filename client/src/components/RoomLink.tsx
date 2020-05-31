@@ -3,11 +3,13 @@ import styled from "styled-components";
 import { Link } from "react-router-dom";
 
 import { FiMoreVertical } from "react-icons/fi";
-import { FaUsers } from "react-icons/fa";
-import { Flex } from "@convoy-ui";
+import { FaUsers, FaTrash } from "react-icons/fa";
+import { Flex, Button, Dropdown } from "@convoy-ui";
+
+import { useDeleteRoomMutation } from "graphql/generated/graphql";
 
 const StyledRoomLink = styled.div<{ isSelected?: boolean }>`
-  background-color: ${p => p.theme.colors.darkest};
+  background-color: ${p => p.theme.colors.dark3};
   padding: 10px 20px;
   margin-bottom: ${p => p.theme.space.small}px;
   border-radius: ${p => p.theme.radius.small}px;
@@ -27,6 +29,15 @@ interface IRoomLink {
   isSelected?: boolean;
 }
 const RoomLink: React.FC<IRoomLink> = ({ name, id, isSelected }) => {
+  const [deleteRoom, { loading, error }] = useDeleteRoomMutation();
+
+  const handleDelete = () => {
+    deleteRoom({
+      variables: {
+        roomId: id,
+      },
+    }).catch(console.log);
+  };
   return (
     <StyledRoomLink isSelected={isSelected}>
       <Flex align="center" justify="space-between" nowrap>
@@ -36,7 +47,22 @@ const RoomLink: React.FC<IRoomLink> = ({ name, id, isSelected }) => {
             <span>{name}</span>
           </Flex>
         </Link>
-        <FiMoreVertical />
+
+        <Dropdown shouldCloseOnClick={false}>
+          <Dropdown.Toggle>
+            <FiMoreVertical />
+          </Dropdown.Toggle>
+          <Dropdown.Content style={{ right: "initial" }}>
+            <Button
+              isLoading={loading}
+              onClick={handleDelete}
+              variant="secondary"
+              icon={FaTrash}
+            >
+              Delete
+            </Button>
+          </Dropdown.Content>
+        </Dropdown>
       </Flex>
     </StyledRoomLink>
   );

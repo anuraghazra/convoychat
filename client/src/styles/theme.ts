@@ -1,15 +1,24 @@
 import { DefaultTheme, CSSProp } from "styled-components";
+import colorVariants from "@convoy-ui/colorVariants";
 
 // and extend them!
 declare module "styled-components" {
   export interface DefaultTheme {
+    variants: {
+      primary: CSSProp;
+      secondary: CSSProp;
+      danger: CSSProp;
+    };
     colors: {
       primary: string;
-      dark: string;
-      darken: string;
-      darkest: string;
+      red: string;
+      redDark: string;
+      greenDark: string;
       gray: string;
       white: string;
+      dark1: string;
+      dark2: string;
+      dark3: string;
     };
     font: {
       primary: string;
@@ -17,14 +26,6 @@ declare module "styled-components" {
       primaryItalic: string;
       primaryMedium: string;
       primaryLight: string;
-    };
-    spacings: {
-      top: number;
-      bottom: number;
-      left: number;
-      right: number;
-      my: string;
-      mx: string;
     };
     space: {
       none: number;
@@ -50,9 +51,12 @@ declare module "styled-components" {
 
 const colors = {
   primary: "#64FF8F",
-  dark: "#161A2D",
-  darken: "#0D1022",
-  darkest: "#090C1B",
+  red: "#EB4C5F",
+  redDark: '#410008',
+  greenDark: '#004108',
+  dark1: "#161A2D",
+  dark2: "#0D1022",
+  dark3: "#090C1B",
   gray: "#7A7F96",
   white: "#F5F5F5",
 };
@@ -66,6 +70,9 @@ const size = {
 };
 
 const theme: DefaultTheme = {
+  variants: {
+    ...colorVariants
+  },
   font: {
     primary: "Product Sans Regular",
     primaryBold: "Product Sans Bold",
@@ -74,21 +81,13 @@ const theme: DefaultTheme = {
     primaryLight: "Product Sans Light Regular",
   },
   colors,
-  spacings: {
-    top: 60,
-    bottom: 60,
-    left: 25,
-    right: 25,
-    my: "20px",
-    mx: "20px",
-  },
   space: {
     none: 0,
     small: 5,
     medium: 10,
     large: 15,
-    xlarge: 30,
-    huge: 40,
+    xlarge: 20,
+    huge: 45,
   },
   media: {
     mobileS: `max-width: ${size.mobileS}`,

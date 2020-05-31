@@ -27,6 +27,7 @@ const resolvers = {
   },
   Mutation: {
     createRoom: useAuth(RoomController.createRoom),
+    deleteRoom: useAuth(RoomController.deleteRoom),
     addMembersToRoom: useAuth(RoomController.addMembersToRoom),
     sendMessage: useAuth(UserController.sendMessage),
     logout: (_parent, _args, context) => {

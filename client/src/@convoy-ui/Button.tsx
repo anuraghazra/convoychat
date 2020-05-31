@@ -1,7 +1,11 @@
 import React from "react";
-import styled from "styled-components/macro";
+import styled, { css } from "styled-components/macro";
+import { VariantTypes } from "./colorVariants";
+import Flex from "./Flex";
+import { FaSpinner } from "react-icons/fa";
 
 interface StyledButtonProps {
+  variant?: VariantTypes;
   width?: string;
 }
 
@@ -17,19 +21,20 @@ const StyledButton = styled.button<IStyledButton>`
   width: ${p => p.width};
   height: fit-content;
   margin: 10px 0;
-  padding: 10px 15px;
+  padding: 10px 30px;
   border: none;
   line-height: 1;
   font-size: 14px;
-  transition: 0.2s;
   font-family: ${p => p.theme.font.primaryMedium};
   border-radius: ${p => p.theme.radius.small}px;
-  background-color: ${p => p.theme.colors.primary};
-  color: ${p => p.theme.colors.dark};
+
+  ${p => (p.theme.variants as any)[p.variant as string]};
+
   cursor: pointer;
+  transition: 0.2s;
 
   &:hover {
-    transform: scale(1.05);
+    transform: scale(1.02);
     transition: 0.2s;
   }
   &:disabled {
@@ -41,17 +46,24 @@ const StyledButton = styled.button<IStyledButton>`
 `;
 
 export const Button: React.FC<ButtonProps> = ({
+  variant = "primary",
   width,
-  icon,
+  icon: Icon,
   children,
   type,
   isLoading,
   ...props
 }) => (
-  <StyledButton {...props} disabled={isLoading} width={width}>
-    {icon && "pk"}
-    {children}
+  <StyledButton variant={variant} {...props} disabled={isLoading} width={width}>
+    <Flex gap="small" align="center">
+      {isLoading ? <FaSpinner className="spin" /> : Icon && <Icon />}
+      <span>{children}</span>
+    </Flex>
   </StyledButton>
 );
+
+export const ButtonGroup = styled(Flex)<{ float?: string }>`
+  float: ${p => p.float ?? "none"};
+`;
 
 export default Button;

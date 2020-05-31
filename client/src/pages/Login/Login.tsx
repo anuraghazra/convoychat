@@ -1,4 +1,5 @@
 import React from "react";
+import { FaGoogle } from "react-icons/fa";
 
 import { Button } from "@convoy-ui";
 import { initOAuthWindow } from "utils";
@@ -26,7 +27,7 @@ function Login() {
             I know nobody would bother to login if i don’t provide social login
             :(
           </p>
-          <Button onClick={initOAuthWindow(onSuccess)}>
+          <Button icon={FaGoogle} onClick={initOAuthWindow(onSuccess)}>
             Continue with Google
           </Button>
         </div>

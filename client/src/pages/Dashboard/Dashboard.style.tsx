@@ -12,5 +12,5 @@ export const DashboardBody = styled.section`
 `;
 
 export const SidebarRight = styled.div`
-  background-color: ${p => p.theme.colors.dark};
+  background-color: ${p => p.theme.colors.dark1};
 `;
