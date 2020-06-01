@@ -66,15 +66,18 @@ const AuthProvider: React.FC = ({ children }) => {
   const history = useHistory();
 
   const [state, dispatch] = useReducer(authReducer, {
-    isAuthenticated: false,
     user: false,
     isLoading: true,
+    isAuthenticated: false,
   });
 
   let [login] = useCurrentUserLazyQuery({
     onCompleted(data) {
       dispatch({ type: "AUTH_SUCCESS", payload: data.me });
-      history.push("/");
+      // if we are in login screen redirect to dashboard 
+      // else redirect to the path we were on
+      let pathName = history.location.pathname;
+      history.push(pathName === "/login" ? "/" : pathName);
     },
     onError() {
       dispatch({ type: "AUTH_FAILED" });

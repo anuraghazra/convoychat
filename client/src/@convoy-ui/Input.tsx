@@ -8,8 +8,8 @@ const StyledLabel = styled.label<{ hasErrors?: boolean }>`
   flex-direction: column;
 
   span {
-    color: ${p => p.theme.colors.white};
     font-size: 14px;
+    color: ${p => p.theme.colors.white};
     margin-bottom: ${p => p.theme.space.medium}px;
   }
 
@@ -85,21 +85,26 @@ export const Input: React.FC<InputProps> = ({
   icon: Icon,
   ...props
 }) => {
+  let hasErrors = errors && errors[props?.name];
+
   return (
-    <InputWrapper>
-      <StyledLabel hasErrors={errors && errors[props.name]}>
+    <InputWrapper className="form--input__wrapper">
+      <StyledLabel hasErrors={hasErrors}>
         {label && <span>{label}</span>}
+
         <Flex align="center" className={!!Icon ? "input__wrapper" : ""}>
           {Icon && <Icon className="input__icon" />}
           <StyledInput ref={inputRef} {...props} />
         </Flex>
       </StyledLabel>
-      <div
-        data-testid="input-error"
-        className={`text--error ${errors[props.name] && "show-error"}`}
-      >
-        {errors && <ErrorMessage errors={errors} name={props.name} />}
-      </div>
+      {errors && (
+        <div
+          data-testid="input-error"
+          className={`text--error ${hasErrors && "show-error"}`}
+        >
+          <ErrorMessage errors={errors} name={props?.name} />
+        </div>
+      )}
     </InputWrapper>
   );
 };

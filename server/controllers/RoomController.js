@@ -18,6 +18,22 @@ exports.listRooms = async () => {
   }
 };
 
+exports.listCurrentUserRooms = async (parent, args, context) => {
+  try {
+    let rooms = await Room.find({ members: context.currentUser.id })
+      .populate("members")
+      .populate({
+        path: "messages",
+        model: "message",
+        populate: { path: "author", model: "user" },
+      });
+
+    return rooms;
+  } catch (err) {
+    throw new ApolloError(err);
+  }
+};
+
 exports.getRoom = async (_, args) => {
   try {
     let user = await Room.findOne({ _id: args.id })

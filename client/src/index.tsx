@@ -1,5 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
+import Modal from "react-modal";
 import "./styles/fontFaces.css";
 
 import App from "./App";
@@ -10,6 +11,7 @@ import { ThemeProvider } from "styled-components";
 
 import client from "graphql/client";
 import theme from "styles/theme";
+Modal.setAppElement("#root");
 
 ReactDOM.render(
   <React.StrictMode>

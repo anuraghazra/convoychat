@@ -1,3 +1,4 @@
+export * from "./Avatar";
 export * from "./Flex";
 export * from "./Button";
 export * from "./Spacer";

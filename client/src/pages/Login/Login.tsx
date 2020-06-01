@@ -1,5 +1,6 @@
 import React from "react";
 import { FaGoogle } from "react-icons/fa";
+import { useHistory } from "react-router-dom";
 
 import { Button } from "@convoy-ui";
 import { initOAuthWindow } from "utils";

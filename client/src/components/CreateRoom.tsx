@@ -1,43 +1,40 @@
 import React from "react";
-import { useCreateRoomMutation } from "graphql/generated/graphql";
-import { FaUsers, FaTimes } from "react-icons/fa";
-import { useForm } from "react-hook-form";
-
 import Modal from "react-modal";
-import { Button, ButtonGroup, Spacer, Input } from "@convoy-ui";
+import { useForm } from "react-hook-form";
+import { FaUsers, FaTimes } from "react-icons/fa";
+import {
+  useCreateRoomMutation,
+  ListCurrentUserRoomsDocument,
+} from "graphql/generated/graphql";
 
-Modal.setAppElement("#root");
+import { Button, ButtonGroup, Spacer, Input } from "@convoy-ui";
 
 type Inputs = {
   roomName: string;
 };
 
-const CreateRoom: React.FC<{
+interface ICreateRoom {
   isOpen: boolean;
   closeModal: Function;
-}> = ({ isOpen, closeModal }) => {
+}
+const CreateRoom: React.FC<ICreateRoom> = ({ isOpen, closeModal }) => {
+  const { register, handleSubmit, errors: formErrors } = useForm<Inputs>();
+
   const [createRoom, { loading }] = useCreateRoomMutation({
-    update(store, result) {
-      let roomData = result.data.createRoom;
-      // const data = store.readQuery({ query: ListRoomsDocument });
-      // data.rooms.push(roomData);
-      // store.writeQuery({ query: LIST_ROOMS, data });
-    },
+    refetchQueries: [{ query: ListCurrentUserRoomsDocument }],
   });
 
-  const { register, handleSubmit, errors: formErrors } = useForm<Inputs>();
-  const onSubmit = (data: Inputs) => {
-    createRoom({
-      variables: {
-        name: data.roomName,
-      },
-    })
-      .then(() => {
-        closeModal();
-      })
-      .catch(error => {
-        console.log(error);
+  const onSubmit = async (data: Inputs) => {
+    try {
+      await createRoom({
+        variables: {
+          name: data.roomName,
+        },
       });
+      closeModal();
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   return (
@@ -45,9 +42,9 @@ const CreateRoom: React.FC<{
       isOpen={isOpen}
       closeTimeoutMS={300}
       onRequestClose={closeModal}
+      contentLabel="Create New Room"
       className="ModalContent"
       overlayClassName="ModalOverlay"
-      contentLabel="Create New Room"
     >
       <h2>Create New Room</h2>
       <small className="textcolor--gray">Give it a cool name</small>
@@ -55,17 +52,17 @@ const CreateRoom: React.FC<{
 
       <form onSubmit={handleSubmit(onSubmit)}>
         <Input
-          icon={FaUsers}
           type="text"
           name="roomName"
-          placeholder="Anurag's room"
           label="Room Name"
+          placeholder="Anurag's room"
+          icon={FaUsers}
           errors={formErrors}
           inputRef={register({ required: "Room name is required" })}
         />
 
-        <ButtonGroup gap="small" float="right">
-          <Button variant="danger" icon={FaTimes}>
+        <ButtonGroup gap="medium" float="right">
+          <Button onClick={closeModal} variant="danger" icon={FaTimes}>
             Cancel
           </Button>
           <Button isLoading={loading} icon={FaUsers}>

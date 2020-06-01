@@ -75,6 +75,17 @@ const LIST_ROOMS = gql`
   }
 `
 
+const LIST_CURRENT_USER_ROOMS = gql`
+  query ListCurrentUserRooms {
+    listCurrentUserRooms {
+      id
+      name
+      createdAt
+      owner
+    }
+  }
+`
+
 const CREATE_ROOM = gql`
   mutation createRoom($name: String!) {
     createRoom(name: $name) {
@@ -110,13 +121,31 @@ const NEW_MESSAGE_SUBSCRIPTION = gql`
   }
 `;
 
+const SEND_MESSAGE = gql`
+  mutation sendMessage($roomId: ID!, $content: String!) {
+    sendMessage(roomId: $roomId, content: $content) {
+      id
+      content
+      roomId
+      author {
+        name
+        username
+        avatarUrl
+        createdAt
+      }
+    }
+  }
+`
+
 export {
   LIST_USERS,
   LIST_ROOMS,
+  LIST_CURRENT_USER_ROOMS,
   NEW_MESSAGE_SUBSCRIPTION,
   CURRENT_USER,
   LOGOUT,
   GET_ROOM,
   CREATE_ROOM,
-  DELETE_ROOM
+  DELETE_ROOM,
+  SEND_MESSAGE
 };

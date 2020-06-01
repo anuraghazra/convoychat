@@ -2,7 +2,7 @@ import React from "react";
 import styled, { css } from "styled-components";
 
 import { AiFillSetting } from "react-icons/ai";
-import { Flex } from "@convoy-ui";
+import { Flex, Avatar } from "@convoy-ui";
 
 const StyledUserInfoCard = styled.section<{ isMember?: boolean }>`
   padding: 10px 0;
@@ -23,12 +23,6 @@ interface IUserInfoCard {
   isMember?: boolean;
 }
 
-const Avatar = styled.img`
-  width: 45px;
-  height: 45px;
-  border-radius: 50px;
-`;
-
 const UserInfoCard: React.FC<IUserInfoCard> = ({
   image,
   name,
@@ -38,11 +32,15 @@ const UserInfoCard: React.FC<IUserInfoCard> = ({
 }) => {
   return (
     <StyledUserInfoCard isMember={isMember} className={className}>
-      <Flex gap="medium" justify={isMember ? "" : "space-around"} align="center">
+      <Flex
+        gap="medium"
+        justify={isMember ? "" : "space-around"}
+        align="center"
+      >
         <Avatar src={image} />
         <Flex direction="column">
           <span>{name}</span>
-          <small className="textcolor--gray">{username?.slice(0, 10)}...</small>
+          <small className="textcolor--gray">{username?.slice(0, 15)}...</small>
         </Flex>
         {!isMember && <AiFillSetting size={20} />}
       </Flex>

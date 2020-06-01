@@ -48,6 +48,7 @@ const typeDefs = gql`
     me: Me!
     listUsers: [User!]!
     listRooms: [Room!]!
+    listCurrentUserRooms: [Room]!
     getUser(id: ID!): User!
     getRoom(id: ID!): Room!
   }
