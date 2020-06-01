@@ -8,9 +8,6 @@ const SidebarWrapper = styled.aside`
     margin-bottom: 50px;
   }
 
-  .sidebar__rooms {
-    margin-top: ${p => p.theme.space.huge}px;
-  }
   .sidebar--margin-adjust {
     margin-left: -20px;
     margin-right: -20px;

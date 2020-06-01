@@ -83,6 +83,7 @@ export type Query = {
   me: Me;
   listUsers: Array<User>;
   listRooms: Array<Room>;
+  listCurrentUserRooms: Array<Maybe<Room>>;
   getUser: User;
   getRoom: Room;
 };
@@ -199,6 +200,17 @@ export type ListRoomsQuery = (
   )> }
 );
 
+export type ListCurrentUserRoomsQueryVariables = {};
+
+
+export type ListCurrentUserRoomsQuery = (
+  { __typename?: 'Query' }
+  & { listCurrentUserRooms: Array<Maybe<(
+    { __typename?: 'Room' }
+    & Pick<Room, 'id' | 'name' | 'createdAt' | 'owner'>
+  )>> }
+);
+
 export type CreateRoomMutationVariables = {
   name: Scalars['String'];
 };
@@ -238,6 +250,24 @@ export type NewMessageSubscription = (
     & { author: (
       { __typename?: 'Member' }
       & Pick<Member, 'username'>
+    ) }
+  ) }
+);
+
+export type SendMessageMutationVariables = {
+  roomId: Scalars['ID'];
+  content: Scalars['String'];
+};
+
+
+export type SendMessageMutation = (
+  { __typename?: 'Mutation' }
+  & { sendMessage: (
+    { __typename?: 'Message' }
+    & Pick<Message, 'id' | 'content' | 'roomId'>
+    & { author: (
+      { __typename?: 'Member' }
+      & Pick<Member, 'name' | 'username' | 'avatarUrl' | 'createdAt'>
     ) }
   ) }
 );
@@ -438,6 +468,41 @@ export function useListRoomsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHo
 export type ListRoomsQueryHookResult = ReturnType<typeof useListRoomsQuery>;
 export type ListRoomsLazyQueryHookResult = ReturnType<typeof useListRoomsLazyQuery>;
 export type ListRoomsQueryResult = ApolloReactCommon.QueryResult<ListRoomsQuery, ListRoomsQueryVariables>;
+export const ListCurrentUserRoomsDocument = gql`
+    query ListCurrentUserRooms {
+  listCurrentUserRooms {
+    id
+    name
+    createdAt
+    owner
+  }
+}
+    `;
+
+/**
+ * __useListCurrentUserRoomsQuery__
+ *
+ * To run a query within a React component, call `useListCurrentUserRoomsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListCurrentUserRoomsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListCurrentUserRoomsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListCurrentUserRoomsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<ListCurrentUserRoomsQuery, ListCurrentUserRoomsQueryVariables>) {
+        return ApolloReactHooks.useQuery<ListCurrentUserRoomsQuery, ListCurrentUserRoomsQueryVariables>(ListCurrentUserRoomsDocument, baseOptions);
+      }
+export function useListCurrentUserRoomsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ListCurrentUserRoomsQuery, ListCurrentUserRoomsQueryVariables>) {
+          return ApolloReactHooks.useLazyQuery<ListCurrentUserRoomsQuery, ListCurrentUserRoomsQueryVariables>(ListCurrentUserRoomsDocument, baseOptions);
+        }
+export type ListCurrentUserRoomsQueryHookResult = ReturnType<typeof useListCurrentUserRoomsQuery>;
+export type ListCurrentUserRoomsLazyQueryHookResult = ReturnType<typeof useListCurrentUserRoomsLazyQuery>;
+export type ListCurrentUserRoomsQueryResult = ApolloReactCommon.QueryResult<ListCurrentUserRoomsQuery, ListCurrentUserRoomsQueryVariables>;
 export const CreateRoomDocument = gql`
     mutation createRoom($name: String!) {
   createRoom(name: $name) {
@@ -543,3 +608,44 @@ export function useNewMessageSubscription(baseOptions?: ApolloReactHooks.Subscri
       }
 export type NewMessageSubscriptionHookResult = ReturnType<typeof useNewMessageSubscription>;
 export type NewMessageSubscriptionResult = ApolloReactCommon.SubscriptionResult<NewMessageSubscription>;
+export const SendMessageDocument = gql`
+    mutation sendMessage($roomId: ID!, $content: String!) {
+  sendMessage(roomId: $roomId, content: $content) {
+    id
+    content
+    roomId
+    author {
+      name
+      username
+      avatarUrl
+      createdAt
+    }
+  }
+}
+    `;
+export type SendMessageMutationFn = ApolloReactCommon.MutationFunction<SendMessageMutation, SendMessageMutationVariables>;
+
+/**
+ * __useSendMessageMutation__
+ *
+ * To run a mutation, you first call `useSendMessageMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSendMessageMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [sendMessageMutation, { data, loading, error }] = useSendMessageMutation({
+ *   variables: {
+ *      roomId: // value for 'roomId'
+ *      content: // value for 'content'
+ *   },
+ * });
+ */
+export function useSendMessageMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<SendMessageMutation, SendMessageMutationVariables>) {
+        return ApolloReactHooks.useMutation<SendMessageMutation, SendMessageMutationVariables>(SendMessageDocument, baseOptions);
+      }
+export type SendMessageMutationHookResult = ReturnType<typeof useSendMessageMutation>;
+export type SendMessageMutationResult = ApolloReactCommon.MutationResult<SendMessageMutation>;
+export type SendMessageMutationOptions = ApolloReactCommon.BaseMutationOptions<SendMessageMutation, SendMessageMutationVariables>;

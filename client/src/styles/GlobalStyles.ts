@@ -1,9 +1,36 @@
-import { createGlobalStyle } from "styled-components";
+import { createGlobalStyle, css } from "styled-components";
+import ReactModalStyles from "./ReactModalStyles";
+
+const ScrollBarStyles = css`
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: ${p => p.theme.colors.dark3} ${p => p.theme.colors.dark1};
+  }
+
+  /* Works on Chrome/Edge/Safari */
+  *::-webkit-scrollbar {
+    width: 12px;
+  }
+  *::-webkit-scrollbar-track, *::-webkit-scrollbar-corner {
+    background: ${p => p.theme.colors.dark1};
+  }
+  *::-webkit-scrollbar-thumb {
+    background-color: ${p => p.theme.colors.dark3};
+    border-radius: 20px;
+    border: 2px solid ${p => p.theme.colors.dark1};
+  }
+`;
+
 
 const GlobalStyles = createGlobalStyle`
   * {
     box-sizing: border-box;
   }
+  *:after, *:before {
+    box-sizing: border-box;
+  }
+
+  ${ScrollBarStyles}
   
   html, body {
     font-size: calc(12px + 0.4vw);
@@ -58,51 +85,7 @@ const GlobalStyles = createGlobalStyle`
     }
   }
 
-  .ModalContent {
-    top: 40%;
-    left: 50%;
-    right: auto;
-    bottom: auto;
-    margin-right: -50%;
-    transform: translate(-50%, -50%);
-
-    width: 500px;
-    position: absolute;
-    border-radius: 5px;
-    padding: 30px 30px;
-    border-radius: ${p => p.theme.radius.small}px;
-    background-color: ${p => p.theme.colors.dark1};
-    &:focus {
-      outline: none;
-    }
-  }
-
-  .ModalOverlay  {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(9, 12, 27, 0.5);
-  }
-
-  .ReactModal__Body--open #root {
-    filter: blur(3px);
-  }
-  .ReactModal__Overlay {
-    opacity: 0;
-    transform: scale(1.1);
-    transform-origin: center;
-    transition: .3s;
-  }
-  .ReactModal__Overlay--after-open {
-    opacity: 1;
-    transform: scale(1);
-  }
-  .ReactModal__Overlay--before-close {
-    opacity: 0;
-    transform: scale(1.1);
-  }
+  ${ReactModalStyles}
 `;
 
 export default GlobalStyles;

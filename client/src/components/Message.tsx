@@ -1,13 +1,22 @@
 import React from "react";
 import styled from "styled-components";
 
-import { Flex } from "@convoy-ui";
+import { Avatar, Flex } from "@convoy-ui";
 import { Member } from "graphql/generated/graphql";
 
 const StyledMessage = styled.section`
+  padding: 0;
   font-size: 14px;
-  padding: 10px;
-  margin-bottom: ${p => p.theme.space.small}px;
+  margin-top: ${p => p.theme.space.xlarge}px;
+
+  p {
+    margin: 0;
+  }
+  .message__content {
+    font-size: 14px;
+    margin: 0;
+    margin-left: 45px;
+  }
 `;
 
 interface IMessage {
@@ -15,23 +24,15 @@ interface IMessage {
   author?: Member;
 }
 
-const Avatar = styled.img`
-  width: 45px;
-  height: 45px;
-  border-radius: 50px;
-  margin-right: ${p => p.theme.space.medium}px;
-`;
-
 const Message: React.FC<IMessage> = ({ content, author }) => {
-  console.log(author);
   return (
     <StyledMessage>
-      <Flex gap="medium" align="center">
-        <Avatar src={author?.avatarUrl} />
-        <Flex direction="column">
-          <span className="textcolor--primary">{author?.name}</span>
-          <span>{content}</span>
+      <Flex direction="column">
+        <Flex gap="medium" align="center" nowrap>
+          <Avatar size={35} src={author?.avatarUrl} />
+          <p className="textcolor--primary">{author?.name}</p>
         </Flex>
+        <p className="message__content">{content}</p>
       </Flex>
     </StyledMessage>
   );

@@ -23,6 +23,7 @@ const resolvers = {
     listUsers: useAuth(UserController.listUsers),
     getUser: useAuth(UserController.getUser),
     listRooms: useAuth(RoomController.listRooms),
+    listCurrentUserRooms: useAuth(RoomController.listCurrentUserRooms),
     getRoom: useAuth(RoomController.getRoom),
   },
   Mutation: {

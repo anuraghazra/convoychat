@@ -34,6 +34,7 @@ const link = split(
 );
 
 const client = new ApolloClient({
+  connectToDevTools: true,
   link: ApolloLink.from([
     onError(({ graphQLErrors, networkError }) => {
       if (graphQLErrors) {
