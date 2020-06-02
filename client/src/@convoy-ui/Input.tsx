@@ -2,6 +2,7 @@ import React from "react";
 import styled, { css } from "styled-components/macro";
 import Flex from "./Flex";
 import { ErrorMessage } from "react-hook-form";
+import { FaSpinner } from "react-icons/fa";
 
 const StyledLabel = styled.label<{ hasErrors?: boolean }>`
   display: flex;
@@ -78,6 +79,12 @@ interface InputProps {
   errors?: any;
   [x: string]: any;
 }
+
+export const Textarea = styled(StyledInput).attrs(p => ({ as: "textarea" }))`
+  padding: ${p => p.theme.space.medium}px;
+  margin: 0;
+`;
+
 export const Input: React.FC<InputProps> = ({
   label,
   inputRef,

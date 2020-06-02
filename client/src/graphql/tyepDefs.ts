@@ -1,6 +1,6 @@
 import gql from "graphql-tag";
 
-const CURRENT_USER = gql`
+const typeDefs = gql`
   query currentUser {
     me {
       id
@@ -15,19 +15,13 @@ const CURRENT_USER = gql`
       }
     }
   }
-`;
 
-const LOGOUT = gql`
-  mutation logout {
-    logout
-  }
-`;
-
-const GET_ROOM = gql`
   query getRoom($roomId: ID!) {
     getRoom(id: $roomId) {
       id
       name
+      owner
+      createdAt
       members {
         username
         name
@@ -39,20 +33,18 @@ const GET_ROOM = gql`
         id
         content
         roomId
+        createdAt
         author {
+          id
           name
           username
           avatarUrl
           createdAt
         }
       }
-      createdAt
-      owner
     }
   }
-`;
 
-const LIST_USERS = gql`
   query ListUsers {
     listUsers {
       username
@@ -62,9 +54,7 @@ const LIST_USERS = gql`
       }
     }
   }
-`;
 
-const LIST_ROOMS = gql`
   query ListRooms {
     listRooms {
       id
@@ -73,9 +63,7 @@ const LIST_ROOMS = gql`
       owner
     }
   }
-`
 
-const LIST_CURRENT_USER_ROOMS = gql`
   query ListCurrentUserRooms {
     listCurrentUserRooms {
       id
@@ -84,9 +72,23 @@ const LIST_CURRENT_USER_ROOMS = gql`
       owner
     }
   }
-`
 
-const CREATE_ROOM = gql`
+
+  fragment MessageParts on Message {
+    id
+    roomId
+    content
+    createdAt
+    author {
+      id
+      username
+    }
+  }
+
+  mutation logout {
+    logout
+  }
+
   mutation createRoom($name: String!) {
     createRoom(name: $name) {
       id
@@ -95,8 +97,7 @@ const CREATE_ROOM = gql`
       owner
     }
   }
-`
-const DELETE_ROOM = gql`
+
   mutation deleteRoom($roomId: ID!) {
     deleteRoom(roomId: $roomId) {
       id
@@ -105,47 +106,48 @@ const DELETE_ROOM = gql`
       owner
     }
   }
-`
 
-const NEW_MESSAGE_SUBSCRIPTION = gql`
+  mutation sendMessage($roomId: ID!, $content: String!) {
+    sendMessage(roomId: $roomId, content: $content) {
+      id
+      roomId
+      content
+      createdAt
+      author {
+        id
+        name
+        username
+        avatarUrl
+      }
+    }
+  }
+  
+  mutation deleteMessage($messageId: ID!) {
+    deleteMessage(messageId: $messageId) {
+      ...MessageParts
+    }
+  }
+
+  mutation editMessage($messageId: ID!, $content: String!) {
+    editMessage(messageId: $messageId, content: $content) {
+        ...MessageParts
+    }
+  }
+
   subscription newMessage($roomId: ID!) {
     newMessage(roomId: $roomId) {
       id
       roomId
-      author {
-        username
-      }
       content
       createdAt
-    }
-  }
-`;
-
-const SEND_MESSAGE = gql`
-  mutation sendMessage($roomId: ID!, $content: String!) {
-    sendMessage(roomId: $roomId, content: $content) {
-      id
-      content
-      roomId
       author {
-        name
+        id
         username
-        avatarUrl
-        createdAt
       }
     }
   }
 `
 
 export {
-  LIST_USERS,
-  LIST_ROOMS,
-  LIST_CURRENT_USER_ROOMS,
-  NEW_MESSAGE_SUBSCRIPTION,
-  CURRENT_USER,
-  LOGOUT,
-  GET_ROOM,
-  CREATE_ROOM,
-  DELETE_ROOM,
-  SEND_MESSAGE
+  typeDefs
 };

@@ -1,4 +1,5 @@
 const { withFilter } = require("apollo-server-express");
+const { Message } = require("../models/MessageModel");
 const RoomController = require("../controllers/RoomController");
 const UserController = require("../controllers/UserController");
 
@@ -31,6 +32,8 @@ const resolvers = {
     deleteRoom: useAuth(RoomController.deleteRoom),
     addMembersToRoom: useAuth(RoomController.addMembersToRoom),
     sendMessage: useAuth(UserController.sendMessage),
+    deleteMessage: useAuth(UserController.deleteMessage),
+    editMessage: useAuth(UserController.editMessage),
     logout: (_parent, _args, context) => {
       const { req } = context;
       req.logout();

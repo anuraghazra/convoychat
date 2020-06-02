@@ -58,6 +58,8 @@ const typeDefs = gql`
     addMembersToRoom(roomId: ID!, members: [ID!]!): Room!
     deleteRoom(roomId: ID!): Room
     sendMessage(roomId: ID!, content: String!): Message!
+    deleteMessage(messageId: ID!): Message!
+    editMessage(messageId: ID!, content: String!): Message!
     logout: Boolean
   }
 

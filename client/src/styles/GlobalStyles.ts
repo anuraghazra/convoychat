@@ -1,5 +1,6 @@
 import { createGlobalStyle, css } from "styled-components";
 import ReactModalStyles from "./ReactModalStyles";
+import EmojiMartStyles from "./EmojiMartStyles";
 
 const ScrollBarStyles = css`
   * {
@@ -86,6 +87,7 @@ const GlobalStyles = createGlobalStyle`
   }
 
   ${ReactModalStyles}
+  ${EmojiMartStyles}
 `;
 
 export default GlobalStyles;
