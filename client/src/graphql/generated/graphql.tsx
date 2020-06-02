@@ -53,6 +53,8 @@ export type Mutation = {
   addMembersToRoom: Room;
   deleteRoom?: Maybe<Room>;
   sendMessage: Message;
+  deleteMessage: Message;
+  editMessage: Message;
   logout?: Maybe<Scalars['Boolean']>;
 };
 
@@ -75,6 +77,17 @@ export type MutationDeleteRoomArgs = {
 
 export type MutationSendMessageArgs = {
   roomId: Scalars['ID'];
+  content: Scalars['String'];
+};
+
+
+export type MutationDeleteMessageArgs = {
+  messageId: Scalars['ID'];
+};
+
+
+export type MutationEditMessageArgs = {
+  messageId: Scalars['ID'];
   content: Scalars['String'];
 };
 
@@ -142,14 +155,6 @@ export type CurrentUserQuery = (
   ) }
 );
 
-export type LogoutMutationVariables = {};
-
-
-export type LogoutMutation = (
-  { __typename?: 'Mutation' }
-  & Pick<Mutation, 'logout'>
-);
-
 export type GetRoomQueryVariables = {
   roomId: Scalars['ID'];
 };
@@ -159,16 +164,16 @@ export type GetRoomQuery = (
   { __typename?: 'Query' }
   & { getRoom: (
     { __typename?: 'Room' }
-    & Pick<Room, 'id' | 'name' | 'createdAt' | 'owner'>
+    & Pick<Room, 'id' | 'name' | 'owner' | 'createdAt'>
     & { members: Array<(
       { __typename?: 'Member' }
       & Pick<Member, 'username' | 'name' | 'avatarUrl' | 'createdAt' | 'id'>
     )>, messages: Array<(
       { __typename?: 'Message' }
-      & Pick<Message, 'id' | 'content' | 'roomId'>
+      & Pick<Message, 'id' | 'content' | 'roomId' | 'createdAt'>
       & { author: (
         { __typename?: 'Member' }
-        & Pick<Member, 'name' | 'username' | 'avatarUrl' | 'createdAt'>
+        & Pick<Member, 'id' | 'name' | 'username' | 'avatarUrl' | 'createdAt'>
       ) }
     )> }
   ) }
@@ -211,6 +216,23 @@ export type ListCurrentUserRoomsQuery = (
   )>> }
 );
 
+export type MessagePartsFragment = (
+  { __typename?: 'Message' }
+  & Pick<Message, 'id' | 'roomId' | 'content' | 'createdAt'>
+  & { author: (
+    { __typename?: 'Member' }
+    & Pick<Member, 'id' | 'username'>
+  ) }
+);
+
+export type LogoutMutationVariables = {};
+
+
+export type LogoutMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'logout'>
+);
+
 export type CreateRoomMutationVariables = {
   name: Scalars['String'];
 };
@@ -237,6 +259,51 @@ export type DeleteRoomMutation = (
   )> }
 );
 
+export type SendMessageMutationVariables = {
+  roomId: Scalars['ID'];
+  content: Scalars['String'];
+};
+
+
+export type SendMessageMutation = (
+  { __typename?: 'Mutation' }
+  & { sendMessage: (
+    { __typename?: 'Message' }
+    & Pick<Message, 'id' | 'roomId' | 'content' | 'createdAt'>
+    & { author: (
+      { __typename?: 'Member' }
+      & Pick<Member, 'id' | 'name' | 'username' | 'avatarUrl'>
+    ) }
+  ) }
+);
+
+export type DeleteMessageMutationVariables = {
+  messageId: Scalars['ID'];
+};
+
+
+export type DeleteMessageMutation = (
+  { __typename?: 'Mutation' }
+  & { deleteMessage: (
+    { __typename?: 'Message' }
+    & MessagePartsFragment
+  ) }
+);
+
+export type EditMessageMutationVariables = {
+  messageId: Scalars['ID'];
+  content: Scalars['String'];
+};
+
+
+export type EditMessageMutation = (
+  { __typename?: 'Mutation' }
+  & { editMessage: (
+    { __typename?: 'Message' }
+    & MessagePartsFragment
+  ) }
+);
+
 export type NewMessageSubscriptionVariables = {
   roomId: Scalars['ID'];
 };
@@ -249,30 +316,23 @@ export type NewMessageSubscription = (
     & Pick<Message, 'id' | 'roomId' | 'content' | 'createdAt'>
     & { author: (
       { __typename?: 'Member' }
-      & Pick<Member, 'username'>
+      & Pick<Member, 'id' | 'username'>
     ) }
   ) }
 );
 
-export type SendMessageMutationVariables = {
-  roomId: Scalars['ID'];
-  content: Scalars['String'];
-};
-
-
-export type SendMessageMutation = (
-  { __typename?: 'Mutation' }
-  & { sendMessage: (
-    { __typename?: 'Message' }
-    & Pick<Message, 'id' | 'content' | 'roomId'>
-    & { author: (
-      { __typename?: 'Member' }
-      & Pick<Member, 'name' | 'username' | 'avatarUrl' | 'createdAt'>
-    ) }
-  ) }
-);
-
-
+export const MessagePartsFragmentDoc = gql`
+    fragment MessageParts on Message {
+  id
+  roomId
+  content
+  createdAt
+  author {
+    id
+    username
+  }
+}
+    `;
 export const CurrentUserDocument = gql`
     query currentUser {
   me {
@@ -314,40 +374,13 @@ export function useCurrentUserLazyQuery(baseOptions?: ApolloReactHooks.LazyQuery
 export type CurrentUserQueryHookResult = ReturnType<typeof useCurrentUserQuery>;
 export type CurrentUserLazyQueryHookResult = ReturnType<typeof useCurrentUserLazyQuery>;
 export type CurrentUserQueryResult = ApolloReactCommon.QueryResult<CurrentUserQuery, CurrentUserQueryVariables>;
-export const LogoutDocument = gql`
-    mutation logout {
-  logout
-}
-    `;
-export type LogoutMutationFn = ApolloReactCommon.MutationFunction<LogoutMutation, LogoutMutationVariables>;
-
-/**
- * __useLogoutMutation__
- *
- * To run a mutation, you first call `useLogoutMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useLogoutMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [logoutMutation, { data, loading, error }] = useLogoutMutation({
- *   variables: {
- *   },
- * });
- */
-export function useLogoutMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<LogoutMutation, LogoutMutationVariables>) {
-        return ApolloReactHooks.useMutation<LogoutMutation, LogoutMutationVariables>(LogoutDocument, baseOptions);
-      }
-export type LogoutMutationHookResult = ReturnType<typeof useLogoutMutation>;
-export type LogoutMutationResult = ApolloReactCommon.MutationResult<LogoutMutation>;
-export type LogoutMutationOptions = ApolloReactCommon.BaseMutationOptions<LogoutMutation, LogoutMutationVariables>;
 export const GetRoomDocument = gql`
     query getRoom($roomId: ID!) {
   getRoom(id: $roomId) {
     id
     name
+    owner
+    createdAt
     members {
       username
       name
@@ -359,15 +392,15 @@ export const GetRoomDocument = gql`
       id
       content
       roomId
+      createdAt
       author {
+        id
         name
         username
         avatarUrl
         createdAt
       }
     }
-    createdAt
-    owner
   }
 }
     `;
@@ -503,6 +536,35 @@ export function useListCurrentUserRoomsLazyQuery(baseOptions?: ApolloReactHooks.
 export type ListCurrentUserRoomsQueryHookResult = ReturnType<typeof useListCurrentUserRoomsQuery>;
 export type ListCurrentUserRoomsLazyQueryHookResult = ReturnType<typeof useListCurrentUserRoomsLazyQuery>;
 export type ListCurrentUserRoomsQueryResult = ApolloReactCommon.QueryResult<ListCurrentUserRoomsQuery, ListCurrentUserRoomsQueryVariables>;
+export const LogoutDocument = gql`
+    mutation logout {
+  logout
+}
+    `;
+export type LogoutMutationFn = ApolloReactCommon.MutationFunction<LogoutMutation, LogoutMutationVariables>;
+
+/**
+ * __useLogoutMutation__
+ *
+ * To run a mutation, you first call `useLogoutMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useLogoutMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [logoutMutation, { data, loading, error }] = useLogoutMutation({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useLogoutMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<LogoutMutation, LogoutMutationVariables>) {
+        return ApolloReactHooks.useMutation<LogoutMutation, LogoutMutationVariables>(LogoutDocument, baseOptions);
+      }
+export type LogoutMutationHookResult = ReturnType<typeof useLogoutMutation>;
+export type LogoutMutationResult = ApolloReactCommon.MutationResult<LogoutMutation>;
+export type LogoutMutationOptions = ApolloReactCommon.BaseMutationOptions<LogoutMutation, LogoutMutationVariables>;
 export const CreateRoomDocument = gql`
     mutation createRoom($name: String!) {
   createRoom(name: $name) {
@@ -573,52 +635,18 @@ export function useDeleteRoomMutation(baseOptions?: ApolloReactHooks.MutationHoo
 export type DeleteRoomMutationHookResult = ReturnType<typeof useDeleteRoomMutation>;
 export type DeleteRoomMutationResult = ApolloReactCommon.MutationResult<DeleteRoomMutation>;
 export type DeleteRoomMutationOptions = ApolloReactCommon.BaseMutationOptions<DeleteRoomMutation, DeleteRoomMutationVariables>;
-export const NewMessageDocument = gql`
-    subscription newMessage($roomId: ID!) {
-  newMessage(roomId: $roomId) {
-    id
-    roomId
-    author {
-      username
-    }
-    content
-    createdAt
-  }
-}
-    `;
-
-/**
- * __useNewMessageSubscription__
- *
- * To run a query within a React component, call `useNewMessageSubscription` and pass it any options that fit your needs.
- * When your component renders, `useNewMessageSubscription` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useNewMessageSubscription({
- *   variables: {
- *      roomId: // value for 'roomId'
- *   },
- * });
- */
-export function useNewMessageSubscription(baseOptions?: ApolloReactHooks.SubscriptionHookOptions<NewMessageSubscription, NewMessageSubscriptionVariables>) {
-        return ApolloReactHooks.useSubscription<NewMessageSubscription, NewMessageSubscriptionVariables>(NewMessageDocument, baseOptions);
-      }
-export type NewMessageSubscriptionHookResult = ReturnType<typeof useNewMessageSubscription>;
-export type NewMessageSubscriptionResult = ApolloReactCommon.SubscriptionResult<NewMessageSubscription>;
 export const SendMessageDocument = gql`
     mutation sendMessage($roomId: ID!, $content: String!) {
   sendMessage(roomId: $roomId, content: $content) {
     id
-    content
     roomId
+    content
+    createdAt
     author {
+      id
       name
       username
       avatarUrl
-      createdAt
     }
   }
 }
@@ -649,3 +677,104 @@ export function useSendMessageMutation(baseOptions?: ApolloReactHooks.MutationHo
 export type SendMessageMutationHookResult = ReturnType<typeof useSendMessageMutation>;
 export type SendMessageMutationResult = ApolloReactCommon.MutationResult<SendMessageMutation>;
 export type SendMessageMutationOptions = ApolloReactCommon.BaseMutationOptions<SendMessageMutation, SendMessageMutationVariables>;
+export const DeleteMessageDocument = gql`
+    mutation deleteMessage($messageId: ID!) {
+  deleteMessage(messageId: $messageId) {
+    ...MessageParts
+  }
+}
+    ${MessagePartsFragmentDoc}`;
+export type DeleteMessageMutationFn = ApolloReactCommon.MutationFunction<DeleteMessageMutation, DeleteMessageMutationVariables>;
+
+/**
+ * __useDeleteMessageMutation__
+ *
+ * To run a mutation, you first call `useDeleteMessageMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteMessageMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteMessageMutation, { data, loading, error }] = useDeleteMessageMutation({
+ *   variables: {
+ *      messageId: // value for 'messageId'
+ *   },
+ * });
+ */
+export function useDeleteMessageMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeleteMessageMutation, DeleteMessageMutationVariables>) {
+        return ApolloReactHooks.useMutation<DeleteMessageMutation, DeleteMessageMutationVariables>(DeleteMessageDocument, baseOptions);
+      }
+export type DeleteMessageMutationHookResult = ReturnType<typeof useDeleteMessageMutation>;
+export type DeleteMessageMutationResult = ApolloReactCommon.MutationResult<DeleteMessageMutation>;
+export type DeleteMessageMutationOptions = ApolloReactCommon.BaseMutationOptions<DeleteMessageMutation, DeleteMessageMutationVariables>;
+export const EditMessageDocument = gql`
+    mutation editMessage($messageId: ID!, $content: String!) {
+  editMessage(messageId: $messageId, content: $content) {
+    ...MessageParts
+  }
+}
+    ${MessagePartsFragmentDoc}`;
+export type EditMessageMutationFn = ApolloReactCommon.MutationFunction<EditMessageMutation, EditMessageMutationVariables>;
+
+/**
+ * __useEditMessageMutation__
+ *
+ * To run a mutation, you first call `useEditMessageMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useEditMessageMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [editMessageMutation, { data, loading, error }] = useEditMessageMutation({
+ *   variables: {
+ *      messageId: // value for 'messageId'
+ *      content: // value for 'content'
+ *   },
+ * });
+ */
+export function useEditMessageMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<EditMessageMutation, EditMessageMutationVariables>) {
+        return ApolloReactHooks.useMutation<EditMessageMutation, EditMessageMutationVariables>(EditMessageDocument, baseOptions);
+      }
+export type EditMessageMutationHookResult = ReturnType<typeof useEditMessageMutation>;
+export type EditMessageMutationResult = ApolloReactCommon.MutationResult<EditMessageMutation>;
+export type EditMessageMutationOptions = ApolloReactCommon.BaseMutationOptions<EditMessageMutation, EditMessageMutationVariables>;
+export const NewMessageDocument = gql`
+    subscription newMessage($roomId: ID!) {
+  newMessage(roomId: $roomId) {
+    id
+    roomId
+    content
+    createdAt
+    author {
+      id
+      username
+    }
+  }
+}
+    `;
+
+/**
+ * __useNewMessageSubscription__
+ *
+ * To run a query within a React component, call `useNewMessageSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useNewMessageSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useNewMessageSubscription({
+ *   variables: {
+ *      roomId: // value for 'roomId'
+ *   },
+ * });
+ */
+export function useNewMessageSubscription(baseOptions?: ApolloReactHooks.SubscriptionHookOptions<NewMessageSubscription, NewMessageSubscriptionVariables>) {
+        return ApolloReactHooks.useSubscription<NewMessageSubscription, NewMessageSubscriptionVariables>(NewMessageDocument, baseOptions);
+      }
+export type NewMessageSubscriptionHookResult = ReturnType<typeof useNewMessageSubscription>;
+export type NewMessageSubscriptionResult = ApolloReactCommon.SubscriptionResult<NewMessageSubscription>;

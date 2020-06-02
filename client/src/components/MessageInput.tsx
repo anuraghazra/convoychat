@@ -1,16 +1,15 @@
 import React from "react";
 import styled from "styled-components";
-import Picker from "emoji-picker-react";
 import { FaSmile } from "react-icons/fa";
+import { Picker } from "emoji-mart";
+import "emoji-mart/css/emoji-mart.css";
 
 import { Flex, Input, Dropdown } from "@convoy-ui";
 
 const MessageInputWrapper = styled.div`
   position: sticky;
   bottom: 0;
-  padding: 15px;
-  margin-left: -15px;
-  margin-right: -15px;
+  padding: ${p => p.theme.space.xlarge}px;
   background-color: ${p => p.theme.colors.dark2};
 
   form {
@@ -28,30 +27,31 @@ const MessageInputWrapper = styled.div`
     height: 40px;
     margin-bottom: 0;
   }
+
+  .dropdown--content {
+    padding: 0;
+  }
 `;
 
 interface IMessageInput {
-  onSubmit?: () => void;
-  inputRef?: React.Ref<HTMLInputElement>;
   errors?: any;
   name?: string;
+  inputRef?: any;
+  onSubmit?: () => void;
+  onEmojiClick?: (emoji: any) => void;
   [x: string]: any;
 }
+
 const MessageInput: React.FC<IMessageInput> = ({
   name,
-  onSubmit,
-  inputRef,
   errors,
+  inputRef,
+  onSubmit,
+  onEmojiClick,
   ...props
 }) => {
-  const [chosenEmoji, setChosenEmoji] = React.useState(null);
-
-  const onEmojiClick = (event, emojiObject) => {
-    setChosenEmoji(emojiObject);
-  };
-
   return (
-    <MessageInputWrapper>
+    <MessageInputWrapper className="message__input">
       <Flex gap="large" align="center" justify="space-between" nowrap>
         <form onSubmit={onSubmit}>
           <Input
@@ -69,7 +69,11 @@ const MessageInput: React.FC<IMessageInput> = ({
             <FaSmile />
           </Dropdown.Toggle>
           <Dropdown.Content style={{ position: "absolute", bottom: 0 }}>
-            <Picker onEmojiClick={onEmojiClick} />
+            <Picker
+              set="apple"
+              theme="dark"
+              onSelect={(emoji: any) => onEmojiClick && onEmojiClick(emoji)}
+            />
           </Dropdown.Content>
         </Dropdown>
       </Flex>
