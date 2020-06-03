@@ -1,15 +1,18 @@
 const passport = require("passport");
+const mongoose = require("mongoose");
 const Auth0Strategy = require("passport-auth0");
+const MockStrategy = require("passport-mock-strategy");
 const { User } = require("./models/UserModel");
 const { generateUsername } = require("./utils");
 
 passport.serializeUser((user, done) => {
-  done(null, user._id);
+  return done(null, user._id);
 });
 
 passport.deserializeUser(async (id, done) => {
+  if (!mongoose.isValidObjectId(id)) return done(null, null);
   const user = await User.findById(id).populate("rooms");
-  done(null, user);
+  return done(null, user);
 });
 
 const UpsertUser = async (
@@ -69,5 +72,15 @@ var strategy = new Auth0Strategy(
     );
   }
 );
+
+// mocking the authentication for development purposes
+if (process.env.NODE_ENV === "development") {
+  passport.use(
+    new MockStrategy({ name: "mock" }, async (data, done) => {
+      let user = await User.findOne({ email: process.env.MOCK_EMAIL });
+      done(null, user);
+    })
+  );
+}
 
 passport.use(strategy);

@@ -2,6 +2,10 @@ const express = require("express");
 const passport = require("passport");
 const router = express.Router();
 
+if (process.env.NODE_ENV === "development") {
+  router.get("/mock", passport.authenticate("mock"));
+}
+
 // Perform the login, after login Auth0 will redirect to callback
 router.get(
   "/login",
