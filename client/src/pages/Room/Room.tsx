@@ -1,13 +1,15 @@
-import React, { useRef } from "react";
+import React, { useRef, useEffect } from "react";
 import styled from "styled-components";
 import { v4 } from "uuid";
 import { useForm } from "react-hook-form";
 import { useParams } from "react-router-dom";
 import {
   Message as IMessage,
+  NewMessageDocument,
   GetRoomDocument,
   useGetRoomQuery,
   useSendMessageMutation,
+  NewMessageSubscriptionResult,
 } from "graphql/generated/graphql";
 
 import {
@@ -45,6 +47,20 @@ const Room: React.FC = () => {
     handleSubmit,
     errors: formErrors,
   } = useForm<IInputs>();
+
+  const {
+    data: rooms,
+    error: fetchRoomError,
+    loading: fetchRoomLoading,
+    subscribeToMore,
+  } = useGetRoomQuery({
+    onCompleted() {
+      scrollToBottom(bodyRef?.current);
+    },
+    variables: {
+      roomId: roomId,
+    },
+  });
 
   const [
     sendMessage,
@@ -87,20 +103,30 @@ const Room: React.FC = () => {
     },
   });
 
-  const {
-    data: rooms,
-    error: fetchRoomError,
-    loading: fetchRoomLoading,
-  } = useGetRoomQuery({
-    onCompleted() {
-      scrollToBottom(bodyRef?.current);
-    },
-    variables: {
-      roomId: roomId,
-    },
-  });
+  useEffect(() => {
+    subscribeToMore({
+      variables: { roomId },
+      document: NewMessageDocument,
+      updateQuery: (prev, data: any): any => {
+        const newData = data.subscriptionData as NewMessageSubscriptionResult;
+        const newMessage = newData.data.newMessage;
+        if (!newMessage || newMessage.author.id === user.id) return prev;
 
-  const onSubmit = (data: IInputs) => {
+        window.setTimeout(() => {
+          scrollToBottom(bodyRef?.current);
+        }, 50);
+        return {
+          ...prev,
+          getRoom: {
+            ...prev.getRoom,
+            messages: [...prev.getRoom.messages, newMessage],
+          },
+        };
+      },
+    });
+  }, []);
+
+  const onMessageSubmit = (data: IInputs) => {
     sendMessage({
       variables: { content: data.message, roomId: roomId },
     });
@@ -134,7 +160,7 @@ const Room: React.FC = () => {
             <MessageInput
               name="message"
               errors={formErrors}
-              onSubmit={handleSubmit(onSubmit)}
+              onSubmit={handleSubmit(onMessageSubmit)}
               onEmojiClick={emoji => {
                 setValue("message", getValues().message + emoji.native);
               }}

@@ -137,12 +137,15 @@ const typeDefs = gql`
   subscription newMessage($roomId: ID!) {
     newMessage(roomId: $roomId) {
       id
-      roomId
       content
+      roomId
       createdAt
       author {
         id
+        name
         username
+        avatarUrl
+        createdAt
       }
     }
   }

@@ -313,10 +313,10 @@ export type NewMessageSubscription = (
   { __typename?: 'Subscription' }
   & { newMessage: (
     { __typename?: 'Message' }
-    & Pick<Message, 'id' | 'roomId' | 'content' | 'createdAt'>
+    & Pick<Message, 'id' | 'content' | 'roomId' | 'createdAt'>
     & { author: (
       { __typename?: 'Member' }
-      & Pick<Member, 'id' | 'username'>
+      & Pick<Member, 'id' | 'name' | 'username' | 'avatarUrl' | 'createdAt'>
     ) }
   ) }
 );
@@ -746,12 +746,15 @@ export const NewMessageDocument = gql`
     subscription newMessage($roomId: ID!) {
   newMessage(roomId: $roomId) {
     id
-    roomId
     content
+    roomId
     createdAt
     author {
       id
+      name
       username
+      avatarUrl
+      createdAt
     }
   }
 }
