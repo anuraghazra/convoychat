@@ -40,7 +40,9 @@ const UserInfoCard: React.FC<IUserInfoCard> = ({
         <Avatar src={image} />
         <Flex direction="column">
           <span>{name}</span>
-          <small className="textcolor--gray">{username?.slice(0, 15)}...</small>
+          <small className="textcolor--gray" title={username}>
+            {username?.slice(0, 15)}...
+          </small>
         </Flex>
         {!isMember && <AiFillSetting size={20} />}
       </Flex>

@@ -1,15 +1,17 @@
 import React, { useRef, useEffect } from "react";
+import update from "immutability-helper";
 import styled from "styled-components";
 import { v4 } from "uuid";
 import { useForm } from "react-hook-form";
 import { useParams } from "react-router-dom";
 import {
-  Message as IMessage,
-  NewMessageDocument,
-  GetRoomDocument,
   useGetRoomQuery,
   useSendMessageMutation,
-  NewMessageSubscriptionResult,
+  GetRoomDocument,
+  Message as IMessage,
+  OnNewMessageDocument,
+  OnDeleteMessageDocument,
+  OnUpdateMessageDocument,
 } from "graphql/generated/graphql";
 
 import {
@@ -89,15 +91,11 @@ const Room: React.FC = () => {
         query: GetRoomDocument,
         variables: { roomId },
       });
-
       cache.writeQuery({
         query: GetRoomDocument,
         variables: { roomId },
         data: {
-          getRoom: {
-            ...getRoom,
-            messages: [...getRoom.messages, data.sendMessage],
-          },
+          getRoom: update(getRoom, { messages: { $push: [data.sendMessage] } }),
         },
       });
     },
@@ -106,23 +104,38 @@ const Room: React.FC = () => {
   useEffect(() => {
     subscribeToMore({
       variables: { roomId },
-      document: NewMessageDocument,
-      updateQuery: (prev, data: any): any => {
-        const newData = data.subscriptionData as NewMessageSubscriptionResult;
-        const newMessage = newData.data.newMessage;
+      document: OnNewMessageDocument,
+      updateQuery: (prev, data: any) => {
+        const newData = data.subscriptionData;
+        const newMessage: IMessage = newData.data.onNewMessage;
         if (!newMessage || newMessage.author.id === user.id) return prev;
 
         window.setTimeout(() => {
           scrollToBottom(bodyRef?.current);
         }, 50);
-        return {
-          ...prev,
-          getRoom: {
-            ...prev.getRoom,
-            messages: [...prev.getRoom.messages, newMessage],
-          },
-        };
+
+        return update(prev, {
+          getRoom: { messages: { $push: [newMessage] } },
+        });
       },
+    });
+
+    subscribeToMore({
+      variables: { roomId },
+      document: OnDeleteMessageDocument,
+      updateQuery: (prev, data: any) => {
+        const newData = data.subscriptionData;
+        const deletedMessage: IMessage = newData.data.onDeleteMessage;
+
+        return update(prev, {
+          getRoom: { messages: m => m.filter(m => m.id !== deletedMessage.id) },
+        });
+      },
+    });
+
+    subscribeToMore({
+      variables: { roomId },
+      document: OnUpdateMessageDocument,
     });
   }, []);
 
