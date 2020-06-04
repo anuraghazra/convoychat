@@ -1,3 +1,5 @@
+import update from "immutability-helper";
+
 import {
   GetRoomDocument,
   Message as IMessage,
@@ -18,14 +20,12 @@ const deleteMessageMutationUpdater: MutationUpdaterFn<DeleteMessageMutation> = (
   cache.writeQuery({
     query: GetRoomDocument,
     variables: { roomId },
-    data: {
+    data: update(getRoom, {
       getRoom: {
-        ...getRoom,
-        messages: getRoom.messages.filter(
-          (m: IMessage) => m.id !== data.deleteMessage.id
-        ),
+        messages: m =>
+          m.filter((m: IMessage) => m.id !== data.deleteMessage.id),
       },
-    },
+    }),
   });
 };
 

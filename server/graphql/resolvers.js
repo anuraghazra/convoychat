@@ -1,23 +1,14 @@
-const { withFilter } = require("apollo-server-express");
-const { Message } = require("../models/MessageModel");
 const RoomController = require("../controllers/RoomController");
 const UserController = require("../controllers/UserController");
+const MessageSubscriptions = require("../controllers/MessageSubscriptions");
 
-const { NEW_MESSAGE } = require("../constants");
 const useAuth = require("../utils/useAuth");
 
 const resolvers = {
   Subscription: {
-    newMessage: {
-      subscribe: withFilter(
-        (parent, args, context) => {
-          return context.pubsub.asyncIterator([NEW_MESSAGE]);
-        },
-        (payload, variables) => {
-          return payload.newMessage.roomId.toString() === variables.roomId;
-        }
-      ),
-    },
+    onNewMessage: MessageSubscriptions.onNewMessage,
+    onDeleteMessage: MessageSubscriptions.onDeleteMessage,
+    onUpdateMessage: MessageSubscriptions.onUpdateMessage,
   },
   Query: {
     me: UserController.me,

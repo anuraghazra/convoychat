@@ -84,6 +84,19 @@ const typeDefs = gql`
       username
     }
   }
+  fragment SubscriptionMessageParts on Message {
+    id
+    content
+    roomId
+    createdAt
+    author {
+      id
+      name
+      username
+      avatarUrl
+      createdAt
+    }
+  }
 
   mutation logout {
     logout
@@ -134,16 +147,21 @@ const typeDefs = gql`
     }
   }
 
-  subscription newMessage($roomId: ID!) {
-    newMessage(roomId: $roomId) {
-      id
-      roomId
-      content
-      createdAt
-      author {
-        id
-        username
-      }
+  subscription onNewMessage($roomId: ID!) {
+    onNewMessage(roomId: $roomId) {
+      ...SubscriptionMessageParts
+    }
+  }
+
+  subscription onDeleteMessage($roomId: ID!) {
+    onDeleteMessage(roomId: $roomId) {
+      ...SubscriptionMessageParts
+    }
+  }
+  
+  subscription onUpdateMessage($roomId: ID!) {
+    onUpdateMessage(roomId: $roomId) {
+      ...SubscriptionMessageParts
     }
   }
 `

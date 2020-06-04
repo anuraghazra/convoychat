@@ -123,11 +123,23 @@ export type Room = {
 
 export type Subscription = {
   __typename?: 'Subscription';
-  newMessage: Message;
+  onNewMessage: Message;
+  onDeleteMessage: Message;
+  onUpdateMessage: Message;
 };
 
 
-export type SubscriptionNewMessageArgs = {
+export type SubscriptionOnNewMessageArgs = {
+  roomId: Scalars['ID'];
+};
+
+
+export type SubscriptionOnDeleteMessageArgs = {
+  roomId: Scalars['ID'];
+};
+
+
+export type SubscriptionOnUpdateMessageArgs = {
   roomId: Scalars['ID'];
 };
 
@@ -225,6 +237,15 @@ export type MessagePartsFragment = (
   ) }
 );
 
+export type SubscriptionMessagePartsFragment = (
+  { __typename?: 'Message' }
+  & Pick<Message, 'id' | 'content' | 'roomId' | 'createdAt'>
+  & { author: (
+    { __typename?: 'Member' }
+    & Pick<Member, 'id' | 'name' | 'username' | 'avatarUrl' | 'createdAt'>
+  ) }
+);
+
 export type LogoutMutationVariables = {};
 
 
@@ -304,20 +325,42 @@ export type EditMessageMutation = (
   ) }
 );
 
-export type NewMessageSubscriptionVariables = {
+export type OnNewMessageSubscriptionVariables = {
   roomId: Scalars['ID'];
 };
 
 
-export type NewMessageSubscription = (
+export type OnNewMessageSubscription = (
   { __typename?: 'Subscription' }
-  & { newMessage: (
+  & { onNewMessage: (
     { __typename?: 'Message' }
-    & Pick<Message, 'id' | 'roomId' | 'content' | 'createdAt'>
-    & { author: (
-      { __typename?: 'Member' }
-      & Pick<Member, 'id' | 'username'>
-    ) }
+    & SubscriptionMessagePartsFragment
+  ) }
+);
+
+export type OnDeleteMessageSubscriptionVariables = {
+  roomId: Scalars['ID'];
+};
+
+
+export type OnDeleteMessageSubscription = (
+  { __typename?: 'Subscription' }
+  & { onDeleteMessage: (
+    { __typename?: 'Message' }
+    & SubscriptionMessagePartsFragment
+  ) }
+);
+
+export type OnUpdateMessageSubscriptionVariables = {
+  roomId: Scalars['ID'];
+};
+
+
+export type OnUpdateMessageSubscription = (
+  { __typename?: 'Subscription' }
+  & { onUpdateMessage: (
+    { __typename?: 'Message' }
+    & SubscriptionMessagePartsFragment
   ) }
 );
 
@@ -330,6 +373,21 @@ export const MessagePartsFragmentDoc = gql`
   author {
     id
     username
+  }
+}
+    `;
+export const SubscriptionMessagePartsFragmentDoc = gql`
+    fragment SubscriptionMessageParts on Message {
+  id
+  content
+  roomId
+  createdAt
+  author {
+    id
+    name
+    username
+    avatarUrl
+    createdAt
   }
 }
     `;
@@ -742,39 +800,90 @@ export function useEditMessageMutation(baseOptions?: ApolloReactHooks.MutationHo
 export type EditMessageMutationHookResult = ReturnType<typeof useEditMessageMutation>;
 export type EditMessageMutationResult = ApolloReactCommon.MutationResult<EditMessageMutation>;
 export type EditMessageMutationOptions = ApolloReactCommon.BaseMutationOptions<EditMessageMutation, EditMessageMutationVariables>;
-export const NewMessageDocument = gql`
-    subscription newMessage($roomId: ID!) {
-  newMessage(roomId: $roomId) {
-    id
-    roomId
-    content
-    createdAt
-    author {
-      id
-      username
-    }
+export const OnNewMessageDocument = gql`
+    subscription onNewMessage($roomId: ID!) {
+  onNewMessage(roomId: $roomId) {
+    ...SubscriptionMessageParts
   }
 }
-    `;
+    ${SubscriptionMessagePartsFragmentDoc}`;
 
 /**
- * __useNewMessageSubscription__
+ * __useOnNewMessageSubscription__
  *
- * To run a query within a React component, call `useNewMessageSubscription` and pass it any options that fit your needs.
- * When your component renders, `useNewMessageSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useOnNewMessageSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useOnNewMessageSubscription` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useNewMessageSubscription({
+ * const { data, loading, error } = useOnNewMessageSubscription({
  *   variables: {
  *      roomId: // value for 'roomId'
  *   },
  * });
  */
-export function useNewMessageSubscription(baseOptions?: ApolloReactHooks.SubscriptionHookOptions<NewMessageSubscription, NewMessageSubscriptionVariables>) {
-        return ApolloReactHooks.useSubscription<NewMessageSubscription, NewMessageSubscriptionVariables>(NewMessageDocument, baseOptions);
+export function useOnNewMessageSubscription(baseOptions?: ApolloReactHooks.SubscriptionHookOptions<OnNewMessageSubscription, OnNewMessageSubscriptionVariables>) {
+        return ApolloReactHooks.useSubscription<OnNewMessageSubscription, OnNewMessageSubscriptionVariables>(OnNewMessageDocument, baseOptions);
       }
-export type NewMessageSubscriptionHookResult = ReturnType<typeof useNewMessageSubscription>;
-export type NewMessageSubscriptionResult = ApolloReactCommon.SubscriptionResult<NewMessageSubscription>;
+export type OnNewMessageSubscriptionHookResult = ReturnType<typeof useOnNewMessageSubscription>;
+export type OnNewMessageSubscriptionResult = ApolloReactCommon.SubscriptionResult<OnNewMessageSubscription>;
+export const OnDeleteMessageDocument = gql`
+    subscription onDeleteMessage($roomId: ID!) {
+  onDeleteMessage(roomId: $roomId) {
+    ...SubscriptionMessageParts
+  }
+}
+    ${SubscriptionMessagePartsFragmentDoc}`;
+
+/**
+ * __useOnDeleteMessageSubscription__
+ *
+ * To run a query within a React component, call `useOnDeleteMessageSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useOnDeleteMessageSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useOnDeleteMessageSubscription({
+ *   variables: {
+ *      roomId: // value for 'roomId'
+ *   },
+ * });
+ */
+export function useOnDeleteMessageSubscription(baseOptions?: ApolloReactHooks.SubscriptionHookOptions<OnDeleteMessageSubscription, OnDeleteMessageSubscriptionVariables>) {
+        return ApolloReactHooks.useSubscription<OnDeleteMessageSubscription, OnDeleteMessageSubscriptionVariables>(OnDeleteMessageDocument, baseOptions);
+      }
+export type OnDeleteMessageSubscriptionHookResult = ReturnType<typeof useOnDeleteMessageSubscription>;
+export type OnDeleteMessageSubscriptionResult = ApolloReactCommon.SubscriptionResult<OnDeleteMessageSubscription>;
+export const OnUpdateMessageDocument = gql`
+    subscription onUpdateMessage($roomId: ID!) {
+  onUpdateMessage(roomId: $roomId) {
+    ...SubscriptionMessageParts
+  }
+}
+    ${SubscriptionMessagePartsFragmentDoc}`;
+
+/**
+ * __useOnUpdateMessageSubscription__
+ *
+ * To run a query within a React component, call `useOnUpdateMessageSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useOnUpdateMessageSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useOnUpdateMessageSubscription({
+ *   variables: {
+ *      roomId: // value for 'roomId'
+ *   },
+ * });
+ */
+export function useOnUpdateMessageSubscription(baseOptions?: ApolloReactHooks.SubscriptionHookOptions<OnUpdateMessageSubscription, OnUpdateMessageSubscriptionVariables>) {
+        return ApolloReactHooks.useSubscription<OnUpdateMessageSubscription, OnUpdateMessageSubscriptionVariables>(OnUpdateMessageDocument, baseOptions);
+      }
+export type OnUpdateMessageSubscriptionHookResult = ReturnType<typeof useOnUpdateMessageSubscription>;
+export type OnUpdateMessageSubscriptionResult = ApolloReactCommon.SubscriptionResult<OnUpdateMessageSubscription>;

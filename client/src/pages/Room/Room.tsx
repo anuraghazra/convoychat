@@ -1,13 +1,17 @@
-import React, { useRef } from "react";
+import React, { useRef, useEffect } from "react";
+import update from "immutability-helper";
 import styled from "styled-components";
 import { v4 } from "uuid";
 import { useForm } from "react-hook-form";
 import { useParams } from "react-router-dom";
 import {
-  Message as IMessage,
-  GetRoomDocument,
   useGetRoomQuery,
   useSendMessageMutation,
+  GetRoomDocument,
+  Message as IMessage,
+  OnNewMessageDocument,
+  OnDeleteMessageDocument,
+  OnUpdateMessageDocument,
 } from "graphql/generated/graphql";
 
 import {
@@ -46,6 +50,20 @@ const Room: React.FC = () => {
     errors: formErrors,
   } = useForm<IInputs>();
 
+  const {
+    data: rooms,
+    error: fetchRoomError,
+    loading: fetchRoomLoading,
+    subscribeToMore,
+  } = useGetRoomQuery({
+    onCompleted() {
+      scrollToBottom(bodyRef?.current);
+    },
+    variables: {
+      roomId: roomId,
+    },
+  });
+
   const [
     sendMessage,
     { loading: sending, error: sendError },
@@ -73,34 +91,55 @@ const Room: React.FC = () => {
         query: GetRoomDocument,
         variables: { roomId },
       });
-
       cache.writeQuery({
         query: GetRoomDocument,
         variables: { roomId },
         data: {
-          getRoom: {
-            ...getRoom,
-            messages: [...getRoom.messages, data.sendMessage],
-          },
+          getRoom: update(getRoom, { messages: { $push: [data.sendMessage] } }),
         },
       });
     },
   });
 
-  const {
-    data: rooms,
-    error: fetchRoomError,
-    loading: fetchRoomLoading,
-  } = useGetRoomQuery({
-    onCompleted() {
-      scrollToBottom(bodyRef?.current);
-    },
-    variables: {
-      roomId: roomId,
-    },
-  });
+  useEffect(() => {
+    subscribeToMore({
+      variables: { roomId },
+      document: OnNewMessageDocument,
+      updateQuery: (prev, data: any) => {
+        const newData = data.subscriptionData;
+        const newMessage: IMessage = newData.data.onNewMessage;
+        if (!newMessage || newMessage.author.id === user.id) return prev;
 
-  const onSubmit = (data: IInputs) => {
+        window.setTimeout(() => {
+          scrollToBottom(bodyRef?.current);
+        }, 50);
+
+        return update(prev, {
+          getRoom: { messages: { $push: [newMessage] } },
+        });
+      },
+    });
+
+    subscribeToMore({
+      variables: { roomId },
+      document: OnDeleteMessageDocument,
+      updateQuery: (prev, data: any) => {
+        const newData = data.subscriptionData;
+        const deletedMessage: IMessage = newData.data.onDeleteMessage;
+
+        return update(prev, {
+          getRoom: { messages: m => m.filter(m => m.id !== deletedMessage.id) },
+        });
+      },
+    });
+
+    subscribeToMore({
+      variables: { roomId },
+      document: OnUpdateMessageDocument,
+    });
+  }, []);
+
+  const onMessageSubmit = (data: IInputs) => {
     sendMessage({
       variables: { content: data.message, roomId: roomId },
     });
@@ -134,7 +173,7 @@ const Room: React.FC = () => {
             <MessageInput
               name="message"
               errors={formErrors}
-              onSubmit={handleSubmit(onSubmit)}
+              onSubmit={handleSubmit(onMessageSubmit)}
               onEmojiClick={emoji => {
                 setValue("message", getValues().message + emoji.native);
               }}

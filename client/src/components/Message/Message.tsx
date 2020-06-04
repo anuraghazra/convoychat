@@ -104,7 +104,7 @@ const Message: React.FC<IMessage> = ({
               inputRef={register({ required: "Message is required" })}
             />
           ) : (
-            <p>{content}</p>
+            <>{content}</>
           )}
         </div>
       </Flex>

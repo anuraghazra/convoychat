@@ -33,6 +33,7 @@ const StyledMessage = styled.section`
     font-size: 14px;
     margin-left: auto;
     color: ${p => p.theme.colors.gray};
+    z-index: 1; /* firefox fix */
     svg {
       cursor: pointer;
     }

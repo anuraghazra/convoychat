@@ -2,7 +2,7 @@ const { ApolloError } = require("apollo-server-express");
 const { User } = require("../models/UserModel");
 const { Room } = require("../models/RoomModel");
 const { Message } = require("../models/MessageModel");
-const { NEW_MESSAGE } = require("../constants");
+const { NEW_MESSAGE, DELETE_MESSAGE, UPDATE_MESSAGE } = require("../constants");
 
 exports.me = (_parent, _args, context) => {
   return context.getUser();
@@ -48,7 +48,7 @@ exports.sendMessage = async (parent, args, context) => {
     message.populate("author").execPopulate();
 
     let saved = await message.save({ roomId: args.roomId });
-    context.pubsub.publish(NEW_MESSAGE, { newMessage: saved });
+    context.pubsub.publish(NEW_MESSAGE, { onNewMessage: saved });
 
     return saved;
   } catch (err) {
@@ -63,6 +63,8 @@ exports.deleteMessage = async (_parent, args, context) => {
       author: context.currentUser.id,
     });
     await message.populate("author").execPopulate();
+    context.pubsub.publish(DELETE_MESSAGE, { onDeleteMessage: message });
+
     return message;
   } catch (err) {
     throw new ApolloError(err);
@@ -80,6 +82,8 @@ exports.editMessage = async (_parent, args, context) => {
       { new: true }
     );
     await message.populate("author").execPopulate();
+    context.pubsub.publish(UPDATE_MESSAGE, { onUpdateMessage: message });
+
     return message;
   } catch (err) {
     throw new ApolloError(err);
