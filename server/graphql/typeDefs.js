@@ -64,7 +64,9 @@ const typeDefs = gql`
   }
 
   type Subscription {
-    newMessage(roomId: ID!): Message!
+    onNewMessage(roomId: ID!): Message!
+    onDeleteMessage(roomId: ID!): Message!
+    onUpdateMessage(roomId: ID!): Message!
   }
 `;
 
