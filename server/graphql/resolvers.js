@@ -1,5 +1,6 @@
 const RoomController = require("../controllers/RoomController");
 const UserController = require("../controllers/UserController");
+const { Message } = require("../models/MessageModel");
 const MessageSubscriptions = require("../controllers/MessageSubscriptions");
 
 const useAuth = require("../utils/useAuth");
@@ -17,6 +18,7 @@ const resolvers = {
     listRooms: useAuth(RoomController.listRooms),
     listCurrentUserRooms: useAuth(RoomController.listCurrentUserRooms),
     getRoom: useAuth(RoomController.getRoom),
+    getMessages: useAuth(RoomController.getMessages),
   },
   Mutation: {
     createRoom: useAuth(RoomController.createRoom),

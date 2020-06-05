@@ -44,11 +44,18 @@ const typeDefs = gql`
     avatarUrl: String
   }
 
+  type Messages {
+    totalDocs: Int
+    totalPages: Int
+    messages: [Message!]!
+  }
+
   type Query {
     me: Me!
     listUsers: [User!]!
     listRooms: [Room!]!
     listCurrentUserRooms: [Room]!
+    getMessages(roomId: ID!, offset: Int!, limit: Int!): Messages
     getUser(id: ID!): User!
     getRoom(id: ID!): Room!
   }

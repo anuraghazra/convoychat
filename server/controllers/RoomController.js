@@ -34,9 +34,12 @@ exports.listCurrentUserRooms = async (parent, args, context) => {
   }
 };
 
-exports.getRoom = async (_, args) => {
+exports.getRoom = async (_, args, context) => {
   try {
-    let user = await Room.findOne({ _id: args.id })
+    let user = await Room.findOne({
+      _id: args.id,
+      members: { $in: [context.currentUser] },
+    })
       .populate("members")
       .populate({
         path: "messages",
@@ -49,6 +52,20 @@ exports.getRoom = async (_, args) => {
   } catch (err) {
     throw new ApolloError(err);
   }
+};
+
+exports.getMessages = async (parent, args, context) => {
+  const MAX_ITEMS = args.limit;
+  const offset = parseInt(args.offset);
+  let messages = await Message.find({ roomId: args.roomId })
+    .sort({ createdAt: -1 })
+    .populate("author");
+
+  return {
+    totalDocs: messages.length,
+    totalPages: Math.floor(messages.length / MAX_ITEMS),
+    messages: messages.slice(offset, MAX_ITEMS + offset).reverse(),
+  };
 };
 
 exports.createRoom = async (parent, args, context) => {
