@@ -26,6 +26,7 @@ const StyledMessage = styled.section`
   .message__input {
     padding: 0;
     margin-top: 10px;
+    background-color: initial;
   }
 
   .message__actions {

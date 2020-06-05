@@ -16,8 +16,8 @@ const typeDefs = gql`
     }
   }
 
-  query getRoom($roomId: ID!) {
-    getRoom(id: $roomId) {
+  query getRoom($roomId: ID!, $limit: Int!, $offset: Int!) {
+    room: getRoom(id: $roomId) {
       id
       name
       owner
@@ -29,17 +29,20 @@ const typeDefs = gql`
         createdAt
         id
       }
+    }
+    messages: getMessages(roomId: $roomId, limit: $limit, offset: $offset) {
+      totalDocs
+      totalPages
       messages {
         id
-        content
         roomId
+        content
         createdAt
         author {
           id
           name
           username
           avatarUrl
-          createdAt
         }
       }
     }
@@ -94,7 +97,6 @@ const typeDefs = gql`
       name
       username
       avatarUrl
-      createdAt
     }
   }
 

@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
 import { FaSmile } from "react-icons/fa";
 import { Picker } from "emoji-mart";
 import "emoji-mart/css/emoji-mart.css";
 
-import { Flex, Input, Dropdown } from "@convoy-ui";
+import { Flex, StyledInput, Dropdown } from "@convoy-ui";
+import { textareaAutoResize } from "utils";
 
 const MessageInputWrapper = styled.div`
   position: sticky;
@@ -16,15 +17,16 @@ const MessageInputWrapper = styled.div`
     width: 100%;
     border-radius: ${p => p.theme.radius.small}px;
 
-    input {
+    textarea {
       width: 100%;
+      height: 100%;
       background-color: ${p => p.theme.colors.dark3};
       padding-left: 20px;
       padding-right: 20px;
+      resize: vertical;
     }
   }
   .form--input__wrapper {
-    height: 40px;
     margin-bottom: 0;
   }
 
@@ -38,6 +40,7 @@ interface IMessageInput {
   name?: string;
   inputRef?: any;
   onSubmit?: () => void;
+  onCancel?: () => void;
   onEmojiClick?: (emoji: any) => void;
   [x: string]: any;
 }
@@ -47,20 +50,44 @@ const MessageInput: React.FC<IMessageInput> = ({
   errors,
   inputRef,
   onSubmit,
+  onCancel,
   onEmojiClick,
   ...props
 }) => {
+  const formRef = useRef<HTMLFormElement>();
+  const textareaRef = useRef<HTMLTextAreaElement>();
+
+  const handleKeydown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    textareaAutoResize(textareaRef?.current);
+
+    if (event.key === "Escape") {
+      onCancel && onCancel();
+    }
+
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      formRef?.current.dispatchEvent(new Event("submit", { cancelable: true }));
+    }
+  };
+
+  useEffect(() => {
+    textareaAutoResize(textareaRef?.current);
+  }, []);
+
   return (
     <MessageInputWrapper className="message__input">
       <Flex gap="large" align="center" justify="space-between" nowrap>
-        <form onSubmit={onSubmit}>
-          <Input
-            type="text"
+        <form ref={formRef} onSubmit={onSubmit}>
+          <StyledInput
+            as="textarea"
             name={name}
-            errors={errors}
-            inputRef={inputRef}
+            ref={(e: HTMLTextAreaElement) => {
+              textareaRef.current = e;
+              inputRef(e);
+            }}
             autoComplete={"off"}
             placeholder="Write something"
+            onKeyDown={handleKeydown}
             {...props}
           />
         </form>

@@ -52,4 +52,10 @@ const scrollToBottom = (elm: HTMLElement) => {
   elm.scrollTop = elm.scrollTop = elm.scrollHeight - elm.clientHeight;
 }
 
-export { initOAuthWindow, formatDate, timeAgo, scrollToBottom };
+const textareaAutoResize = (element: HTMLTextAreaElement) => {
+  if (!element) return;
+  element.style.height = "5px";
+  element.style.height = element.scrollHeight + "px";
+}
+
+export { initOAuthWindow, formatDate, timeAgo, scrollToBottom, textareaAutoResize };

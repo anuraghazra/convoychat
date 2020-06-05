@@ -47,6 +47,13 @@ export type Message = {
   createdAt: Scalars['String'];
 };
 
+export type Messages = {
+  __typename?: 'Messages';
+  totalDocs?: Maybe<Scalars['Int']>;
+  totalPages?: Maybe<Scalars['Int']>;
+  messages: Array<Message>;
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   createRoom: Room;
@@ -97,8 +104,16 @@ export type Query = {
   listUsers: Array<User>;
   listRooms: Array<Room>;
   listCurrentUserRooms: Array<Maybe<Room>>;
+  getMessages?: Maybe<Messages>;
   getUser: User;
   getRoom: Room;
+};
+
+
+export type QueryGetMessagesArgs = {
+  roomId: Scalars['ID'];
+  offset: Scalars['Int'];
+  limit: Scalars['Int'];
 };
 
 
@@ -169,26 +184,32 @@ export type CurrentUserQuery = (
 
 export type GetRoomQueryVariables = {
   roomId: Scalars['ID'];
+  limit: Scalars['Int'];
+  offset: Scalars['Int'];
 };
 
 
 export type GetRoomQuery = (
   { __typename?: 'Query' }
-  & { getRoom: (
+  & { room: (
     { __typename?: 'Room' }
     & Pick<Room, 'id' | 'name' | 'owner' | 'createdAt'>
     & { members: Array<(
       { __typename?: 'Member' }
       & Pick<Member, 'username' | 'name' | 'avatarUrl' | 'createdAt' | 'id'>
-    )>, messages: Array<(
+    )> }
+  ), messages?: Maybe<(
+    { __typename?: 'Messages' }
+    & Pick<Messages, 'totalDocs' | 'totalPages'>
+    & { messages: Array<(
       { __typename?: 'Message' }
-      & Pick<Message, 'id' | 'content' | 'roomId' | 'createdAt'>
+      & Pick<Message, 'id' | 'roomId' | 'content' | 'createdAt'>
       & { author: (
         { __typename?: 'Member' }
-        & Pick<Member, 'id' | 'name' | 'username' | 'avatarUrl' | 'createdAt'>
+        & Pick<Member, 'id' | 'name' | 'username' | 'avatarUrl'>
       ) }
     )> }
-  ) }
+  )> }
 );
 
 export type ListUsersQueryVariables = {};
@@ -242,7 +263,7 @@ export type SubscriptionMessagePartsFragment = (
   & Pick<Message, 'id' | 'content' | 'roomId' | 'createdAt'>
   & { author: (
     { __typename?: 'Member' }
-    & Pick<Member, 'id' | 'name' | 'username' | 'avatarUrl' | 'createdAt'>
+    & Pick<Member, 'id' | 'name' | 'username' | 'avatarUrl'>
   ) }
 );
 
@@ -387,7 +408,6 @@ export const SubscriptionMessagePartsFragmentDoc = gql`
     name
     username
     avatarUrl
-    createdAt
   }
 }
     `;
@@ -433,8 +453,8 @@ export type CurrentUserQueryHookResult = ReturnType<typeof useCurrentUserQuery>;
 export type CurrentUserLazyQueryHookResult = ReturnType<typeof useCurrentUserLazyQuery>;
 export type CurrentUserQueryResult = ApolloReactCommon.QueryResult<CurrentUserQuery, CurrentUserQueryVariables>;
 export const GetRoomDocument = gql`
-    query getRoom($roomId: ID!) {
-  getRoom(id: $roomId) {
+    query getRoom($roomId: ID!, $limit: Int!, $offset: Int!) {
+  room: getRoom(id: $roomId) {
     id
     name
     owner
@@ -446,17 +466,20 @@ export const GetRoomDocument = gql`
       createdAt
       id
     }
+  }
+  messages: getMessages(roomId: $roomId, limit: $limit, offset: $offset) {
+    totalDocs
+    totalPages
     messages {
       id
-      content
       roomId
+      content
       createdAt
       author {
         id
         name
         username
         avatarUrl
-        createdAt
       }
     }
   }
@@ -476,6 +499,8 @@ export const GetRoomDocument = gql`
  * const { data, loading, error } = useGetRoomQuery({
  *   variables: {
  *      roomId: // value for 'roomId'
+ *      limit: // value for 'limit'
+ *      offset: // value for 'offset'
  *   },
  * });
  */

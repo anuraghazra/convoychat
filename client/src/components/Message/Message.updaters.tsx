@@ -1,8 +1,9 @@
 import update from "immutability-helper";
+import { MAX_MESSAGES } from "../../constants";
 
 import {
+  GetRoomQuery,
   GetRoomDocument,
-  Message as IMessage,
   DeleteMessageMutation,
 } from "graphql/generated/graphql";
 import { MutationUpdaterFn } from "apollo-client";
@@ -12,18 +13,18 @@ const deleteMessageMutationUpdater: MutationUpdaterFn<DeleteMessageMutation> = (
   { data }
 ) => {
   let roomId = data.deleteMessage.roomId;
-  const { getRoom } = cache.readQuery({
+  let room = cache.readQuery<GetRoomQuery>({
     query: GetRoomDocument,
-    variables: { roomId },
+    variables: { roomId, limit: MAX_MESSAGES, offset: 0 },
   });
 
   cache.writeQuery({
     query: GetRoomDocument,
-    variables: { roomId },
-    data: update(getRoom, {
-      getRoom: {
+    variables: { roomId, limit: MAX_MESSAGES, offset: 0 },
+    data: update(room, {
+      messages: {
         messages: m =>
-          m.filter((m: IMessage) => m.id !== data.deleteMessage.id),
+          m.filter(message => message.id !== data.deleteMessage.id),
       },
     }),
   });

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import MarkdownView from "react-showdown";
 import { useForm } from "react-hook-form";
 import { FaTrash, FaPen, FaSpinner } from "react-icons/fa";
 import {
@@ -62,6 +63,9 @@ const Message: React.FC<IMessage> = ({
   const handleEdit = (data: any) => {
     editMessage({ variables: { messageId: id, content: data.message } });
   };
+  const handleCancel = () => {
+    setIsEditing(false);
+  };
 
   return (
     <StyledMessage>
@@ -97,6 +101,7 @@ const Message: React.FC<IMessage> = ({
               name="message"
               errors={formErrors}
               defaultValue={content}
+              onCancel={handleCancel}
               onSubmit={handleSubmit(handleEdit)}
               onEmojiClick={emoji => {
                 setValue("message", getValues().message + emoji.native);
@@ -104,7 +109,10 @@ const Message: React.FC<IMessage> = ({
               inputRef={register({ required: "Message is required" })}
             />
           ) : (
-            <>{content}</>
+            <MarkdownView
+              markdown={content}
+              options={{ tables: false, emoji: true }}
+            />
           )}
         </div>
       </Flex>

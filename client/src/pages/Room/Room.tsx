@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import update from "immutability-helper";
 import styled from "styled-components";
 import { v4 } from "uuid";
@@ -12,6 +12,7 @@ import {
   OnNewMessageDocument,
   OnDeleteMessageDocument,
   OnUpdateMessageDocument,
+  GetRoomQuery,
 } from "graphql/generated/graphql";
 
 import {
@@ -28,6 +29,7 @@ import MessageInput from "components/MessageInput";
 import { Flex, Spacer } from "@convoy-ui";
 import { scrollToBottom } from "utils";
 import { useAuthContext } from "contexts/AuthContext";
+import { MAX_MESSAGES } from "../../constants";
 
 const MessagesWrapper = styled.div`
   width: 100%;
@@ -40,9 +42,10 @@ interface IInputs {
 const Room: React.FC = () => {
   const { user } = useAuthContext();
   const { roomId } = useParams();
+  const [isFetchingMore, setIsFetchingMore] = useState<boolean>(false);
   const bodyRef = useRef<HTMLElement | null>();
-  // prettier-ignore
-  const { 
+
+  const {
     getValues,
     setValue,
     register,
@@ -51,23 +54,26 @@ const Room: React.FC = () => {
   } = useForm<IInputs>();
 
   const {
-    data: rooms,
+    data: roomData,
     error: fetchRoomError,
     loading: fetchRoomLoading,
     subscribeToMore,
+    fetchMore,
   } = useGetRoomQuery({
-    onCompleted() {
-      scrollToBottom(bodyRef?.current);
+    notifyOnNetworkStatusChange: true,
+    onCompleted(data) {
+      if (!isFetchingMore) {
+        scrollToBottom(bodyRef?.current);
+      }
     },
     variables: {
       roomId: roomId,
+      offset: 0,
+      limit: MAX_MESSAGES,
     },
   });
 
-  const [
-    sendMessage,
-    { loading: sending, error: sendError },
-  ] = useSendMessageMutation({
+  const [sendMessage, { error: sendError }] = useSendMessageMutation({
     optimisticResponse: {
       __typename: "Mutation",
       sendMessage: {
@@ -86,24 +92,34 @@ const Room: React.FC = () => {
       },
     },
     update(cache, { data }) {
-      let roomId = data.sendMessage.roomId;
-      const { getRoom } = cache.readQuery({
-        query: GetRoomDocument,
-        variables: { roomId },
-      });
-      cache.writeQuery({
-        query: GetRoomDocument,
-        variables: { roomId },
-        data: {
-          getRoom: update(getRoom, { messages: { $push: [data.sendMessage] } }),
-        },
-      });
+      try {
+        let roomId = data.sendMessage.roomId;
+        let room = cache.readQuery<GetRoomQuery>({
+          query: GetRoomDocument,
+          variables: { roomId, limit: MAX_MESSAGES, offset: 0 },
+        });
+
+        cache.writeQuery({
+          query: GetRoomDocument,
+          variables: { roomId, limit: MAX_MESSAGES, offset: 0 },
+          data: update(room, {
+            messages: { messages: { $push: [data.sendMessage] } },
+          }),
+        });
+      } catch (err) {
+        console.log(err);
+      }
     },
   });
 
   useEffect(() => {
+    // new message subscription
     subscribeToMore({
-      variables: { roomId },
+      variables: {
+        roomId,
+        limit: MAX_MESSAGES,
+        offset: roomData?.messages?.messages?.length,
+      },
       document: OnNewMessageDocument,
       updateQuery: (prev, data: any) => {
         const newData = data.subscriptionData;
@@ -115,26 +131,41 @@ const Room: React.FC = () => {
         }, 50);
 
         return update(prev, {
-          getRoom: { messages: { $push: [newMessage] } },
+          messages: { messages: { $push: [newMessage] } },
         });
       },
     });
 
+    // deleteMessage subscription
     subscribeToMore({
-      variables: { roomId },
+      variables: {
+        roomId,
+        limit: MAX_MESSAGES,
+        offset: roomData?.messages?.messages?.length,
+      },
       document: OnDeleteMessageDocument,
       updateQuery: (prev, data: any) => {
         const newData = data.subscriptionData;
         const deletedMessage: IMessage = newData.data.onDeleteMessage;
+        if (!deletedMessage || deletedMessage.author.id === user.id) {
+          return prev;
+        }
 
         return update(prev, {
-          getRoom: { messages: m => m.filter(m => m.id !== deletedMessage.id) },
+          messages: {
+            messages: m => m.filter(m => m.id !== deletedMessage.id),
+          },
         });
       },
     });
 
+    // update message subscription
     subscribeToMore({
-      variables: { roomId },
+      variables: {
+        roomId,
+        limit: MAX_MESSAGES,
+        offset: roomData?.messages?.messages?.length,
+      },
       document: OnUpdateMessageDocument,
     });
   }, []);
@@ -151,10 +182,37 @@ const Room: React.FC = () => {
     }, 50);
   };
 
+  const fetchMoreMessages = () => {
+    setIsFetchingMore(true);
+    fetchMore({
+      variables: {
+        limit: MAX_MESSAGES,
+        offset: roomData?.messages?.messages?.length,
+      },
+      updateQuery: (prev, { fetchMoreResult }) => {
+        if (!fetchMoreResult) return prev;
+        return update(prev, {
+          messages: {
+            messages: {
+              $unshift: fetchMoreResult.messages?.messages,
+            },
+          },
+        });
+      },
+    });
+  };
+
+  const handleScroll = (e: any) => {
+    e.persist();
+    if (e.nativeEvent.target.scrollTop === 0) {
+      fetchMoreMessages();
+    }
+  };
+
   return (
     <>
-      <DashboardBody ref={bodyRef}>
-        {fetchRoomError && <span>Error loading room</span>}
+      <DashboardBody onScrollCapture={handleScroll} ref={bodyRef}>
+        {fetchRoomError && <span>{fetchRoomError?.message}</span>}
         <Flex
           nowrap
           style={{ height: "100%" }}
@@ -162,13 +220,15 @@ const Room: React.FC = () => {
           justify="space-between"
         >
           <DashboardHeader>
-            <h3>/{rooms?.getRoom?.name}</h3>
+            <h3>/{roomData?.room?.name}</h3>
           </DashboardHeader>
 
           <MessagesWrapper>
             {fetchRoomLoading && <Loading />}
             {sendError && <span>Error sending message</span>}
-            <MessageList messages={rooms?.getRoom?.messages as IMessage[]} />
+            <MessageList
+              messages={roomData?.messages?.messages as IMessage[]}
+            />
             <Spacer gap="large" />
             <MessageInput
               name="message"
@@ -186,7 +246,7 @@ const Room: React.FC = () => {
       <SidebarWrapper>
         <h3>Members</h3>
         <br />
-        {rooms?.getRoom?.members?.map(member => {
+        {roomData?.room?.members?.map(member => {
           return (
             <UserInfoCard
               isMember
