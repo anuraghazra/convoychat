@@ -1,6 +1,9 @@
 const { gql } = require("apollo-server-express");
 
 const typeDefs = gql`
+  scalar JSON
+  scalar JSONObject
+
   type User {
     id: ID!
     username: String!
@@ -50,12 +53,33 @@ const typeDefs = gql`
     messages: [Message!]!
   }
 
+  type Invitation {
+    id: ID!
+    roomId: ID!
+    userId: ID!
+    invitedBy: ID!
+    isPending: Boolean!
+    createdAt: String!
+  }
+
+  enum NOTIFICATION_TYPES {
+    INVITATION
+    MENTION
+  }
+  type Notification {
+    id: ID!
+    author: ID!
+    type: NOTIFICATION_TYPES!
+    payload: JSONObject
+  }
+
   type Query {
     me: Me!
     listUsers: [User!]!
     listRooms: [Room!]!
     listCurrentUserRooms: [Room]!
     getMessages(roomId: ID!, offset: Int!, limit: Int!): Messages
+    getNotifications: [Notification]!
     getUser(id: ID!): User!
     getRoom(id: ID!): Room!
   }
@@ -67,6 +91,8 @@ const typeDefs = gql`
     sendMessage(roomId: ID!, content: String!): Message!
     deleteMessage(messageId: ID!): Message!
     editMessage(messageId: ID!, content: String!): Message!
+    inviteMembers(roomId: ID!, members: [ID!]!): [Invitation!]!
+    acceptInvitation(invitationId: ID!, token: String!): Boolean
     logout: Boolean
   }
 

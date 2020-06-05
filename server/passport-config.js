@@ -76,10 +76,13 @@ var strategy = new Auth0Strategy(
 // mocking the authentication for development purposes
 if (process.env.NODE_ENV === "development") {
   passport.use(
-    new MockStrategy({ name: "mock" }, async (data, done) => {
-      let user = await User.findOne({ email: process.env.MOCK_EMAIL });
-      done(null, user);
-    })
+    new MockStrategy(
+      { name: "mock", user: { email: process.env.MOCK_EMAIL } },
+      async (data, done) => {
+        let user = await User.findOne({ email: data.email });
+        done(null, user);
+      }
+    )
   );
 }
 
