@@ -1,9 +1,8 @@
 <br />
 <p align="center">
   <a href="https://convoychat.herokuapp.com">
-    <img src="./client/src/assets/logo.png" alt="ConvoyChat Logo" width="200" height="65">
+    <img src="./client/src/assets/banner.png" alt="ConvoyChat Logo">
   </a>
-  <p></p>
   <a href="https://convoychat.herokuapp.com">
     <img src="./client/src/assets/dashboard_preview.png" alt="ConvoyChat Logo">
   </a>
