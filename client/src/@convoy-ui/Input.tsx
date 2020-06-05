@@ -35,14 +35,14 @@ const StyledLabel = styled.label<{ hasErrors?: boolean }>`
   }
 `;
 
-const StyledInput = styled.input`
+export const StyledInput = styled.input`
   width: 100%;
   border: none;
   border-radius: ${p => p.theme.radius.small}px;
   padding: 10px;
 
   color: ${p => p.theme.colors.white};
-  background-color: ${p => p.theme.colors.dark2};
+  background-color: ${p => p.theme.colors.dark3};
 
   &::placeholder {
     color: ${p => p.theme.colors.gray};
