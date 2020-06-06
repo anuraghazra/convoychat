@@ -23,6 +23,18 @@ exports.getInvitationInfo = async (parent, args, context) => {
 };
 
 exports.createInvitationLink = async (parent, args, context) => {
+  const existingInvitation = await Invitation.findOne({
+    roomId: args.roomId,
+    invitedBy: context.currentUser.id,
+    isPublic: true,
+  });
+
+  if (existingInvitation) {
+    return {
+      link: `https://convoychat.herokuapp.com/invitations/${existingInvitation.token}`,
+    };
+  }
+
   // TODO: add expiry time in invitation token
   const token = crypto.randomBytes(16).toString("hex");
   const invite = new Invitation({
