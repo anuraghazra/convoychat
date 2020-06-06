@@ -6,6 +6,7 @@ const typeDefs = gql`
 
   type User {
     id: ID!
+    name: String!
     username: String!
     rooms: [Room!]!
     createdAt: String!
@@ -58,7 +59,19 @@ const typeDefs = gql`
     roomId: ID!
     userId: ID!
     invitedBy: ID!
-    isPending: Boolean!
+    isPublic: Boolean!
+    createdAt: String!
+  }
+
+  type InvitationLinkResult {
+    link: String!
+  }
+
+  type InvitationDetails {
+    id: ID!
+    room: Room
+    invitedBy: Member!
+    isPublic: Boolean!
     createdAt: String!
   }
 
@@ -82,6 +95,7 @@ const typeDefs = gql`
     getNotifications: [Notification]!
     getUser(id: ID!): User!
     getRoom(id: ID!): Room!
+    getInvitationInfo(token: String!): InvitationDetails!
   }
 
   type Mutation {
@@ -92,7 +106,8 @@ const typeDefs = gql`
     deleteMessage(messageId: ID!): Message!
     editMessage(messageId: ID!, content: String!): Message!
     inviteMembers(roomId: ID!, members: [ID!]!): [Invitation!]!
-    acceptInvitation(invitationId: ID!, token: String!): Boolean
+    acceptInvitation(token: String!): Boolean
+    createInvitationLink(roomId: ID!): InvitationLinkResult!
     logout: Boolean
   }
 

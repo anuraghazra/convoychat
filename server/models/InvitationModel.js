@@ -9,11 +9,10 @@ const InvitationSchema = new mongoose.Schema(
     },
     userId: {
       ref: "user",
-      required: true,
       type: mongoose.Types.ObjectId,
     },
     roomId: {
-      ref: "user",
+      ref: "room",
       required: true,
       type: mongoose.Types.ObjectId,
     },
@@ -21,10 +20,7 @@ const InvitationSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    isPending: {
-      type: Boolean,
-      default: false,
-    },
+    isPublic: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

@@ -1,7 +1,7 @@
 const { GraphQLJSON, GraphQLJSONObject } = require("graphql-type-json");
 const RoomController = require("../controllers/RoomController");
 const UserController = require("../controllers/UserController");
-const { Message } = require("../models/MessageModel");
+const InvitationController = require("../controllers/InvitationController");
 const MessageSubscriptions = require("../controllers/MessageSubscriptions");
 
 const useAuth = require("../utils/useAuth");
@@ -23,6 +23,7 @@ const resolvers = {
     getRoom: useAuth(RoomController.getRoom),
     getMessages: useAuth(RoomController.getMessages),
     getNotifications: useAuth(UserController.getNotifications),
+    getInvitationInfo: useAuth(InvitationController.getInvitationInfo),
   },
   Mutation: {
     createRoom: useAuth(RoomController.createRoom),
@@ -31,8 +32,9 @@ const resolvers = {
     sendMessage: useAuth(UserController.sendMessage),
     deleteMessage: useAuth(UserController.deleteMessage),
     editMessage: useAuth(UserController.editMessage),
-    inviteMembers: useAuth(RoomController.inviteMembers),
-    acceptInvitation: useAuth(RoomController.acceptInvitation),
+    inviteMembers: useAuth(InvitationController.inviteMembers),
+    acceptInvitation: useAuth(InvitationController.acceptInvitation),
+    createInvitationLink: useAuth(InvitationController.createInvitationLink),
     logout: (_parent, _args, context) => {
       const { req } = context;
       req.logout();

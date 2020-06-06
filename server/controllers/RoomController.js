@@ -1,6 +1,7 @@
 const { ApolloError } = require("apollo-server-express");
 const { User } = require("../models/UserModel");
 const { Room } = require("../models/RoomModel");
+const { Message } = require("../models/MessageModel");
 
 exports.listRooms = async () => {
   try {
@@ -76,14 +77,14 @@ exports.createRoom = async (parent, args, context) => {
       messages: [],
       owner: context.currentUser.id,
     });
-    room.populate("members").execPopulate();
+    await room.populate("members").execPopulate();
 
     await User.findByIdAndUpdate(
       { _id: context.currentUser.id },
       { $addToSet: { rooms: [room.id] } },
       { new: true }
     );
-    let savedRoom = await room.save();
+    const savedRoom = await room.save();
 
     return savedRoom;
   } catch (err) {
