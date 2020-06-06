@@ -7,7 +7,7 @@ import { initOAuthWindow } from "utils";
 import { useAuthContext } from "contexts/AuthContext";
 
 import ConvoyLogo from "components/ConvoyLogo";
-import LoginWrapper from "./Login.style";
+import HomeWrapper from "../HomeWrapper.style";
 
 function Login() {
   const { login } = useAuthContext();
@@ -17,9 +17,9 @@ function Login() {
   };
 
   return (
-    <LoginWrapper>
+    <HomeWrapper>
       <ConvoyLogo />
-      <div className="login__card">
+      <div className="wrapper_card">
         <div>
           <h2>
             Stay <span className="textcolor--primary">Connected</span>
@@ -33,7 +33,7 @@ function Login() {
           </Button>
         </div>
       </div>
-    </LoginWrapper>
+    </HomeWrapper>
   );
 }
 

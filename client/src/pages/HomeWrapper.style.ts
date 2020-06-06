@@ -13,7 +13,7 @@ const tiltedBox = css`
   z-index: -1;
 `
 
-const LoginWrapper = styled.div`
+const HomeWrapper = styled.div`
   position: relative;
   height: 100vh;
   display: flex;
@@ -41,7 +41,7 @@ const LoginWrapper = styled.div`
     height: 270px;
   }
   
-  .login__card {
+  .wrapper_card {
     position: relative;
     text-align: center;
     margin: auto;
@@ -62,4 +62,4 @@ const LoginWrapper = styled.div`
   }
 `;
 
-export default LoginWrapper;
+export default HomeWrapper;
