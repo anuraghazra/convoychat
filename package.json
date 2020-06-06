@@ -14,7 +14,7 @@
   "author": "Anurag Hazra",
   "license": "MIT",
   "dependencies": {
-    "apollo-server-express": "^2.13.1",
+    "apollo-server-express": "^2.14.2",
     "bcryptjs": "^2.4.3",
     "cookie": "^0.4.1",
     "cookie-parser": "^1.4.5",
