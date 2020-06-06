@@ -6,9 +6,11 @@ import Invitation from "pages/Invitation/Invitation";
 import Dashboard from "pages/Dashboard/Dashboard";
 import GlobalStyles from "styles/GlobalStyles";
 
-import AuthRoute from "components/AuthRoute";
 import { AuthProvider } from "contexts/AuthContext";
+import { ModalProvider } from "contexts/ModalContext";
+import AuthRoute from "components/AuthRoute";
 import HorizontalShade from "components/HorizontalShade";
+import CreateRoom from "pages/Modals/CreateRoom";
 
 function App() {
   return (
@@ -17,11 +19,20 @@ function App() {
         <AuthProvider>
           <GlobalStyles />
           <HorizontalShade />
-          <Switch>
-            <Route path="/login" exact component={Login} />
-            <Route path="/invitation/:token" exact component={Invitation} />
-            <AuthRoute path="/" component={Dashboard} />
-          </Switch>
+          <ModalProvider>
+            <CreateRoom />
+
+            <Switch>
+              <Route path="/login" exact component={Login} />
+              <AuthRoute
+                path="/invitation/:token"
+                exact
+                component={Invitation}
+              />
+
+              <AuthRoute path="/" component={Dashboard} />
+            </Switch>
+          </ModalProvider>
         </AuthProvider>
       </div>
     </BrowserRouter>

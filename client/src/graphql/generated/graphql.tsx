@@ -92,9 +92,9 @@ export type Mutation = {
   sendMessage: Message;
   deleteMessage: Message;
   editMessage: Message;
-  createInvitationLink: InvitationLinkResult;
   inviteMembers: Array<Invitation>;
   acceptInvitation?: Maybe<Scalars['Boolean']>;
+  createInvitationLink: InvitationLinkResult;
   logout?: Maybe<Scalars['Boolean']>;
 };
 
@@ -132,11 +132,6 @@ export type MutationEditMessageArgs = {
 };
 
 
-export type MutationCreateInvitationLinkArgs = {
-  roomId: Scalars['ID'];
-};
-
-
 export type MutationInviteMembersArgs = {
   roomId: Scalars['ID'];
   members: Array<Scalars['ID']>;
@@ -145,6 +140,11 @@ export type MutationInviteMembersArgs = {
 
 export type MutationAcceptInvitationArgs = {
   token: Scalars['String'];
+};
+
+
+export type MutationCreateInvitationLinkArgs = {
+  roomId: Scalars['ID'];
 };
 
 export type Notification = {
@@ -254,6 +254,19 @@ export type GetInvitationInfoQuery = (
       { __typename?: 'Member' }
       & Pick<Member, 'name'>
     ) }
+  ) }
+);
+
+export type CreateInvitationLinkMutationVariables = {
+  roomId: Scalars['ID'];
+};
+
+
+export type CreateInvitationLinkMutation = (
+  { __typename?: 'Mutation' }
+  & { createInvitationLink: (
+    { __typename?: 'InvitationLinkResult' }
+    & Pick<InvitationLinkResult, 'link'>
   ) }
 );
 
@@ -553,6 +566,38 @@ export function useGetInvitationInfoLazyQuery(baseOptions?: ApolloReactHooks.Laz
 export type GetInvitationInfoQueryHookResult = ReturnType<typeof useGetInvitationInfoQuery>;
 export type GetInvitationInfoLazyQueryHookResult = ReturnType<typeof useGetInvitationInfoLazyQuery>;
 export type GetInvitationInfoQueryResult = ApolloReactCommon.QueryResult<GetInvitationInfoQuery, GetInvitationInfoQueryVariables>;
+export const CreateInvitationLinkDocument = gql`
+    mutation createInvitationLink($roomId: ID!) {
+  createInvitationLink(roomId: $roomId) {
+    link
+  }
+}
+    `;
+export type CreateInvitationLinkMutationFn = ApolloReactCommon.MutationFunction<CreateInvitationLinkMutation, CreateInvitationLinkMutationVariables>;
+
+/**
+ * __useCreateInvitationLinkMutation__
+ *
+ * To run a mutation, you first call `useCreateInvitationLinkMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateInvitationLinkMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createInvitationLinkMutation, { data, loading, error }] = useCreateInvitationLinkMutation({
+ *   variables: {
+ *      roomId: // value for 'roomId'
+ *   },
+ * });
+ */
+export function useCreateInvitationLinkMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<CreateInvitationLinkMutation, CreateInvitationLinkMutationVariables>) {
+        return ApolloReactHooks.useMutation<CreateInvitationLinkMutation, CreateInvitationLinkMutationVariables>(CreateInvitationLinkDocument, baseOptions);
+      }
+export type CreateInvitationLinkMutationHookResult = ReturnType<typeof useCreateInvitationLinkMutation>;
+export type CreateInvitationLinkMutationResult = ApolloReactCommon.MutationResult<CreateInvitationLinkMutation>;
+export type CreateInvitationLinkMutationOptions = ApolloReactCommon.BaseMutationOptions<CreateInvitationLinkMutation, CreateInvitationLinkMutationVariables>;
 export const AcceptInvitationDocument = gql`
     mutation acceptInvitation($token: String!) {
   acceptInvitation(token: $token)

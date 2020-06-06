@@ -16,6 +16,12 @@ export default gql`
     }
   }
 
+  mutation createInvitationLink($roomId: ID!) {
+    createInvitationLink(roomId: $roomId) {
+      link
+    }
+  }
+
   mutation acceptInvitation($token: String!) {
     acceptInvitation(token: $token)
   }

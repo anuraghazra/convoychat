@@ -58,4 +58,17 @@ const textareaAutoResize = (element: HTMLTextAreaElement) => {
   element.style.height = element.scrollHeight + "px";
 }
 
-export { initOAuthWindow, formatDate, timeAgo, scrollToBottom, textareaAutoResize };
+const copyToClipboard = (str: string) => {
+  if (!str) return;
+  let el = document.createElement('textarea');
+  el.value = str;
+  el.setAttribute('readonly', '');
+  el.style.position = 'absolute';
+  el.style.left = '-9999px';
+  document.body.appendChild(el);
+  el.select();
+  document.execCommand('copy');
+  document.body.removeChild(el);
+}
+
+export { initOAuthWindow, formatDate, timeAgo, scrollToBottom, textareaAutoResize, copyToClipboard };
