@@ -30,8 +30,12 @@ exports.createInvitationLink = async (parent, args, context) => {
   });
 
   if (existingInvitation) {
+    const baseURL =
+      process.env.NODE_ENV === "development"
+        ? "http://localhost:3000"
+        : "https://convoychat.herokuapp.com";
     return {
-      link: `https://convoychat.herokuapp.com/invitations/${existingInvitation.token}`,
+      link: `${baseURL}/invitation/${existingInvitation.token}`,
     };
   }
 

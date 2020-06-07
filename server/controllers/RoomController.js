@@ -145,3 +145,34 @@ exports.addMembersToRoom = async (parent, args, context) => {
     throw new ApolloError(err);
   }
 };
+
+exports.removeMemberFromRoom = async (parent, args, context) => {
+  try {
+    if (args.memberId === context.currentUser.id) {
+      throw new ApolloError("You cannot not remove yourself from room");
+    }
+
+    const room = await Room.findOneAndUpdate(
+      {
+        _id: args.roomId,
+        owner: context.currentUser.id,
+      },
+      {
+        $pull: { members: args.memberId },
+      },
+      { new: true }
+    );
+
+    if (!room) throw new ApolloError("Could not remove member from room");
+
+    const removedMember = await User.findOneAndUpdate(
+      { _id: args.memberId },
+      { $pull: { rooms: args.roomId } },
+      { new: true }
+    );
+
+    return removedMember;
+  } catch (err) {
+    throw new ApolloError(err);
+  }
+};

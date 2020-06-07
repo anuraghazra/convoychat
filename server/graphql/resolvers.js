@@ -29,6 +29,7 @@ const resolvers = {
     createRoom: useAuth(RoomController.createRoom),
     deleteRoom: useAuth(RoomController.deleteRoom),
     addMembersToRoom: useAuth(RoomController.addMembersToRoom),
+    removeMemberFromRoom: useAuth(RoomController.removeMemberFromRoom),
     sendMessage: useAuth(UserController.sendMessage),
     deleteMessage: useAuth(UserController.deleteMessage),
     editMessage: useAuth(UserController.editMessage),
