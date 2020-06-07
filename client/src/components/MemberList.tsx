@@ -10,7 +10,7 @@ import {
 } from "graphql/generated/graphql";
 
 import Member from "./Member";
-import { Avatar, Flex, Button } from "@convoy-ui";
+import { Flex, Button } from "@convoy-ui";
 import { FaUserMinus } from "react-icons/fa";
 import { MAX_MESSAGES } from "../constants";
 

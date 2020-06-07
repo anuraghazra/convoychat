@@ -1,5 +1,6 @@
 import React, { useContext, useReducer, useEffect } from "react";
 import { useHistory } from "react-router-dom";
+import { toast } from "@convoy-ui";
 import {
   Me,
   useLogoutMutation,
@@ -66,23 +67,27 @@ const AuthProvider: React.FC = ({ children }) => {
   const history = useHistory();
 
   const [state, dispatch] = useReducer(authReducer, {
-    user: false,
+    user: null,
     isLoading: true,
     isAuthenticated: false,
   });
 
   let [login] = useCurrentUserLazyQuery({
+    notifyOnNetworkStatusChange: true,
+    fetchPolicy: "network-only",
     onCompleted(data) {
       dispatch({ type: "AUTH_SUCCESS", payload: data.me });
-      // if we are in login screen redirect to dashboard 
+      // if we are in login screen redirect to dashboard
       // else redirect to the path we were on
       let pathName = history.location.pathname;
       history.push(pathName === "/login" ? "/" : pathName);
     },
     onError() {
+      toast.error("Authentication Error");
       dispatch({ type: "AUTH_FAILED" });
     },
   });
+
   let [logout] = useLogoutMutation({
     onCompleted() {
       dispatch({ type: "AUTH_RESET" });

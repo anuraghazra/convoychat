@@ -6,6 +6,7 @@ import { ApolloLink, split } from "apollo-link";
 
 import { WebSocketLink } from "apollo-link-ws";
 import { getMainDefinition } from "apollo-utilities";
+import { toast } from "@convoy-ui";
 
 const httpLink = new HttpLink({
   uri: "/graphql",
@@ -38,14 +39,13 @@ const client = new ApolloClient({
   link: ApolloLink.from([
     onError(({ graphQLErrors, networkError }) => {
       if (graphQLErrors) {
-        graphQLErrors.map(({ message, locations, path }) =>
-          console.log(
-            `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`
-          )
+        graphQLErrors.forEach(({ message, locations, path }) =>
+          toast.error(message)
         );
       }
       if (networkError) {
         console.log(`[Network error]: ${networkError}`);
+        toast.error(networkError?.message)
       }
     }),
     link,

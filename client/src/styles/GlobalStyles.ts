@@ -107,6 +107,13 @@ const GlobalStyles = createGlobalStyle`
     }
   }
 
+  .toast-notification {
+    & > span {
+      z-index: 1000;
+      border-radius: ${p => p.theme.radius.small}px !important;
+    }
+  }
+
   ${ReactModalStyles}
   ${EmojiMartStyles}
 `;
