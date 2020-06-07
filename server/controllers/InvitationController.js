@@ -75,8 +75,17 @@ exports.acceptInvitation = async (parent, args, context) => {
     userToAdd = invitation.userId;
   }
 
-  if (!userToAdd)
-    throw ApolloError("Something went wrong while accepting invite");
+  if (!userToAdd) {
+    throw new ApolloError("Something went wrong while accepting invite");
+  }
+
+  // throw error and delete the invitation if maximum uses is reached
+  if (invitation.uses.length >= invitation.maxUses) {
+    await Invitation.findOneAndRemove({
+      token: args.token,
+    });
+    throw new ApolloError("Maximum invitation usage limit exceeded");
+  }
 
   // add user to the room
   const room = await Room.findOneAndUpdate(
@@ -95,9 +104,20 @@ exports.acceptInvitation = async (parent, args, context) => {
   );
 
   // delete the notification
-  await Invitation.findOneAndRemove({
-    token: args.token,
-  });
+  if (!invitation.isPublic) {
+    await Invitation.findOneAndRemove({
+      token: args.token,
+    });
+  } else {
+    await Invitation.findOneAndUpdate(
+      {
+        token: args.token,
+      },
+      {
+        $addToSet: { uses: [userToAdd] },
+      }
+    );
+  }
 
   return true;
 };

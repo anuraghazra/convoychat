@@ -66,7 +66,12 @@ const InviteMembers: React.FC<IInviteMembers> = ({ roomId }) => {
         value={inviteLink}
         onChange={() => {}}
         type="text"
-        label="Copy Invitation Link"
+        label={
+          <>
+            Copy Invitation Link{" "}
+            <span className="textcolor--gray">(expires after 24hours)</span>
+          </>
+        }
         placeholder="invitation link"
         icon={FaLink}
         postfixIcon={FaCopy}

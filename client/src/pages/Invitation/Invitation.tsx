@@ -19,6 +19,9 @@ function Invitation({ match }) {
     { loading: acceptInvitationLoading },
   ] = useAcceptInvitationMutation({
     variables: { token: match.params.token },
+    onError(err) {
+      console.log(err);
+    },
     onCompleted() {
       history.push("/");
     },
