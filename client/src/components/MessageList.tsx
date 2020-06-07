@@ -1,6 +1,7 @@
 import React from "react";
-import Message from "components/Message/Message";
 import { Member, Message as IMessage } from "graphql/generated/graphql";
+
+import Message from "components/Message/Message";
 import { useAuthContext } from "contexts/AuthContext";
 
 interface IMessageList {

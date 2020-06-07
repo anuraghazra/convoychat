@@ -2,13 +2,14 @@ import React from "react";
 import styled from "styled-components";
 import { Link } from "react-router-dom";
 import { FiMoreVertical } from "react-icons/fi";
-import { FaUsers, FaTrash } from "react-icons/fa";
+import { FaUsers, FaTrash, FaUserPlus } from "react-icons/fa";
 import {
   useDeleteRoomMutation,
   ListCurrentUserRoomsDocument,
 } from "graphql/generated/graphql";
 
 import { Flex, Button, Dropdown } from "@convoy-ui";
+import { useModalContext } from "contexts/ModalContext";
 
 const StyledRoomLink = styled.div<{ isSelected?: boolean }>`
   padding: 10px 20px;
@@ -29,9 +30,16 @@ interface IRoomLink {
   name: string;
   id: string;
   isSelected?: boolean;
+  onInviteMemberClick?: (roomId: string) => void;
 }
-const RoomLink: React.FC<IRoomLink> = ({ name, id, isSelected }) => {
-  const [deleteRoom, { loading, error }] = useDeleteRoomMutation({
+const RoomLink: React.FC<IRoomLink> = ({
+  name,
+  id,
+  isSelected,
+  onInviteMemberClick,
+}) => {
+  const { dispatch } = useModalContext();
+  const [deleteRoom, { loading: isDeleting, error }] = useDeleteRoomMutation({
     refetchQueries: [{ query: ListCurrentUserRoomsDocument }],
   });
 
@@ -41,6 +49,11 @@ const RoomLink: React.FC<IRoomLink> = ({ name, id, isSelected }) => {
         roomId: id,
       },
     }).catch(console.log);
+  };
+
+  const handleAddMembers = () => {
+    dispatch({ type: "OPEN", modal: "InviteMembers" });
+    onInviteMemberClick(id);
   };
 
   return (
@@ -57,15 +70,24 @@ const RoomLink: React.FC<IRoomLink> = ({ name, id, isSelected }) => {
           <Dropdown.Toggle>
             <FiMoreVertical />
           </Dropdown.Toggle>
-          <Dropdown.Content style={{ right: "initial" }}>
-            <Button
-              variant="secondary"
-              isLoading={loading}
-              onClick={handleDelete}
-              icon={FaTrash}
-            >
-              Delete
-            </Button>
+          <Dropdown.Content style={{ right: "initial", padding: "0 10px" }}>
+            <Flex direction="column" gap="none">
+              <Button
+                variant="secondary"
+                onClick={handleAddMembers}
+                icon={FaUserPlus}
+              >
+                Add Members
+              </Button>
+              <Button
+                variant="danger"
+                isLoading={isDeleting}
+                onClick={handleDelete}
+                icon={FaTrash}
+              >
+                Delete
+              </Button>
+            </Flex>
           </Dropdown.Content>
         </Dropdown>
       </Flex>
@@ -73,4 +95,4 @@ const RoomLink: React.FC<IRoomLink> = ({ name, id, isSelected }) => {
   );
 };
 
-export default RoomLink;
+export default React.memo(RoomLink);

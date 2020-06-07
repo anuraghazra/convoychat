@@ -1,8 +1,12 @@
 const { gql } = require("apollo-server-express");
 
 const typeDefs = gql`
+  scalar JSON
+  scalar JSONObject
+
   type User {
     id: ID!
+    name: String!
     username: String!
     rooms: [Room!]!
     createdAt: String!
@@ -50,23 +54,61 @@ const typeDefs = gql`
     messages: [Message!]!
   }
 
+  type Invitation {
+    id: ID!
+    roomId: ID!
+    userId: ID!
+    invitedBy: ID!
+    isPublic: Boolean!
+    createdAt: String!
+  }
+
+  type InvitationLinkResult {
+    link: String!
+  }
+
+  type InvitationDetails {
+    id: ID!
+    room: Room
+    invitedBy: Member!
+    isPublic: Boolean!
+    createdAt: String!
+  }
+
+  enum NOTIFICATION_TYPES {
+    INVITATION
+    MENTION
+  }
+  type Notification {
+    id: ID!
+    author: ID!
+    type: NOTIFICATION_TYPES!
+    payload: JSONObject
+  }
+
   type Query {
     me: Me!
     listUsers: [User!]!
     listRooms: [Room!]!
     listCurrentUserRooms: [Room]!
     getMessages(roomId: ID!, offset: Int!, limit: Int!): Messages
+    getNotifications: [Notification]!
     getUser(id: ID!): User!
     getRoom(id: ID!): Room!
+    getInvitationInfo(token: String!): InvitationDetails!
   }
 
   type Mutation {
     createRoom(name: String!): Room!
     addMembersToRoom(roomId: ID!, members: [ID!]!): Room!
+    removeMemberFromRoom(roomId: ID!, memberId: ID!): Member!
     deleteRoom(roomId: ID!): Room
     sendMessage(roomId: ID!, content: String!): Message!
     deleteMessage(messageId: ID!): Message!
     editMessage(messageId: ID!, content: String!): Message!
+    inviteMembers(roomId: ID!, members: [ID!]!): [Invitation!]!
+    acceptInvitation(token: String!): Boolean
+    createInvitationLink(roomId: ID!): InvitationLinkResult!
     logout: Boolean
   }
 

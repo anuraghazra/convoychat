@@ -1,6 +1,7 @@
 const { ApolloError } = require("apollo-server-express");
 const { User } = require("../models/UserModel");
 const { Room } = require("../models/RoomModel");
+const { Message } = require("../models/MessageModel");
 
 exports.listRooms = async () => {
   try {
@@ -76,14 +77,14 @@ exports.createRoom = async (parent, args, context) => {
       messages: [],
       owner: context.currentUser.id,
     });
-    room.populate("members").execPopulate();
+    await room.populate("members").execPopulate();
 
     await User.findByIdAndUpdate(
       { _id: context.currentUser.id },
       { $addToSet: { rooms: [room.id] } },
       { new: true }
     );
-    let savedRoom = await room.save();
+    const savedRoom = await room.save();
 
     return savedRoom;
   } catch (err) {
@@ -140,6 +141,37 @@ exports.addMembersToRoom = async (parent, args, context) => {
     );
 
     return room;
+  } catch (err) {
+    throw new ApolloError(err);
+  }
+};
+
+exports.removeMemberFromRoom = async (parent, args, context) => {
+  try {
+    if (args.memberId === context.currentUser.id) {
+      throw new ApolloError("You cannot not remove yourself from room");
+    }
+
+    const room = await Room.findOneAndUpdate(
+      {
+        _id: args.roomId,
+        owner: context.currentUser.id,
+      },
+      {
+        $pull: { members: args.memberId },
+      },
+      { new: true }
+    );
+
+    if (!room) throw new ApolloError("Could not remove member from room");
+
+    const removedMember = await User.findOneAndUpdate(
+      { _id: args.memberId },
+      { $pull: { rooms: args.roomId } },
+      { new: true }
+    );
+
+    return removedMember;
   } catch (err) {
     throw new ApolloError(err);
   }

@@ -1,7 +1,9 @@
+const mongoose = require("mongoose");
 const { ApolloError } = require("apollo-server-express");
 const { User } = require("../models/UserModel");
 const { Room } = require("../models/RoomModel");
 const { Message } = require("../models/MessageModel");
+const { Notification } = require("../models/NotificationModel");
 const { NEW_MESSAGE, DELETE_MESSAGE, UPDATE_MESSAGE } = require("../constants");
 
 exports.me = (_parent, _args, context) => {
@@ -85,6 +87,18 @@ exports.editMessage = async (_parent, args, context) => {
     context.pubsub.publish(UPDATE_MESSAGE, { onUpdateMessage: message });
 
     return message;
+  } catch (err) {
+    throw new ApolloError(err);
+  }
+};
+
+exports.getNotifications = async (_parent, args, context) => {
+  try {
+    let notifications = await Notification.find({
+      author: mongoose.Types.ObjectId(context.currentUser.id),
+    });
+    
+    return notifications;
   } catch (err) {
     throw new ApolloError(err);
   }

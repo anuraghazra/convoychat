@@ -8,21 +8,23 @@ import {
 } from "graphql/generated/graphql";
 
 import { Button, ButtonGroup, Spacer, Input } from "@convoy-ui";
+import { useModalContext } from "contexts/ModalContext";
 
 type Inputs = {
   roomName: string;
 };
 
-interface ICreateRoom {
-  isOpen: boolean;
-  closeModal: Function;
-}
-const CreateRoom: React.FC<ICreateRoom> = ({ isOpen, closeModal }) => {
+const CreateRoom: React.FC = () => {
+  const { state, dispatch } = useModalContext();
   const { register, handleSubmit, errors: formErrors } = useForm<Inputs>();
 
   const [createRoom, { loading }] = useCreateRoomMutation({
     refetchQueries: [{ query: ListCurrentUserRoomsDocument }],
   });
+
+  const closeModal = () => {
+    dispatch({ type: "CLOSE", modal: "CreateRoom" });
+  };
 
   const onSubmit = async (data: Inputs) => {
     try {
@@ -39,7 +41,7 @@ const CreateRoom: React.FC<ICreateRoom> = ({ isOpen, closeModal }) => {
 
   return (
     <Modal
-      isOpen={isOpen}
+      isOpen={state.isCreateRoomModalOpen}
       closeTimeoutMS={300}
       onRequestClose={closeModal}
       contentLabel="Create New Room"

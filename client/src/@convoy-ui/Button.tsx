@@ -33,6 +33,11 @@ const StyledButton = styled.button<IStyledButton>`
   cursor: pointer;
   transition: 0.2s;
 
+  .button__icon {
+    margin-bottom: -2px;
+    margin-right: ${p => p.theme.space.small}px;
+  }
+
   &:hover {
     transform: scale(1.02);
     transition: 0.2s;
@@ -55,10 +60,12 @@ export const Button: React.FC<ButtonProps> = ({
   ...props
 }) => (
   <StyledButton variant={variant} {...props} disabled={isLoading} width={width}>
-    <Flex gap="small" align="center">
-      {isLoading ? <FaSpinner className="spin" /> : Icon && <Icon />}
-      <span>{children}</span>
-    </Flex>
+    {isLoading ? (
+      <FaSpinner className="button__icon spin" />
+    ) : (
+      Icon && <Icon className="button__icon" />
+    )}
+    <span>{children}</span>
   </StyledButton>
 );
 

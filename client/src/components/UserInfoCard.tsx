@@ -13,6 +13,10 @@ const StyledUserInfoCard = styled.section<{ isMember?: boolean }>`
       padding: 20px;
       background-color: ${p => p.theme.colors.dark1};
     `}
+
+  .userinfo__displayname {
+    font-size: 14px;
+  }
 `;
 
 interface IUserInfoCard {
@@ -37,9 +41,9 @@ const UserInfoCard: React.FC<IUserInfoCard> = ({
         justify={isMember ? "" : "space-around"}
         align="center"
       >
-        <Avatar src={image} />
+        <Avatar size={35} src={image} />
         <Flex direction="column">
-          <span>{name}</span>
+          <span className="userinfo__displayname">{name}</span>
           <small className="textcolor--gray" title={username}>
             {username?.slice(0, 15)}...
           </small>

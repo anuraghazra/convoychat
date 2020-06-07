@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import styled, { css } from "styled-components/macro";
 import Flex from "./Flex";
 import { ErrorMessage } from "react-hook-form";
@@ -25,12 +25,23 @@ const StyledLabel = styled.label<{ hasErrors?: boolean }>`
 
     input {
       padding-left: 40px;
+      padding-right: 40px;
       color: inherit;
     }
 
     .input__icon {
       position: absolute;
       margin-left: 15px;
+    }
+
+    .postfix-icon {
+      cursor: pointer;
+      margin-right: 15px;
+      right: 0;
+
+      &:hover {
+        color: ${p => p.theme.colors.primary};
+      }
     }
   }
 `;
@@ -75,8 +86,10 @@ export const InputWrapper = styled.div`
 interface InputProps {
   label?: string;
   icon?: any;
-  inputRef?: React.Ref<HTMLInputElement>;
+  postfixIcon?: any;
+  inputRef?: any;
   errors?: any;
+  onPostfixIconClick?: (input?: HTMLInputElement) => void;
   [x: string]: any;
 }
 
@@ -90,8 +103,11 @@ export const Input: React.FC<InputProps> = ({
   inputRef,
   errors,
   icon: Icon,
+  postfixIcon: PostFixIcon,
+  onPostfixIconClick,
   ...props
 }) => {
+  let _inputRef = useRef<HTMLInputElement>();
   let hasErrors = errors && errors[props?.name];
 
   return (
@@ -101,7 +117,19 @@ export const Input: React.FC<InputProps> = ({
 
         <Flex align="center" className={!!Icon ? "input__wrapper" : ""}>
           {Icon && <Icon className="input__icon" />}
-          <StyledInput ref={inputRef} {...props} />
+          <StyledInput
+            ref={e => {
+              _inputRef.current = e;
+              inputRef && inputRef(e);
+            }}
+            {...props}
+          />
+          {PostFixIcon && (
+            <PostFixIcon
+              onClick={() => onPostfixIconClick(_inputRef?.current)}
+              className="input__icon postfix-icon"
+            />
+          )}
         </Flex>
       </StyledLabel>
       {errors && (

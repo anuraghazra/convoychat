@@ -1,18 +1,15 @@
 import React from "react";
 
 import { useAuthContext } from "contexts/AuthContext";
-import useModal from "hooks/useModal";
 
 import { Button, Spacer } from "@convoy-ui";
 import SidebarWrapper from "./Sidebar.style";
 import UserInfoCard from "components/UserInfoCard";
 import ConvoyLogo from "components/ConvoyLogo";
-import CreateRoom from "components/CreateRoom";
 import RoomsList from "components/RoomsList";
 
 const Sidebar = () => {
   const { user, logout } = useAuthContext();
-  const { isOpen, openModal, closeModal } = useModal();
 
   return (
     <SidebarWrapper>
@@ -25,11 +22,9 @@ const Sidebar = () => {
       />
 
       <Spacer gap="huge" />
-      <RoomsList onModalOpen={openModal} />
+      <RoomsList />
 
       <Button onClick={logout}>Logout</Button>
-
-      <CreateRoom isOpen={isOpen} closeModal={closeModal} />
     </SidebarWrapper>
   );
 };

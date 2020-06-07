@@ -86,6 +86,27 @@ const GlobalStyles = createGlobalStyle`
     }
   }
 
+  .react-contextmenu {
+    padding: 10px;
+    border-radius: ${p => p.theme.radius.small}px;
+    background-color: ${p => p.theme.colors.dark1};
+    
+    .react-contextmenu-item {
+      border-radius: ${p => p.theme.radius.small}px;
+      padding: 0;
+
+      button {
+        margin: 0;
+      }
+    }
+
+    .react-contextmenu-item--divider {
+      padding: 1px;
+      border-radius: 0;
+      margin: 10px;
+    }
+  }
+
   ${ReactModalStyles}
   ${EmojiMartStyles}
 `;
