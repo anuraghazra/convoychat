@@ -10,7 +10,6 @@ const StyledLabel = styled.label<{ hasErrors?: boolean }>`
 
   span {
     font-size: 14px;
-    color: ${p => p.theme.colors.white};
     margin-bottom: ${p => p.theme.space.medium}px;
   }
 
@@ -84,7 +83,7 @@ export const InputWrapper = styled.div`
 `;
 
 interface InputProps {
-  label?: string;
+  label?: string | React.ReactNode;
   icon?: any;
   postfixIcon?: any;
   inputRef?: any;

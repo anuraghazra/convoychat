@@ -16,6 +16,16 @@ const InvitationSchema = new mongoose.Schema(
       required: true,
       type: mongoose.Types.ObjectId,
     },
+    maxUses: {
+      type: Number,
+      default: 15,
+    },
+    uses: [
+      {
+        ref: "user",
+        type: mongoose.Types.ObjectId,
+      },
+    ],
     token: {
       type: String,
       required: true,
@@ -30,6 +40,18 @@ InvitationSchema.set("toJSON", {
     delete ret.token;
   },
 });
+
+// expire token
+// https://stackoverflow.com/a/35179159/10629172
+InvitationSchema.index(
+  { createdAt: 1 },
+  {
+    expireAfterSeconds: 86400, // 24 hours
+    partialFilterExpression: {
+      isPublic: { $eq: true },
+    },
+  }
+);
 
 const Invitation = mongoose.model(
   "invitation",
