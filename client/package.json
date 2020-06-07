@@ -39,7 +39,7 @@
     "uuid": "^8.1.0"
   },
   "scripts": {
-    "start": "react-scripts start & npm run codegen",
+    "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",

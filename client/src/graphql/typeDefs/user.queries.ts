@@ -15,18 +15,9 @@ export default gql`
       }
     }
   }
-  query ListUsers {
-    listUsers {
-      username
-      id
-      rooms {
-        id
-      }
-    }
-  }
 
   query ListCurrentUserRooms {
-    listCurrentUserRooms {
+    currentUserRooms: listCurrentUserRooms {
       id
       name
       createdAt
@@ -37,5 +28,4 @@ export default gql`
   mutation logout {
     logout
   }
-
 `

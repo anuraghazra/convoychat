@@ -46,12 +46,12 @@ function Invitation({ match }) {
             <h2>
               Invitation from{" "}
               <span className="textcolor--primary">
-                {invite?.getInvitationInfo?.room?.name}
+                {invite?.invitationInfo?.room?.name}
               </span>
             </h2>
             <p>
-              {invite?.getInvitationInfo?.invitedBy?.name} Invited you to join
-              {invite?.getInvitationInfo?.room?.name}, join their community now!
+              {invite?.invitationInfo?.invitedBy?.name} Invited you to join
+              {invite?.invitationInfo?.room?.name}, join their community now!
             </p>
             <Button
               isLoading={acceptInvitationLoading}

@@ -41,13 +41,13 @@ const typeDefs = gql`
   }
   
   mutation deleteMessage($messageId: ID!) {
-    deleteMessage(messageId: $messageId) {
+    deletedMessage: deleteMessage(messageId: $messageId) {
       ...MessageParts
     }
   }
 
   mutation editMessage($messageId: ID!, $content: String!) {
-    editMessage(messageId: $messageId, content: $content) {
+    editedMessage: editMessage(messageId: $messageId, content: $content) {
         ...MessageParts
     }
   }

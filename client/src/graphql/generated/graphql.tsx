@@ -88,6 +88,7 @@ export type Mutation = {
   __typename?: 'Mutation';
   createRoom: Room;
   addMembersToRoom: Room;
+  removeMemberFromRoom: Member;
   deleteRoom?: Maybe<Room>;
   sendMessage: Message;
   deleteMessage: Message;
@@ -107,6 +108,12 @@ export type MutationCreateRoomArgs = {
 export type MutationAddMembersToRoomArgs = {
   roomId: Scalars['ID'];
   members: Array<Scalars['ID']>;
+};
+
+
+export type MutationRemoveMemberFromRoomArgs = {
+  roomId: Scalars['ID'];
+  memberId: Scalars['ID'];
 };
 
 
@@ -244,7 +251,7 @@ export type GetInvitationInfoQueryVariables = {
 
 export type GetInvitationInfoQuery = (
   { __typename?: 'Query' }
-  & { getInvitationInfo: (
+  & { invitationInfo: (
     { __typename?: 'InvitationDetails' }
     & Pick<InvitationDetails, 'id' | 'createdAt' | 'isPublic'>
     & { room?: Maybe<(
@@ -264,7 +271,7 @@ export type CreateInvitationLinkMutationVariables = {
 
 export type CreateInvitationLinkMutation = (
   { __typename?: 'Mutation' }
-  & { createInvitationLink: (
+  & { invitation: (
     { __typename?: 'InvitationLinkResult' }
     & Pick<InvitationLinkResult, 'link'>
   ) }
@@ -278,6 +285,11 @@ export type AcceptInvitationMutationVariables = {
 export type AcceptInvitationMutation = (
   { __typename?: 'Mutation' }
   & Pick<Mutation, 'acceptInvitation'>
+);
+
+export type RoomMemberFragment = (
+  { __typename?: 'Member' }
+  & Pick<Member, 'id' | 'name' | 'username' | 'avatarUrl' | 'createdAt'>
 );
 
 export type GetRoomQueryVariables = {
@@ -294,7 +306,7 @@ export type GetRoomQuery = (
     & Pick<Room, 'id' | 'name' | 'owner' | 'createdAt'>
     & { members: Array<(
       { __typename?: 'Member' }
-      & Pick<Member, 'username' | 'name' | 'avatarUrl' | 'createdAt' | 'id'>
+      & RoomMemberFragment
     )> }
   ), messages?: Maybe<(
     { __typename?: 'Messages' }
@@ -310,15 +322,18 @@ export type GetRoomQuery = (
   )> }
 );
 
-export type ListRoomsQueryVariables = {};
+export type RemoveMemberMutationVariables = {
+  roomId: Scalars['ID'];
+  memberId: Scalars['ID'];
+};
 
 
-export type ListRoomsQuery = (
-  { __typename?: 'Query' }
-  & { listRooms: Array<(
-    { __typename?: 'Room' }
-    & Pick<Room, 'id' | 'name' | 'createdAt' | 'owner'>
-  )> }
+export type RemoveMemberMutation = (
+  { __typename?: 'Mutation' }
+  & { removedMember: (
+    { __typename?: 'Member' }
+    & RoomMemberFragment
+  ) }
 );
 
 export type CreateRoomMutationVariables = {
@@ -328,7 +343,7 @@ export type CreateRoomMutationVariables = {
 
 export type CreateRoomMutation = (
   { __typename?: 'Mutation' }
-  & { createRoom: (
+  & { newRoom: (
     { __typename?: 'Room' }
     & Pick<Room, 'id' | 'name' | 'createdAt' | 'owner'>
   ) }
@@ -341,7 +356,7 @@ export type DeleteRoomMutationVariables = {
 
 export type DeleteRoomMutation = (
   { __typename?: 'Mutation' }
-  & { deleteRoom?: Maybe<(
+  & { deletedRoom?: Maybe<(
     { __typename?: 'Room' }
     & Pick<Room, 'id' | 'name' | 'createdAt' | 'owner'>
   )> }
@@ -390,7 +405,7 @@ export type DeleteMessageMutationVariables = {
 
 export type DeleteMessageMutation = (
   { __typename?: 'Mutation' }
-  & { deleteMessage: (
+  & { deletedMessage: (
     { __typename?: 'Message' }
     & MessagePartsFragment
   ) }
@@ -404,7 +419,7 @@ export type EditMessageMutationVariables = {
 
 export type EditMessageMutation = (
   { __typename?: 'Mutation' }
-  & { editMessage: (
+  & { editedMessage: (
     { __typename?: 'Message' }
     & MessagePartsFragment
   ) }
@@ -464,27 +479,12 @@ export type CurrentUserQuery = (
   ) }
 );
 
-export type ListUsersQueryVariables = {};
-
-
-export type ListUsersQuery = (
-  { __typename?: 'Query' }
-  & { listUsers: Array<(
-    { __typename?: 'User' }
-    & Pick<User, 'username' | 'id'>
-    & { rooms: Array<(
-      { __typename?: 'Room' }
-      & Pick<Room, 'id'>
-    )> }
-  )> }
-);
-
 export type ListCurrentUserRoomsQueryVariables = {};
 
 
 export type ListCurrentUserRoomsQuery = (
   { __typename?: 'Query' }
-  & { listCurrentUserRooms: Array<Maybe<(
+  & { currentUserRooms: Array<Maybe<(
     { __typename?: 'Room' }
     & Pick<Room, 'id' | 'name' | 'createdAt' | 'owner'>
   )>> }
@@ -498,6 +498,15 @@ export type LogoutMutation = (
   & Pick<Mutation, 'logout'>
 );
 
+export const RoomMemberFragmentDoc = gql`
+    fragment RoomMember on Member {
+  id
+  name
+  username
+  avatarUrl
+  createdAt
+}
+    `;
 export const MessagePartsFragmentDoc = gql`
     fragment MessageParts on Message {
   id
@@ -526,7 +535,7 @@ export const SubscriptionMessagePartsFragmentDoc = gql`
     `;
 export const GetInvitationInfoDocument = gql`
     query getInvitationInfo($token: String!) {
-  getInvitationInfo(token: $token) {
+  invitationInfo: getInvitationInfo(token: $token) {
     id
     room {
       name
@@ -568,7 +577,7 @@ export type GetInvitationInfoLazyQueryHookResult = ReturnType<typeof useGetInvit
 export type GetInvitationInfoQueryResult = ApolloReactCommon.QueryResult<GetInvitationInfoQuery, GetInvitationInfoQueryVariables>;
 export const CreateInvitationLinkDocument = gql`
     mutation createInvitationLink($roomId: ID!) {
-  createInvitationLink(roomId: $roomId) {
+  invitation: createInvitationLink(roomId: $roomId) {
     link
   }
 }
@@ -636,11 +645,7 @@ export const GetRoomDocument = gql`
     owner
     createdAt
     members {
-      username
-      name
-      avatarUrl
-      createdAt
-      id
+      ...RoomMember
     }
   }
   messages: getMessages(roomId: $roomId, limit: $limit, offset: $offset) {
@@ -660,7 +665,7 @@ export const GetRoomDocument = gql`
     }
   }
 }
-    `;
+    ${RoomMemberFragmentDoc}`;
 
 /**
  * __useGetRoomQuery__
@@ -689,44 +694,42 @@ export function useGetRoomLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHook
 export type GetRoomQueryHookResult = ReturnType<typeof useGetRoomQuery>;
 export type GetRoomLazyQueryHookResult = ReturnType<typeof useGetRoomLazyQuery>;
 export type GetRoomQueryResult = ApolloReactCommon.QueryResult<GetRoomQuery, GetRoomQueryVariables>;
-export const ListRoomsDocument = gql`
-    query ListRooms {
-  listRooms {
-    id
-    name
-    createdAt
-    owner
+export const RemoveMemberDocument = gql`
+    mutation removeMember($roomId: ID!, $memberId: ID!) {
+  removedMember: removeMemberFromRoom(roomId: $roomId, memberId: $memberId) {
+    ...RoomMember
   }
 }
-    `;
+    ${RoomMemberFragmentDoc}`;
+export type RemoveMemberMutationFn = ApolloReactCommon.MutationFunction<RemoveMemberMutation, RemoveMemberMutationVariables>;
 
 /**
- * __useListRoomsQuery__
+ * __useRemoveMemberMutation__
  *
- * To run a query within a React component, call `useListRoomsQuery` and pass it any options that fit your needs.
- * When your component renders, `useListRoomsQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
+ * To run a mutation, you first call `useRemoveMemberMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRemoveMemberMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
  *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const { data, loading, error } = useListRoomsQuery({
+ * const [removeMemberMutation, { data, loading, error }] = useRemoveMemberMutation({
  *   variables: {
+ *      roomId: // value for 'roomId'
+ *      memberId: // value for 'memberId'
  *   },
  * });
  */
-export function useListRoomsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<ListRoomsQuery, ListRoomsQueryVariables>) {
-        return ApolloReactHooks.useQuery<ListRoomsQuery, ListRoomsQueryVariables>(ListRoomsDocument, baseOptions);
+export function useRemoveMemberMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<RemoveMemberMutation, RemoveMemberMutationVariables>) {
+        return ApolloReactHooks.useMutation<RemoveMemberMutation, RemoveMemberMutationVariables>(RemoveMemberDocument, baseOptions);
       }
-export function useListRoomsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ListRoomsQuery, ListRoomsQueryVariables>) {
-          return ApolloReactHooks.useLazyQuery<ListRoomsQuery, ListRoomsQueryVariables>(ListRoomsDocument, baseOptions);
-        }
-export type ListRoomsQueryHookResult = ReturnType<typeof useListRoomsQuery>;
-export type ListRoomsLazyQueryHookResult = ReturnType<typeof useListRoomsLazyQuery>;
-export type ListRoomsQueryResult = ApolloReactCommon.QueryResult<ListRoomsQuery, ListRoomsQueryVariables>;
+export type RemoveMemberMutationHookResult = ReturnType<typeof useRemoveMemberMutation>;
+export type RemoveMemberMutationResult = ApolloReactCommon.MutationResult<RemoveMemberMutation>;
+export type RemoveMemberMutationOptions = ApolloReactCommon.BaseMutationOptions<RemoveMemberMutation, RemoveMemberMutationVariables>;
 export const CreateRoomDocument = gql`
     mutation createRoom($name: String!) {
-  createRoom(name: $name) {
+  newRoom: createRoom(name: $name) {
     id
     name
     createdAt
@@ -761,7 +764,7 @@ export type CreateRoomMutationResult = ApolloReactCommon.MutationResult<CreateRo
 export type CreateRoomMutationOptions = ApolloReactCommon.BaseMutationOptions<CreateRoomMutation, CreateRoomMutationVariables>;
 export const DeleteRoomDocument = gql`
     mutation deleteRoom($roomId: ID!) {
-  deleteRoom(roomId: $roomId) {
+  deletedRoom: deleteRoom(roomId: $roomId) {
     id
     name
     createdAt
@@ -838,7 +841,7 @@ export type SendMessageMutationResult = ApolloReactCommon.MutationResult<SendMes
 export type SendMessageMutationOptions = ApolloReactCommon.BaseMutationOptions<SendMessageMutation, SendMessageMutationVariables>;
 export const DeleteMessageDocument = gql`
     mutation deleteMessage($messageId: ID!) {
-  deleteMessage(messageId: $messageId) {
+  deletedMessage: deleteMessage(messageId: $messageId) {
     ...MessageParts
   }
 }
@@ -870,7 +873,7 @@ export type DeleteMessageMutationResult = ApolloReactCommon.MutationResult<Delet
 export type DeleteMessageMutationOptions = ApolloReactCommon.BaseMutationOptions<DeleteMessageMutation, DeleteMessageMutationVariables>;
 export const EditMessageDocument = gql`
     mutation editMessage($messageId: ID!, $content: String!) {
-  editMessage(messageId: $messageId, content: $content) {
+  editedMessage: editMessage(messageId: $messageId, content: $content) {
     ...MessageParts
   }
 }
@@ -1029,45 +1032,9 @@ export function useCurrentUserLazyQuery(baseOptions?: ApolloReactHooks.LazyQuery
 export type CurrentUserQueryHookResult = ReturnType<typeof useCurrentUserQuery>;
 export type CurrentUserLazyQueryHookResult = ReturnType<typeof useCurrentUserLazyQuery>;
 export type CurrentUserQueryResult = ApolloReactCommon.QueryResult<CurrentUserQuery, CurrentUserQueryVariables>;
-export const ListUsersDocument = gql`
-    query ListUsers {
-  listUsers {
-    username
-    id
-    rooms {
-      id
-    }
-  }
-}
-    `;
-
-/**
- * __useListUsersQuery__
- *
- * To run a query within a React component, call `useListUsersQuery` and pass it any options that fit your needs.
- * When your component renders, `useListUsersQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useListUsersQuery({
- *   variables: {
- *   },
- * });
- */
-export function useListUsersQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<ListUsersQuery, ListUsersQueryVariables>) {
-        return ApolloReactHooks.useQuery<ListUsersQuery, ListUsersQueryVariables>(ListUsersDocument, baseOptions);
-      }
-export function useListUsersLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ListUsersQuery, ListUsersQueryVariables>) {
-          return ApolloReactHooks.useLazyQuery<ListUsersQuery, ListUsersQueryVariables>(ListUsersDocument, baseOptions);
-        }
-export type ListUsersQueryHookResult = ReturnType<typeof useListUsersQuery>;
-export type ListUsersLazyQueryHookResult = ReturnType<typeof useListUsersLazyQuery>;
-export type ListUsersQueryResult = ApolloReactCommon.QueryResult<ListUsersQuery, ListUsersQueryVariables>;
 export const ListCurrentUserRoomsDocument = gql`
     query ListCurrentUserRooms {
-  listCurrentUserRooms {
+  currentUserRooms: listCurrentUserRooms {
     id
     name
     createdAt

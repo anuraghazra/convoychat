@@ -39,7 +39,7 @@ const RoomLink: React.FC<IRoomLink> = ({
   onInviteMemberClick,
 }) => {
   const { dispatch } = useModalContext();
-  const [deleteRoom, { loading, error }] = useDeleteRoomMutation({
+  const [deleteRoom, { loading: isDeleting, error }] = useDeleteRoomMutation({
     refetchQueries: [{ query: ListCurrentUserRoomsDocument }],
   });
 
@@ -74,7 +74,6 @@ const RoomLink: React.FC<IRoomLink> = ({
             <Flex direction="column" gap="none">
               <Button
                 variant="secondary"
-                isLoading={loading}
                 onClick={handleAddMembers}
                 icon={FaUserPlus}
               >
@@ -82,7 +81,7 @@ const RoomLink: React.FC<IRoomLink> = ({
               </Button>
               <Button
                 variant="danger"
-                isLoading={loading}
+                isLoading={isDeleting}
                 onClick={handleDelete}
                 icon={FaTrash}
               >

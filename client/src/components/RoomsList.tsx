@@ -12,7 +12,7 @@ import InviteMembers from "pages/Modals/InviteMembers";
 const RoomsList: React.FC = () => {
   const { dispatch } = useModalContext();
   const [modalRoomId, setModalRoomId] = useState<string>("");
-  const { data: rooms, loading, error } = useListCurrentUserRoomsQuery();
+  const { data, loading, error } = useListCurrentUserRoomsQuery();
 
   return (
     <section>
@@ -28,7 +28,7 @@ const RoomsList: React.FC = () => {
 
       {loading && <Loading />}
       {error && <span>Error Loading Rooms</span>}
-      {rooms?.listCurrentUserRooms?.map((room, index) => {
+      {data?.currentUserRooms?.map((room, index) => {
         return (
           <RoomLink
             id={room.id}

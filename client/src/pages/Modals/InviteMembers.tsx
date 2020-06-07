@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { useHistory, useParams } from "react-router-dom";
 import Modal from "react-modal";
 import { useForm } from "react-hook-form";
+
 import {
-  FaUsers,
   FaTimes,
   FaLink,
   FaPaperPlane,
@@ -25,8 +24,6 @@ interface IInviteMembers {
 }
 const InviteMembers: React.FC<IInviteMembers> = ({ roomId }) => {
   const [inviteLink, setInviteLink] = useState("");
-  // let history = useHistory();
-  // let { roomId } = useParams();
   const { state, dispatch } = useModalContext();
   const { register, handleSubmit, errors: formErrors } = useForm<Inputs>();
 
@@ -35,7 +32,7 @@ const InviteMembers: React.FC<IInviteMembers> = ({ roomId }) => {
     { data: invitationLink },
   ] = useCreateInvitationLinkMutation({
     onCompleted(data) {
-      setInviteLink(data.createInvitationLink.link);
+      setInviteLink(data.invitation.link);
     },
   });
 

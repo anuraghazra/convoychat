@@ -8,9 +8,10 @@ import {
   useDeleteMessageMutation,
 } from "graphql/generated/graphql";
 
-import { Avatar, Flex } from "@convoy-ui";
 import { timeAgo } from "utils";
-import { deleteMessageMutationUpdater } from "./Message.updaters";
+import { Avatar, Flex } from "@convoy-ui";
+import { deleteMessageMutationUpdater } from "./Message.helpers";
+
 import MessageInput from "components/MessageInput";
 import StyledMessage from "./Message.style";
 

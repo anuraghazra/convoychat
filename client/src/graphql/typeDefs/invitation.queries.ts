@@ -2,7 +2,7 @@ import gql from "graphql-tag";
 
 export default gql`
   query getInvitationInfo($token: String!) {
-    getInvitationInfo(token: $token) {
+    invitationInfo: getInvitationInfo(token: $token) {
       id
       room {
         name
@@ -17,7 +17,7 @@ export default gql`
   }
 
   mutation createInvitationLink($roomId: ID!) {
-    createInvitationLink(roomId: $roomId) {
+    invitation: createInvitationLink(roomId: $roomId) {
       link
     }
   }

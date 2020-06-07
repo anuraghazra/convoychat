@@ -1,6 +1,14 @@
 import gql from "graphql-tag";
 
 export default gql`
+  fragment RoomMember on Member {
+    id
+    name
+    username
+    avatarUrl
+    createdAt
+  }
+
   query getRoom($roomId: ID!, $limit: Int!, $offset: Int!) {
     room: getRoom(id: $roomId) {
       id
@@ -8,11 +16,7 @@ export default gql`
       owner
       createdAt
       members {
-        username
-        name
-        avatarUrl
-        createdAt
-        id
+        ...RoomMember
       }
     }
     messages: getMessages(roomId: $roomId, limit: $limit, offset: $offset) {
@@ -33,17 +37,14 @@ export default gql`
     }
   }
 
-  query ListRooms {
-    listRooms {
-      id
-      name
-      createdAt
-      owner
+  mutation removeMember($roomId: ID!, $memberId: ID!) {
+    removedMember: removeMemberFromRoom(roomId: $roomId, memberId: $memberId) {
+      ...RoomMember
     }
   }
 
   mutation createRoom($name: String!) {
-    createRoom(name: $name) {
+    newRoom: createRoom(name: $name) {
       id
       name
       createdAt
@@ -52,7 +53,7 @@ export default gql`
   }
 
   mutation deleteRoom($roomId: ID!) {
-    deleteRoom(roomId: $roomId) {
+    deletedRoom: deleteRoom(roomId: $roomId) {
       id
       name
       createdAt
