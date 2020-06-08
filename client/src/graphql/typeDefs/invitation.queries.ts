@@ -16,6 +16,17 @@ export default gql`
     }
   }
 
+  mutation inviteMembers($roomId: ID!, $members: [ID!]!) {
+    invitations: inviteMembers(roomId: $roomId, members: $members) {
+      id
+      roomId
+      isPublic
+      userId
+      invitedBy
+      createdAt
+    }
+  }
+
   mutation createInvitationLink($roomId: ID!) {
     invitation: createInvitationLink(roomId: $roomId) {
       link

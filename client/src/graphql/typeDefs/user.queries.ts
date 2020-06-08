@@ -16,6 +16,17 @@ export default gql`
     }
   }
 
+  query listUsers {
+    users: listUsers {
+      id
+      name
+      avatarUrl
+      username
+      rooms
+      createdAt
+    }
+  }
+
   query ListCurrentUserRooms {
     currentUserRooms: listCurrentUserRooms {
       id

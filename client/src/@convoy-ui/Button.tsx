@@ -12,6 +12,7 @@ interface StyledButtonProps {
 interface ButtonProps extends StyledButtonProps {
   icon?: any;
   isLoading?: boolean;
+  disabled?: boolean;
   [x: string]: any;
 }
 
@@ -44,6 +45,7 @@ const StyledButton = styled.button<IStyledButton>`
   }
   &:disabled {
     opacity: 0.8;
+    cursor: not-allowed;
   }
   @media screen and (${p => p.theme.media.mobile}) {
     padding: 10px 25px;
@@ -52,6 +54,7 @@ const StyledButton = styled.button<IStyledButton>`
 
 export const Button: React.FC<ButtonProps> = ({
   variant = "primary",
+  disabled,
   width,
   icon: Icon,
   children,
@@ -59,7 +62,12 @@ export const Button: React.FC<ButtonProps> = ({
   isLoading,
   ...props
 }) => (
-  <StyledButton variant={variant} {...props} disabled={isLoading} width={width}>
+  <StyledButton
+    variant={variant}
+    disabled={disabled || isLoading}
+    width={width}
+    {...props}
+  >
     {isLoading ? (
       <FaSpinner className="button__icon spin" />
     ) : (

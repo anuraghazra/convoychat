@@ -170,7 +170,7 @@ export enum Notification_Types {
 export type Query = {
   __typename?: 'Query';
   me: Me;
-  listUsers: Array<User>;
+  listUsers: Array<Member>;
   listRooms: Array<Room>;
   listCurrentUserRooms: Array<Maybe<Room>>;
   getMessages?: Maybe<Messages>;
@@ -262,6 +262,20 @@ export type GetInvitationInfoQuery = (
       & Pick<Member, 'name'>
     ) }
   ) }
+);
+
+export type InviteMembersMutationVariables = {
+  roomId: Scalars['ID'];
+  members: Array<Scalars['ID']>;
+};
+
+
+export type InviteMembersMutation = (
+  { __typename?: 'Mutation' }
+  & { invitations: Array<(
+    { __typename?: 'Invitation' }
+    & Pick<Invitation, 'id' | 'roomId' | 'isPublic' | 'userId' | 'invitedBy' | 'createdAt'>
+  )> }
 );
 
 export type CreateInvitationLinkMutationVariables = {
@@ -479,6 +493,17 @@ export type CurrentUserQuery = (
   ) }
 );
 
+export type ListUsersQueryVariables = {};
+
+
+export type ListUsersQuery = (
+  { __typename?: 'Query' }
+  & { users: Array<(
+    { __typename?: 'Member' }
+    & Pick<Member, 'id' | 'name' | 'avatarUrl' | 'username' | 'rooms' | 'createdAt'>
+  )> }
+);
+
 export type ListCurrentUserRoomsQueryVariables = {};
 
 
@@ -575,6 +600,44 @@ export function useGetInvitationInfoLazyQuery(baseOptions?: ApolloReactHooks.Laz
 export type GetInvitationInfoQueryHookResult = ReturnType<typeof useGetInvitationInfoQuery>;
 export type GetInvitationInfoLazyQueryHookResult = ReturnType<typeof useGetInvitationInfoLazyQuery>;
 export type GetInvitationInfoQueryResult = ApolloReactCommon.QueryResult<GetInvitationInfoQuery, GetInvitationInfoQueryVariables>;
+export const InviteMembersDocument = gql`
+    mutation inviteMembers($roomId: ID!, $members: [ID!]!) {
+  invitations: inviteMembers(roomId: $roomId, members: $members) {
+    id
+    roomId
+    isPublic
+    userId
+    invitedBy
+    createdAt
+  }
+}
+    `;
+export type InviteMembersMutationFn = ApolloReactCommon.MutationFunction<InviteMembersMutation, InviteMembersMutationVariables>;
+
+/**
+ * __useInviteMembersMutation__
+ *
+ * To run a mutation, you first call `useInviteMembersMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useInviteMembersMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [inviteMembersMutation, { data, loading, error }] = useInviteMembersMutation({
+ *   variables: {
+ *      roomId: // value for 'roomId'
+ *      members: // value for 'members'
+ *   },
+ * });
+ */
+export function useInviteMembersMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<InviteMembersMutation, InviteMembersMutationVariables>) {
+        return ApolloReactHooks.useMutation<InviteMembersMutation, InviteMembersMutationVariables>(InviteMembersDocument, baseOptions);
+      }
+export type InviteMembersMutationHookResult = ReturnType<typeof useInviteMembersMutation>;
+export type InviteMembersMutationResult = ApolloReactCommon.MutationResult<InviteMembersMutation>;
+export type InviteMembersMutationOptions = ApolloReactCommon.BaseMutationOptions<InviteMembersMutation, InviteMembersMutationVariables>;
 export const CreateInvitationLinkDocument = gql`
     mutation createInvitationLink($roomId: ID!) {
   invitation: createInvitationLink(roomId: $roomId) {
@@ -1032,6 +1095,43 @@ export function useCurrentUserLazyQuery(baseOptions?: ApolloReactHooks.LazyQuery
 export type CurrentUserQueryHookResult = ReturnType<typeof useCurrentUserQuery>;
 export type CurrentUserLazyQueryHookResult = ReturnType<typeof useCurrentUserLazyQuery>;
 export type CurrentUserQueryResult = ApolloReactCommon.QueryResult<CurrentUserQuery, CurrentUserQueryVariables>;
+export const ListUsersDocument = gql`
+    query listUsers {
+  users: listUsers {
+    id
+    name
+    avatarUrl
+    username
+    rooms
+    createdAt
+  }
+}
+    `;
+
+/**
+ * __useListUsersQuery__
+ *
+ * To run a query within a React component, call `useListUsersQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListUsersQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListUsersQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListUsersQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<ListUsersQuery, ListUsersQueryVariables>) {
+        return ApolloReactHooks.useQuery<ListUsersQuery, ListUsersQueryVariables>(ListUsersDocument, baseOptions);
+      }
+export function useListUsersLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ListUsersQuery, ListUsersQueryVariables>) {
+          return ApolloReactHooks.useLazyQuery<ListUsersQuery, ListUsersQueryVariables>(ListUsersDocument, baseOptions);
+        }
+export type ListUsersQueryHookResult = ReturnType<typeof useListUsersQuery>;
+export type ListUsersLazyQueryHookResult = ReturnType<typeof useListUsersLazyQuery>;
+export type ListUsersQueryResult = ApolloReactCommon.QueryResult<ListUsersQuery, ListUsersQueryVariables>;
 export const ListCurrentUserRoomsDocument = gql`
     query ListCurrentUserRooms {
   currentUserRooms: listCurrentUserRooms {
