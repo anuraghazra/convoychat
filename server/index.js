@@ -107,7 +107,7 @@ if (process.env.NODE_ENV === "production") {
   });
 }
 
-httpServer.listen({ port: 4000 }, () => {
+httpServer.listen({ port: process.env.PORT || 4000 }, () => {
   mongoose.connect(
     process.env.DB_URL,
     { useUnifiedTopology: true, useNewUrlParser: true },
