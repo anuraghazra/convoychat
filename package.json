@@ -9,7 +9,9 @@
     "codegen": "cd client && npm run codegen",
     "develop": "concurrently \"npm run server:watch\" \"cd client && npm start\"",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prettier": "prettier --write **/*.{ts,js,css,html}"
+    "prettier": "prettier --write **/*.{ts,js,css,html}",
+    "heroku-prebuild": "cd client && npm install --dev",
+    "heroku-postbuild": "cd client && npm install && npm run build"
   },
   "author": "Anurag Hazra",
   "license": "MIT",
@@ -35,5 +37,8 @@
     "concurrently": "^5.2.0",
     "passport-mock-strategy": "^2.0.0",
     "prettier": "^2.0.5"
+  },
+  "engines": {
+    "node": "10.15.0"
   }
 }
