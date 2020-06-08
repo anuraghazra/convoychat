@@ -4,6 +4,7 @@ const { User } = require("../models/UserModel");
 const { Room } = require("../models/RoomModel");
 const { Invitation } = require("../models/InvitationModel");
 const { Notification } = require("../models/NotificationModel");
+const notificationTypes = require("../notificationTypes");
 
 exports.getInvitationInfo = async (parent, args, context) => {
   const invite = await Invitation.findOne({
@@ -155,19 +156,17 @@ exports.inviteMembers = async (parent, args, context) => {
 
   // send notification
   const notifications = args.members.map((id, index) => {
-    const noti = new Notification({
+    return new Notification({
       payload: {
-        roomId: args.roomId,
         userId: id,
+        roomId: args.roomId,
         invitedBy: context.currentUser.id,
-        invitationId: savedInvites[index].id,
         token: savedInvites[index].token,
       },
-      author: id,
-      type: "INVITATION",
-    });
-
-    return noti.save();
+      sender: context.currentUser.id,
+      receiver: id,
+      type: notificationTypes.INVITATION,
+    }).save();
   });
 
   await Promise.all(notifications);
