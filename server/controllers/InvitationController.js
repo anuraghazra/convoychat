@@ -13,6 +13,8 @@ exports.getInvitationInfo = async (parent, args, context) => {
     .populate("roomId")
     .populate("invitedBy");
 
+  if (!invite) throw new ApolloError("Could not get invitation info");
+
   return {
     id: invite.id,
     room: invite.roomId,
@@ -70,7 +72,7 @@ exports.acceptInvitation = async (parent, args, context) => {
   // if invitation is not public add the invitation.userId
   if (
     invitation.isPublic === false &&
-    invitation.userId === context.currentUser.id
+    toString(invitation.userId) === toString(context.currentUser.id)
   ) {
     userToAdd = invitation.userId;
   }

@@ -10,9 +10,9 @@ exports.me = (_parent, _args, context) => {
   return context.getUser();
 };
 
-exports.listUsers = async () => {
+exports.listUsers = async (_parent, _args, context) => {
   try {
-    let users = await User.find({}).populate("rooms");
+    const users = await User.find({ _id: { $ne: context.currentUser.id } });
     return users;
   } catch (err) {
     throw new ApolloError(err);
@@ -97,7 +97,7 @@ exports.getNotifications = async (_parent, args, context) => {
     let notifications = await Notification.find({
       author: mongoose.Types.ObjectId(context.currentUser.id),
     });
-    
+
     return notifications;
   } catch (err) {
     throw new ApolloError(err);

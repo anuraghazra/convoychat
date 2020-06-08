@@ -1,6 +1,7 @@
 import React from "react";
 import { Route, Redirect } from "react-router-dom";
 import { useAuthContext } from "contexts/AuthContext";
+import Loading from "./Loading";
 
 interface AuthRouteProps {
   component: Function;
@@ -12,13 +13,13 @@ const AuthRoute: React.FC<AuthRouteProps> = ({
   ...rest
 }) => {
   const { isAuthenticated, isLoading } = useAuthContext();
-  
+
   return (
     <Route
       {...rest}
       render={props =>
         isLoading ? (
-          <></>
+          <Loading />
         ) : isAuthenticated ? (
           <Component {...props} />
         ) : (

@@ -88,7 +88,7 @@ const typeDefs = gql`
 
   type Query {
     me: Me!
-    listUsers: [User!]!
+    listUsers: [Member!]!
     listRooms: [Room!]!
     listCurrentUserRooms: [Room]!
     getMessages(roomId: ID!, offset: Int!, limit: Int!): Messages

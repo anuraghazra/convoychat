@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Modal from "react-modal";
 import { useForm } from "react-hook-form";
-
 import {
   FaTimes,
   FaLink,
@@ -9,8 +8,15 @@ import {
   FaCopy,
   FaSearch,
 } from "react-icons/fa";
-import { useCreateInvitationLinkMutation } from "graphql/generated/graphql";
 
+import {
+  Member as IMember,
+  useListUsersQuery,
+  useCreateInvitationLinkMutation,
+  useInviteMembersMutation,
+} from "graphql/generated/graphql";
+
+import MemberSelector from "components/MemberSelector";
 import { Button, ButtonGroup, Spacer, Input } from "@convoy-ui";
 import { useModalContext } from "contexts/ModalContext";
 import { copyToClipboard } from "utils";
@@ -22,21 +28,31 @@ type Inputs = {
 interface IInviteMembers {
   roomId: string;
 }
-const InviteMembers: React.FC<IInviteMembers> = ({ roomId }) => {
-  const [inviteLink, setInviteLink] = useState("");
-  const { state, dispatch } = useModalContext();
-  const { register, handleSubmit, errors: formErrors } = useForm<Inputs>();
 
+const InviteMembers: React.FC<IInviteMembers> = ({ roomId }) => {
+  const [selectedMembers, setSelectedMembers] = useState<any>({});
+  const { state, dispatch } = useModalContext();
+
+  const { register, handleSubmit, errors: formErrors } = useForm<Inputs>();
+  const onSubmit = async (data: Inputs) => {};
+
+  const { data: allUsers } = useListUsersQuery();
   const [
     createInvitationLink,
     { data: invitationLink },
-  ] = useCreateInvitationLinkMutation({
-    onCompleted(data) {
-      setInviteLink(data.invitation.link);
-    },
-  });
+  ] = useCreateInvitationLinkMutation({});
 
-  const onSubmit = async (data: Inputs) => {};
+  const [inviteMembers, { loading: isLoading }] = useInviteMembersMutation();
+
+  const toggleMemberSelection = (member: IMember) => {
+    if (selectedMembers[member.id]) {
+      let copy = { ...selectedMembers };
+      delete copy[member.id];
+      setSelectedMembers({ ...copy });
+    } else {
+      setSelectedMembers({ ...selectedMembers, [member.id]: member });
+    }
+  };
 
   const closeModal = () => {
     dispatch({ type: "CLOSE", modal: "InviteMembers" });
@@ -48,10 +64,12 @@ const InviteMembers: React.FC<IInviteMembers> = ({ roomId }) => {
     }
   }, [state.isInviteMembersModalOpen, roomId]);
 
+  const selectedMembersIds = Object.keys(selectedMembers);
+
   return (
     <Modal
-      isOpen={state.isInviteMembersModalOpen}
       closeTimeoutMS={300}
+      isOpen={state.isInviteMembersModalOpen}
       onRequestClose={closeModal}
       contentLabel="Create New Room"
       className="ModalContent"
@@ -63,24 +81,23 @@ const InviteMembers: React.FC<IInviteMembers> = ({ roomId }) => {
       <Spacer gap="huge" />
 
       <Input
-        value={inviteLink}
-        onChange={() => {}}
         type="text"
-        label={
-          <>
-            Copy Invitation Link{" "}
-            <span className="textcolor--gray">(expires after 24hours)</span>
-          </>
-        }
-        placeholder="invitation link"
         icon={FaLink}
         postfixIcon={FaCopy}
+        placeholder="invitation link"
+        defaultValue={invitationLink?.invitation?.link}
         onPostfixIconClick={e => copyToClipboard(e.value)}
+        label={
+          <span>
+            Copy Invitation Link{" "}
+            <span className="textcolor--gray">(expires after 24hours)</span>
+          </span>
+        }
       />
 
       <Spacer gap="large" />
 
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <div>
         <Input
           type="text"
           name="username"
@@ -91,13 +108,34 @@ const InviteMembers: React.FC<IInviteMembers> = ({ roomId }) => {
           inputRef={register({ required: "Username is required" })}
         />
 
+        {allUsers && (
+          <MemberSelector
+            members={allUsers?.users}
+            selectedMembers={selectedMembers}
+            onMemberClick={toggleMemberSelection}
+          />
+        )}
+
+        <Spacer gap="xlarge" />
+
         <ButtonGroup gap="medium" float="right">
           <Button onClick={closeModal} variant="danger" icon={FaTimes}>
             Cancel
           </Button>
-          <Button icon={FaPaperPlane}>Invite members</Button>
+          <Button
+            icon={FaPaperPlane}
+            isLoading={isLoading}
+            disabled={selectedMembersIds.length < 1}
+            onClick={() => {
+              inviteMembers({
+                variables: { roomId, members: selectedMembersIds },
+              });
+            }}
+          >
+            Invite members ({selectedMembersIds.length})
+          </Button>
         </ButtonGroup>
-      </form>
+      </div>
     </Modal>
   );
 };
