@@ -13,9 +13,13 @@ require("./passport-config");
 
 const { buildContext, createOnConnect } = require("graphql-passport");
 const { PubSub, ApolloServer, ApolloError } = require("apollo-server-express");
+const { createRateLimitDirective } = require("graphql-rate-limit");
 
 const typeDefs = require("./graphql/typeDefs");
 const resolvers = require("./graphql/resolvers");
+const rateLimitDirective = createRateLimitDirective({
+  identifyContext: ctx => ctx.id,
+});
 
 const pubsub = new PubSub();
 const app = express();
@@ -42,6 +46,9 @@ app.use("/auth", authRoute);
 const server = new ApolloServer({
   typeDefs: typeDefs,
   resolvers: resolvers,
+  schemaDirectives: {
+    rateLimit: rateLimitDirective,
+  },
   subscriptions: {
     path: "/subscriptions",
     // https://github.com/jkettmann/graphql-passport#usage-with-subscriptions

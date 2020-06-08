@@ -95,7 +95,7 @@ exports.editMessage = async (_parent, args, context) => {
 exports.getNotifications = async (_parent, args, context) => {
   try {
     let notifications = await Notification.find({
-      author: mongoose.Types.ObjectId(context.currentUser.id),
+      receiver: mongoose.Types.ObjectId(context.currentUser.id),
     });
 
     return notifications;
