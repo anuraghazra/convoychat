@@ -96,7 +96,28 @@ exports.getNotifications = async (_parent, args, context) => {
   try {
     let notifications = await Notification.find({
       receiver: mongoose.Types.ObjectId(context.currentUser.id),
-    });
+    })
+      .populate("sender")
+      .sort({ createdAt: -1 });
+
+    return notifications;
+  } catch (err) {
+    throw new ApolloError(err);
+  }
+};
+
+exports.readNotification = async (_parent, args, context) => {
+  try {
+    let notifications = await Notification.findOneAndUpdate(
+      {
+        _id: args.id,
+        receiver: mongoose.Types.ObjectId(context.currentUser.id),
+      },
+      { seen: true },
+      { new: true }
+    )
+      .populate("sender")
+      .sort({ createdAt: -1 });
 
     return notifications;
   } catch (err) {
