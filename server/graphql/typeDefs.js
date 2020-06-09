@@ -89,11 +89,12 @@ const typeDefs = gql`
 
   type Notification {
     id: ID!
-    sender: ID!
+    sender: Member!
     receiver: ID!
     seen: Boolean!
     type: NOTIFICATION_TYPES!
     payload: JSONObject
+    createdAt: String!
   }
 
   type Query {
@@ -138,6 +139,7 @@ const typeDefs = gql`
       )
     acceptInvitation(token: String!): Boolean
     createInvitationLink(roomId: ID!): InvitationLinkResult!
+    readNotification(id: ID!): Notification!
 
     logout: Boolean
   }
@@ -146,6 +148,7 @@ const typeDefs = gql`
     onNewMessage(roomId: ID!): Message!
     onDeleteMessage(roomId: ID!): Message!
     onUpdateMessage(roomId: ID!): Message!
+    onNewNotification: Notification!
   }
 `;
 

@@ -11,27 +11,23 @@ import update from "immutability-helper";
 import { useForm } from "react-hook-form";
 import { useParams } from "react-router-dom";
 
-import Loading from "components/Loading";
-import MemberList from "components/MemberList";
-import MessageInput from "components/MessageInput";
-import MessageList from "components/MessageList";
+import RoomHeader from "./RoomHeader";
+import MemberList from "components/Member/MemberList";
+import MessageList from "components/Message/MessageList";
+import MessageInput from "components/Message/MessageInput";
 import SidebarWrapper from "components/Sidebar/Sidebar.style";
+import { DashboardBody } from "pages/Dashboard/Dashboard.style";
 import subscribeToMessages from "./subscribeToMessages";
 
-import { Flex, Spacer } from "@convoy-ui";
 import { scrollToBottom } from "utils";
-import { useAuthContext } from "contexts/AuthContext";
 import { MAX_MESSAGES } from "../../constants";
+import { Flex, Spacer, Loading } from "@convoy-ui";
+import { useAuthContext } from "contexts/AuthContext";
 
 import {
   updateCacheAfterSendMessage,
   sendMessageOptimisticResponse,
 } from "./Room.helpers";
-
-import {
-  DashboardBody,
-  DashboardHeader,
-} from "pages/Dashboard/Dashboard.style";
 
 const MessagesWrapper = styled.div`
   width: 100%;
@@ -64,7 +60,7 @@ const Room: React.FC = () => {
     loading: fetchRoomLoading,
   } = useGetRoomQuery({
     notifyOnNetworkStatusChange: true,
-    onCompleted(data) {
+    onCompleted() {
       if (!isFetchingMore) {
         scrollToBottom(bodyRef?.current);
       }
@@ -131,7 +127,7 @@ const Room: React.FC = () => {
 
   const handleScroll = (e: any) => {
     e.persist();
-    if (e.nativeEvent.target.scrollTop === 0) {
+    if (bodyRef.current.scrollTop === 0) {
       fetchMoreMessages();
     }
   };
@@ -146,9 +142,7 @@ const Room: React.FC = () => {
           direction="column"
           justify="space-between"
         >
-          <DashboardHeader>
-            <h3>/{roomData?.room?.name}</h3>
-          </DashboardHeader>
+          <RoomHeader name={roomData?.room?.name} roomId={roomData?.room?.id} />
 
           {fetchRoomLoading && <Loading />}
           {sendError && <span>Error sending message</span>}

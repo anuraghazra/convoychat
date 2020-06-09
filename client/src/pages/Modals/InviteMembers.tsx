@@ -16,7 +16,7 @@ import {
   useInviteMembersMutation,
 } from "graphql/generated/graphql";
 
-import MemberSelector from "components/MemberSelector";
+import MemberSelector from "components/Member/MemberSelector";
 import { Button, ButtonGroup, Spacer, Input } from "@convoy-ui";
 import { useModalContext } from "contexts/ModalContext";
 import { copyToClipboard } from "utils";

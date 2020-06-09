@@ -1,14 +1,15 @@
 const crypto = require("crypto");
+const mongoose = require("mongoose");
 const { ApolloError } = require("apollo-server-express");
 const { User } = require("../models/UserModel");
 const { Room } = require("../models/RoomModel");
 const { Invitation } = require("../models/InvitationModel");
 const { Notification } = require("../models/NotificationModel");
 const notificationTypes = require("../notificationTypes");
+const { NEW_NOTIFICATION } = require("../constants");
 
 exports.getInvitationInfo = async (parent, args, context) => {
   const invite = await Invitation.findOne({
-    isPublic: true,
     token: args.token,
   })
     .populate("roomId")
@@ -67,14 +68,16 @@ exports.acceptInvitation = async (parent, args, context) => {
   let userToAdd = null;
   // if invitation is public add the current user
   if (invitation.isPublic === true) {
+    console.log("Invitation is public add Current user");
     userToAdd = context.currentUser.id;
   }
 
   // if invitation is not public add the invitation.userId
   if (
     invitation.isPublic === false &&
-    toString(invitation.userId) === toString(context.currentUser.id)
+    `${invitation.userId}` === `${context.currentUser.id}`
   ) {
+    console.log("Invitation is private");
     userToAdd = invitation.userId;
   }
 
@@ -154,11 +157,14 @@ exports.inviteMembers = async (parent, args, context) => {
 
   const savedInvites = await Promise.all(invitations);
 
+  const foundRoom = await Room.findOne({ _id: args.roomId });
+
   // send notification
-  const notifications = args.members.map((id, index) => {
-    return new Notification({
+  const notifications = args.members.map(async (id, index) => {
+    let noti = new Notification({
       payload: {
         userId: id,
+        roomName: foundRoom.name,
         roomId: args.roomId,
         invitedBy: context.currentUser.id,
         token: savedInvites[index].token,
@@ -166,7 +172,20 @@ exports.inviteMembers = async (parent, args, context) => {
       sender: context.currentUser.id,
       receiver: id,
       type: notificationTypes.INVITATION,
-    }).save();
+    });
+
+    // TODO: CLEAN THIS UP
+    let populated = await noti.execPopulate("sender");
+    let subscribtionData = populated.toObject();
+    context.pubsub.publish(NEW_NOTIFICATION, {
+      onNewNotification: {
+        ...subscribtionData,
+        id: subscribtionData._id,
+        createdAt: Date.now(),
+      },
+    });
+
+    return noti.save();
   });
 
   await Promise.all(notifications);
