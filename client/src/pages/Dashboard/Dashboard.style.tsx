@@ -21,6 +21,7 @@ export const DashboardHeader = styled.div`
   right: 0;
   padding: ${p => p.theme.space.xlarge}px;
   background-color: ${p => p.theme.colors.dark2};
+  z-index: 200;
 `;
 
 export const SidebarRight = styled.div`

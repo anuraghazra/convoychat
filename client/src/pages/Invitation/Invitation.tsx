@@ -6,8 +6,7 @@ import {
   useAcceptInvitationMutation,
 } from "graphql/generated/graphql";
 
-import { Button } from "@convoy-ui";
-import Loading from "components/Loading";
+import { Button, Loading } from "@convoy-ui";
 
 import ConvoyLogo from "components/ConvoyLogo";
 import HomeWrapper from "../HomeWrapper.style";

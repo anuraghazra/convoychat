@@ -62,7 +62,7 @@ const StyledLoader = styled.div`
   }
 `;
 
-const Loading = () => {
+export const Loading = () => {
   return (
     <StyledLoader>
       <div className="lds-ellipsis">

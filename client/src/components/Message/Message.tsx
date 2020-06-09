@@ -12,7 +12,7 @@ import { timeAgo } from "utils";
 import { Avatar, Flex } from "@convoy-ui";
 import { deleteMessageMutationUpdater } from "./Message.helpers";
 
-import MessageInput from "components/MessageInput";
+import MessageInput from "components/Message/MessageInput";
 import StyledMessage from "./Message.style";
 
 interface IInputs {

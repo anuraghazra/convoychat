@@ -2,10 +2,9 @@ import React, { useState } from "react";
 import { MdAdd } from "react-icons/md";
 import { useListCurrentUserRoomsQuery } from "graphql/generated/graphql";
 
-import { Flex, Spacer } from "@convoy-ui";
+import { Flex, Spacer, Loading } from "@convoy-ui";
 import { useModalContext } from "contexts/ModalContext";
 
-import Loading from "components/Loading";
 import RoomLink from "components/RoomLink";
 import InviteMembers from "pages/Modals/InviteMembers";
 

@@ -1,7 +1,7 @@
 import React from "react";
 import { Route, Redirect } from "react-router-dom";
 import { useAuthContext } from "contexts/AuthContext";
-import Loading from "./Loading";
+import Loading from "../@convoy-ui/Loading";
 
 interface AuthRouteProps {
   component: Function;

@@ -5,3 +5,4 @@ export * from "./Flex";
 export * from "./Input";
 export * from "./Spacer";
 export * from "./Toast";
+export * from "./Loading";

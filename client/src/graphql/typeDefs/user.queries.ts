@@ -1,6 +1,19 @@
 import gql from "graphql-tag";
 
 export default gql`
+  fragment NotificationData on Notification {
+    id
+    receiver
+    seen
+    type
+    payload
+    createdAt
+    sender {
+      avatarUrl
+      name
+    }
+  }
+
   query currentUser {
     me {
       id
@@ -35,6 +48,26 @@ export default gql`
       owner
     }
   }
+
+  query getNotifications {
+    notifications: getNotifications {
+      ...NotificationData
+    }
+  }
+
+  mutation readNotification($id: ID!) {
+    readNotification(id: $id) {
+      ...NotificationData
+    }
+  }
+
+  subscription onNewNotification {
+    onNewNotification {
+      ...NotificationData
+    }
+  }
+
+  
 
   mutation logout {
     logout

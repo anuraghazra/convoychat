@@ -96,6 +96,7 @@ export type Mutation = {
   inviteMembers: Array<Invitation>;
   acceptInvitation?: Maybe<Scalars['Boolean']>;
   createInvitationLink: InvitationLinkResult;
+  readNotification: Notification;
   logout?: Maybe<Scalars['Boolean']>;
 };
 
@@ -154,12 +155,20 @@ export type MutationCreateInvitationLinkArgs = {
   roomId: Scalars['ID'];
 };
 
+
+export type MutationReadNotificationArgs = {
+  id: Scalars['ID'];
+};
+
 export type Notification = {
   __typename?: 'Notification';
   id: Scalars['ID'];
-  author: Scalars['ID'];
+  sender: Member;
+  receiver: Scalars['ID'];
+  seen: Scalars['Boolean'];
   type: Notification_Types;
   payload?: Maybe<Scalars['JSONObject']>;
+  createdAt: Scalars['String'];
 };
 
 export enum Notification_Types {
@@ -171,20 +180,13 @@ export type Query = {
   __typename?: 'Query';
   me: Me;
   listUsers: Array<Member>;
-  listRooms: Array<Room>;
-  listCurrentUserRooms: Array<Maybe<Room>>;
-  getMessages?: Maybe<Messages>;
-  getNotifications: Array<Maybe<Notification>>;
   getUser: User;
+  listCurrentUserRooms: Array<Maybe<Room>>;
+  listRooms: Array<Room>;
   getRoom: Room;
+  getNotifications: Array<Maybe<Notification>>;
   getInvitationInfo: InvitationDetails;
-};
-
-
-export type QueryGetMessagesArgs = {
-  roomId: Scalars['ID'];
-  offset: Scalars['Int'];
-  limit: Scalars['Int'];
+  getMessages?: Maybe<Messages>;
 };
 
 
@@ -202,6 +204,13 @@ export type QueryGetInvitationInfoArgs = {
   token: Scalars['String'];
 };
 
+
+export type QueryGetMessagesArgs = {
+  roomId: Scalars['ID'];
+  offset: Scalars['Int'];
+  limit: Scalars['Int'];
+};
+
 export type Room = {
   __typename?: 'Room';
   id: Scalars['ID'];
@@ -217,6 +226,7 @@ export type Subscription = {
   onNewMessage: Message;
   onDeleteMessage: Message;
   onUpdateMessage: Message;
+  onNewNotification: Notification;
 };
 
 
@@ -478,6 +488,15 @@ export type OnUpdateMessageSubscription = (
   ) }
 );
 
+export type NotificationDataFragment = (
+  { __typename?: 'Notification' }
+  & Pick<Notification, 'id' | 'receiver' | 'seen' | 'type' | 'payload' | 'createdAt'>
+  & { sender: (
+    { __typename?: 'Member' }
+    & Pick<Member, 'avatarUrl' | 'name'>
+  ) }
+);
+
 export type CurrentUserQueryVariables = {};
 
 
@@ -513,6 +532,41 @@ export type ListCurrentUserRoomsQuery = (
     { __typename?: 'Room' }
     & Pick<Room, 'id' | 'name' | 'createdAt' | 'owner'>
   )>> }
+);
+
+export type GetNotificationsQueryVariables = {};
+
+
+export type GetNotificationsQuery = (
+  { __typename?: 'Query' }
+  & { notifications: Array<Maybe<(
+    { __typename?: 'Notification' }
+    & NotificationDataFragment
+  )>> }
+);
+
+export type ReadNotificationMutationVariables = {
+  id: Scalars['ID'];
+};
+
+
+export type ReadNotificationMutation = (
+  { __typename?: 'Mutation' }
+  & { readNotification: (
+    { __typename?: 'Notification' }
+    & NotificationDataFragment
+  ) }
+);
+
+export type OnNewNotificationSubscriptionVariables = {};
+
+
+export type OnNewNotificationSubscription = (
+  { __typename?: 'Subscription' }
+  & { onNewNotification: (
+    { __typename?: 'Notification' }
+    & NotificationDataFragment
+  ) }
 );
 
 export type LogoutMutationVariables = {};
@@ -555,6 +609,20 @@ export const SubscriptionMessagePartsFragmentDoc = gql`
     name
     username
     avatarUrl
+  }
+}
+    `;
+export const NotificationDataFragmentDoc = gql`
+    fragment NotificationData on Notification {
+  id
+  receiver
+  seen
+  type
+  payload
+  createdAt
+  sender {
+    avatarUrl
+    name
   }
 }
     `;
@@ -1167,6 +1235,98 @@ export function useListCurrentUserRoomsLazyQuery(baseOptions?: ApolloReactHooks.
 export type ListCurrentUserRoomsQueryHookResult = ReturnType<typeof useListCurrentUserRoomsQuery>;
 export type ListCurrentUserRoomsLazyQueryHookResult = ReturnType<typeof useListCurrentUserRoomsLazyQuery>;
 export type ListCurrentUserRoomsQueryResult = ApolloReactCommon.QueryResult<ListCurrentUserRoomsQuery, ListCurrentUserRoomsQueryVariables>;
+export const GetNotificationsDocument = gql`
+    query getNotifications {
+  notifications: getNotifications {
+    ...NotificationData
+  }
+}
+    ${NotificationDataFragmentDoc}`;
+
+/**
+ * __useGetNotificationsQuery__
+ *
+ * To run a query within a React component, call `useGetNotificationsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetNotificationsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetNotificationsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetNotificationsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<GetNotificationsQuery, GetNotificationsQueryVariables>) {
+        return ApolloReactHooks.useQuery<GetNotificationsQuery, GetNotificationsQueryVariables>(GetNotificationsDocument, baseOptions);
+      }
+export function useGetNotificationsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<GetNotificationsQuery, GetNotificationsQueryVariables>) {
+          return ApolloReactHooks.useLazyQuery<GetNotificationsQuery, GetNotificationsQueryVariables>(GetNotificationsDocument, baseOptions);
+        }
+export type GetNotificationsQueryHookResult = ReturnType<typeof useGetNotificationsQuery>;
+export type GetNotificationsLazyQueryHookResult = ReturnType<typeof useGetNotificationsLazyQuery>;
+export type GetNotificationsQueryResult = ApolloReactCommon.QueryResult<GetNotificationsQuery, GetNotificationsQueryVariables>;
+export const ReadNotificationDocument = gql`
+    mutation readNotification($id: ID!) {
+  readNotification(id: $id) {
+    ...NotificationData
+  }
+}
+    ${NotificationDataFragmentDoc}`;
+export type ReadNotificationMutationFn = ApolloReactCommon.MutationFunction<ReadNotificationMutation, ReadNotificationMutationVariables>;
+
+/**
+ * __useReadNotificationMutation__
+ *
+ * To run a mutation, you first call `useReadNotificationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useReadNotificationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [readNotificationMutation, { data, loading, error }] = useReadNotificationMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useReadNotificationMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<ReadNotificationMutation, ReadNotificationMutationVariables>) {
+        return ApolloReactHooks.useMutation<ReadNotificationMutation, ReadNotificationMutationVariables>(ReadNotificationDocument, baseOptions);
+      }
+export type ReadNotificationMutationHookResult = ReturnType<typeof useReadNotificationMutation>;
+export type ReadNotificationMutationResult = ApolloReactCommon.MutationResult<ReadNotificationMutation>;
+export type ReadNotificationMutationOptions = ApolloReactCommon.BaseMutationOptions<ReadNotificationMutation, ReadNotificationMutationVariables>;
+export const OnNewNotificationDocument = gql`
+    subscription onNewNotification {
+  onNewNotification {
+    ...NotificationData
+  }
+}
+    ${NotificationDataFragmentDoc}`;
+
+/**
+ * __useOnNewNotificationSubscription__
+ *
+ * To run a query within a React component, call `useOnNewNotificationSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useOnNewNotificationSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useOnNewNotificationSubscription({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useOnNewNotificationSubscription(baseOptions?: ApolloReactHooks.SubscriptionHookOptions<OnNewNotificationSubscription, OnNewNotificationSubscriptionVariables>) {
+        return ApolloReactHooks.useSubscription<OnNewNotificationSubscription, OnNewNotificationSubscriptionVariables>(OnNewNotificationDocument, baseOptions);
+      }
+export type OnNewNotificationSubscriptionHookResult = ReturnType<typeof useOnNewNotificationSubscription>;
+export type OnNewNotificationSubscriptionResult = ApolloReactCommon.SubscriptionResult<OnNewNotificationSubscription>;
 export const LogoutDocument = gql`
     mutation logout {
   logout

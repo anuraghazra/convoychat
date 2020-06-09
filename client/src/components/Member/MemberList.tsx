@@ -12,7 +12,7 @@ import {
 import Member from "./Member";
 import { Flex, Button } from "@convoy-ui";
 import { FaUserMinus } from "react-icons/fa";
-import { MAX_MESSAGES } from "../constants";
+import { MAX_MESSAGES } from "../../constants";
 
 const MEMBER_CONTEXTMENU_ID = "member_context_menu_item";
 
