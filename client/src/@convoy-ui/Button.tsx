@@ -69,9 +69,9 @@ export const Button: React.FC<ButtonProps> = ({
     {...props}
   >
     {isLoading ? (
-      <FaSpinner className="button__icon spin" />
+      <FaSpinner data-testid="icon" className="button__icon spin" />
     ) : (
-      Icon && <Icon className="button__icon" />
+      Icon && <Icon data-testid="icon" className="button__icon" />
     )}
     <span>{children}</span>
   </StyledButton>
