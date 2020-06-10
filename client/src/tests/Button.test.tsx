@@ -1,7 +1,7 @@
 import React from "react";
 
 import { Button } from "@convoy-ui";
-import { renderWithStyledTheme } from "utils/testUtils";
+import { renderWithStyledTheme } from "./testUtils";
 import { FaCog } from "react-icons/fa";
 
 describe("Button", () => {

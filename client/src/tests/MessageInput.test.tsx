@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 
+import "./__mocks__/matchMedia";
 import MessageInput from "components/Message/MessageInput";
-import { renderWithStyledTheme } from "utils/testUtils";
+import { renderWithStyledTheme } from "./testUtils";
 import { useForm } from "react-hook-form";
 import { fireEvent, act, cleanup } from "@testing-library/react";
 
@@ -12,7 +13,7 @@ describe("Button", () => {
     const [isEditing, setIsEditing] = useState<boolean>(editing);
     const { register, handleSubmit, getValues, setValue, errors } = useForm();
 
-    const handleEdit = data => {
+    const handleEdit = (data: any) => {
       console.log(data);
     };
 
