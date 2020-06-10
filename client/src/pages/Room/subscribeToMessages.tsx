@@ -7,6 +7,7 @@ import {
   OnUpdateMessageDocument,
   OnDeleteMessageDocument,
   OnNewMessageDocument,
+  GetRoomQuery,
 } from "graphql/generated/graphql";
 
 const subscribeToMessages = (
@@ -19,7 +20,7 @@ const subscribeToMessages = (
   subscribeToMore({
     variables: variables,
     document: OnNewMessageDocument,
-    updateQuery: (prev, data: any) => {
+    updateQuery: (prev: GetRoomQuery, data: any) => {
       const newData = data.subscriptionData;
       const newMessage: IMessage = newData.data.onNewMessage;
       if (!newMessage || newMessage.author.id === user.id) return prev;
@@ -38,7 +39,7 @@ const subscribeToMessages = (
   subscribeToMore({
     variables: variables,
     document: OnDeleteMessageDocument,
-    updateQuery: (prev, data: any) => {
+    updateQuery: (prev: GetRoomQuery, data: any) => {
       const newData = data.subscriptionData;
       const deletedMessage: IMessage = newData.data.onDeleteMessage;
       if (!deletedMessage || deletedMessage.author.id === user.id) {

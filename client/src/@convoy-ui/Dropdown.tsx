@@ -7,37 +7,30 @@ import React, {
 } from "react";
 import styled, { css } from "styled-components/macro";
 
-type TReactDispatch = ((event: any) => void) | undefined;
+type TReactDispatch = React.DispatchWithoutAction;
 interface IDropdownContext {
   toggle: TReactDispatch;
   close: TReactDispatch;
   isDropdownOpen: boolean;
 }
+
 const DropdownContext = React.createContext<IDropdownContext>({
-  toggle: undefined,
-  close: undefined,
+  toggle: () => {},
+  close: () => {},
   isDropdownOpen: false,
 });
 
 interface DropdownProps {
   onChange?: (toggle: boolean) => void;
   shouldCloseOnClick?: boolean;
-  [x: string]: any;
 }
 
-type ToggleFuncProps = (
-  /** Toggle Dropdown Menu */
-  toggle: TReactDispatch,
-  /** Close Dropdown Menu */
-  close: TReactDispatch
-) => {};
-interface DropdownToggleProps {
-  children: ToggleFuncProps | React.ReactNode;
-  [x: string]: any;
-}
-interface DropdownContentProps {
-  [x: string]: any;
-}
+type ToggleFuncProps = (toggle: TReactDispatch, close: TReactDispatch) => {};
+
+// https://stackoverflow.com/a/51835761/10629172
+interface DropdownToggleProps extends React.HTMLAttributes<HTMLDivElement> {}
+interface DropdownContentProps extends React.HTMLAttributes<HTMLDivElement> {}
+
 type StaticComponents = {
   Toggle: React.FC<DropdownToggleProps>;
   Content: React.FC<DropdownContentProps>;
@@ -50,7 +43,7 @@ export const Dropdown: React.FC<DropdownProps> & StaticComponents = ({
   ...props
 }) => {
   const id = useRef<HTMLDivElement | null>(null);
-  const [isDropdownOpen, setDropdown] = useState(false);
+  const [isDropdownOpen, setDropdown] = useState<boolean>(false);
 
   const toggle = () => setDropdown(!isDropdownOpen);
   const close = () => setDropdown(false);
@@ -119,7 +112,7 @@ const Content: React.FC<DropdownContentProps> = ({ children, ...props }) => {
       isOpen={isDropdownOpen}
       {...props}
     >
-      {children}
+      {isDropdownOpen && children}
     </StyledDropdownContent>
   );
 };

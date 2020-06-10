@@ -1,4 +1,5 @@
 import React from "react";
+import styled from "styled-components";
 import { Member, Message as IMessage } from "graphql/generated/graphql";
 
 import Message from "components/Message/Message";
@@ -6,13 +7,26 @@ import { useAuthContext } from "contexts/AuthContext";
 
 interface IMessageList {
   messages?: IMessage[];
+  onScroll?: (event: any) => void;
 }
 
-const MessageList: React.FC<IMessageList> = ({ messages }) => {
+const StyledMessageList = styled.section`
+  overflow-y: scroll;
+  height: calc(100vh - 150px);
+`;
+
+const MessageList = React.forwardRef<
+  HTMLElement,
+  IMessageList
+>(({ messages, onScroll }, ref) => {
   const { user } = useAuthContext();
 
   return (
-    <div>
+    <StyledMessageList
+      ref={ref}
+      onScrollCapture={onScroll}
+      className="message__list"
+    >
       {messages?.map(message => {
         return (
           <Message
@@ -25,8 +39,8 @@ const MessageList: React.FC<IMessageList> = ({ messages }) => {
           />
         );
       })}
-    </div>
+    </StyledMessageList>
   );
-};
+});
 
 export default MessageList;
