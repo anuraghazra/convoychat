@@ -1,7 +1,7 @@
 import React from "react";
 import { fireEvent, act } from "@testing-library/react";
 import { MockedProvider, wait } from "@apollo/react-testing";
-import { renderWithStyledTheme } from "utils/testUtils";
+import { renderWithStyledTheme } from "tests/testUtils";
 import { useAuthContext, AuthProvider } from "./AuthContext";
 import { CurrentUserDocument, LogoutDocument } from "graphql/generated/graphql";
 import { createMemoryHistory } from "history";

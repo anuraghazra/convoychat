@@ -1,7 +1,7 @@
 import React from "react";
-import { fireEvent } from "@testing-library/react";
+import { fireEvent, act } from "@testing-library/react";
 import { Dropdown } from "@convoy-ui";
-import { renderWithStyledTheme } from "utils/testUtils";
+import { renderWithStyledTheme } from "./testUtils";
 
 describe("Dropdown", () => {
   it("should renders & Toggle <Dropdown> ", () => {
@@ -19,10 +19,12 @@ describe("Dropdown", () => {
     const toggleButton = getByText(/Click to toggle/i);
     const dropdownContent = getByTestId("dropdown-content");
 
-    expect(dropdownContent).toHaveTextContent("dropdown content");
+    expect(dropdownContent).toBeInTheDocument();
+    expect(dropdownContent).not.toBeVisible();
 
     fireEvent.click(toggleButton);
     expect(dropdownContent).toBeVisible();
+    expect(dropdownContent).toHaveTextContent("dropdown content");
 
     fireEvent.click(toggleButton);
     expect(dropdownContent).not.toBeVisible();
@@ -40,7 +42,11 @@ describe("Dropdown", () => {
     const { getByText, getByTestId } = renderWithStyledTheme(
       <Dropdown>
         <Dropdown.Toggle>
-          {toggle => (
+          {(
+            toggle: (
+              event: React.MouseEvent<HTMLSpanElement, MouseEvent>
+            ) => void
+          ) => (
             <span>
               <button>
                 Click to <span onClick={toggle}>toggle</span>
@@ -54,9 +60,10 @@ describe("Dropdown", () => {
       </Dropdown>
     );
 
-    const toggleButton = getByText(/toggle/i, "span");
+    const toggleButton = getByText(/toggle/i, { selector: "span" });
     const dropdownContent = getByTestId("dropdown-content");
-    expect(dropdownContent).toHaveTextContent("dropdown content");
+    expect(dropdownContent).toBeInTheDocument();
+    expect(dropdownContent).not.toBeVisible();
 
     fireEvent.click(toggleButton);
     expect(dropdownContent).toBeVisible();
@@ -65,11 +72,15 @@ describe("Dropdown", () => {
     expect(dropdownContent).not.toBeVisible();
   });
 
-  it("should handle multiple <Dropdown.Toggle> & <Dropdown.Content>", () => {
-    const { getByText } = renderWithStyledTheme(
+  it("should handle multiple <Dropdown.Toggle> & <Dropdown.Content>", async () => {
+    const { getAllByTestId, getByText, queryByText } = renderWithStyledTheme(
       <Dropdown>
         <Dropdown.Toggle>
-          {toggle => (
+          {(
+            toggle: (
+              event: React.MouseEvent<HTMLSpanElement, MouseEvent>
+            ) => void
+          ) => (
             <button>
               <span onClick={toggle}>First Toggle</span>
             </button>
@@ -87,19 +98,28 @@ describe("Dropdown", () => {
       </Dropdown>
     );
 
-    const toggleButton = getByText(/First Toggle/i, "span");
-    const toggleButton2 = getByText(/2nd Toggle, Inside Content/i, "span");
-    const dropdownContent = getByText(/dropdown content/i);
-    const dropdownContent2 = getByText(/second content/i);
-    expect(dropdownContent).toHaveTextContent("dropdown content");
+    const toggleButton = getByText(/First Toggle/i, { selector: "span" });
+    const toggleButton2 = queryByText(/2nd Toggle, Inside Content/i, {
+      selector: "span",
+    });
+    const dropdownContent = getAllByTestId("dropdown-content");
+
+    expect(toggleButton).toBeInTheDocument();
+    expect(dropdownContent.length).toBe(2);
+    expect(toggleButton2).toBeNull();
 
     fireEvent.click(toggleButton);
-    expect(dropdownContent).toBeVisible();
+    expect(queryByText(/dropdown content/i)).toBeInTheDocument();
+    expect(queryByText(/dropdown content/i)).toBeVisible();
 
-    fireEvent.click(toggleButton2);
-    expect(dropdownContent).not.toBeVisible();
+    fireEvent.click(
+      queryByText(/2nd Toggle, Inside Content/i, {
+        selector: "button",
+      })
+    );
+    expect(dropdownContent[0]).not.toBeVisible();
 
     fireEvent.click(toggleButton);
-    expect(dropdownContent2).toBeVisible();
+    expect(dropdownContent[1]).toBeVisible();
   });
 });

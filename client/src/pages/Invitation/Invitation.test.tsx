@@ -3,7 +3,7 @@ import { Router } from "react-router-dom";
 import { createMemoryHistory } from "history";
 import { AuthProvider } from "contexts/AuthContext";
 import { fireEvent, act } from "@testing-library/react";
-import { renderWithStyledTheme } from "utils/testUtils";
+import { renderWithStyledTheme } from "tests/testUtils";
 import { MockedProvider, wait } from "@apollo/react-testing";
 import {
   CurrentUserDocument,
