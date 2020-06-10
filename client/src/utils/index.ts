@@ -2,7 +2,7 @@ const initOAuthWindow = (onSuccess: Function) => () => {
   const isDev: boolean = process.env.NODE_ENV === "development";
   const url: string = isDev ? "localhost:4000" : window.location.host;
 
-  const consentURL = `${window.location.protocol}/${url}/auth/login`;
+  const consentURL = `${window.location.protocol}//${url}/auth/login`;
 
   window.open(consentURL, "__blank", "width=500&height=800");
   window.addEventListener("message", (event: MessageEvent) => {

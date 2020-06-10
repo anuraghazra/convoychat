@@ -33,6 +33,7 @@ import useResponsiveSidebar from "hooks/useResponsiveSidebar";
 
 const MessagesWrapper = styled(Flex)`
   width: 100%;
+  height: var(--app-height);
 `;
 
 interface IInputs {
@@ -130,7 +131,8 @@ const Room: React.FC = () => {
         const lastMessage: any = bodyRef.current.getElementsByClassName(
           "message__item"
         )[0];
-        bodyRef.current.scrollTop = lastMessage.offsetTop - 70;
+        const bounds = lastMessage.getBoundingClientRect();
+        bodyRef.current.scrollTop = bounds.top - 60;
 
         return updatedData;
       },
@@ -183,11 +185,11 @@ const Room: React.FC = () => {
                 name={roomData?.room?.name}
                 roomId={roomData?.room?.id}
               />
-              {fetchRoomLoading && <Loading />}
 
               <MessageList
                 ref={bodyRef as any}
                 onScroll={handleScroll}
+                isFetchingMore={fetchRoomLoading}
                 messages={roomData?.messages?.messages as IMessage[]}
               />
 
