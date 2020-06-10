@@ -1,5 +1,5 @@
 import React from "react";
-import { useHistory } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
 import { FaThumbsUp } from "react-icons/fa";
 import {
   useGetInvitationInfoQuery,
@@ -11,13 +11,14 @@ import { Button, Loading } from "@convoy-ui";
 import ConvoyLogo from "components/ConvoyLogo";
 import HomeWrapper from "../HomeWrapper.style";
 
-function Invitation({ match }) {
+const Invitation: React.FC = () => {
+  const { token } = useParams();
   const history = useHistory();
   const [
     acceptInvitation,
     { loading: acceptInvitationLoading },
   ] = useAcceptInvitationMutation({
-    variables: { token: match.params.token },
+    variables: { token },
     onError(err) {
       console.log(err);
     },
@@ -31,7 +32,7 @@ function Invitation({ match }) {
     loading: inviteLoading,
     error: inviteError,
   } = useGetInvitationInfoQuery({
-    variables: { token: match.params.token },
+    variables: { token },
   });
 
   const isLoading = inviteLoading;
@@ -67,6 +68,6 @@ function Invitation({ match }) {
       </div>
     </HomeWrapper>
   );
-}
+};
 
 export default Invitation;

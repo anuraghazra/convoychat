@@ -1,4 +1,4 @@
-import React, { useContext, useReducer, useEffect } from "react";
+import React, { useContext, useReducer } from "react";
 
 interface IModalState {
   isCreateRoomModalOpen?: boolean;
