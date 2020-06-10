@@ -30,6 +30,7 @@ const MessageInputWrapper = styled.div`
     textarea {
       width: 100%;
       height: 100%;
+      max-height: 100px;
       background-color: ${p => p.theme.colors.dark3};
       padding-left: 20px;
       padding-right: 20px;

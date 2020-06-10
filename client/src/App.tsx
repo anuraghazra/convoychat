@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { BrowserRouter, Route, Switch } from "react-router-dom";
 
 import Login from "pages/Login/Login";
@@ -13,6 +13,20 @@ import HorizontalShade from "components/HorizontalShade";
 import CreateRoom from "pages/Modals/CreateRoom";
 
 function App() {
+  // chrome address bar css height fix!
+  // https://stackoverflow.com/a/50683190/10629172
+  const calculateHeight = () => {
+    const doc = document.documentElement;
+    doc.style.setProperty("--app-height", `${window.innerHeight}px`);
+  };
+
+  useEffect(() => {
+    window.addEventListener("resize", calculateHeight);
+    calculateHeight();
+
+    return () => window.removeEventListener("resize", calculateHeight);
+  }, []);
+
   return (
     <BrowserRouter>
       <div>

@@ -3,6 +3,10 @@ import ReactModalStyles from "./ReactModalStyles";
 import EmojiMartStyles from "./EmojiMartStyles";
 
 const ScrollBarStyles = css`
+  :root {
+    --app-height: 100%;
+  }
+
   * {
     scrollbar-width: thin;
     scrollbar-color: ${p => p.theme.colors.dark3} ${p => p.theme.colors.dark1};
@@ -48,6 +52,9 @@ const GlobalStyles = createGlobalStyle`
     height: 100vh;
     color: ${p => p.theme.colors.white};
     background: ${p => p.theme.colors.dark3};
+    @media not all and (hover:hover) {
+      height: var(--app-height);
+    }
   }
   
   h1, h2, h3, h4, h5, h6 {
