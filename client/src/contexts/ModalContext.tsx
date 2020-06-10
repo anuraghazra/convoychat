@@ -1,33 +1,22 @@
-import React, { useContext, useReducer, useEffect } from "react";
+import React, { useContext, useReducer } from "react";
+
+type ModalTypes = "InviteMembers" | "CreateRoom";
+type ModalValues = "isInviteMembersModalOpen" | "isCreateRoomModalOpen";
+type AuthActions =
+  | { type: "CLOSE"; modal: ModalTypes }
+  | { type: "OPEN"; modal: ModalTypes };
 
 interface IModalState {
   isCreateRoomModalOpen?: boolean;
   isInviteMembersModalOpen?: boolean;
 }
 
-interface IModalContext {
-  dispatch: React.Dispatch<AuthActions>;
-  state: IModalState;
-}
-const ModalContext = React.createContext<IModalContext>({
-  dispatch: () => {},
-  state: {},
-});
-
-const useModalContext = () => {
-  return useContext(ModalContext);
+const modalStateNameMap: Record<ModalTypes, ModalValues> = {
+  InviteMembers: "isInviteMembersModalOpen",
+  CreateRoom: "isCreateRoomModalOpen",
 };
 
-type AuthActions =
-  | { type: "CLOSE"; modal: string }
-  | { type: "OPEN"; modal: string };
-
 const modalReducer = (state: IModalState, action: AuthActions) => {
-  const modalStateNameMap = {
-    InviteMembers: "isInviteMembersModalOpen",
-    CreateRoom: "isCreateRoomModalOpen",
-  };
-
   switch (action.type) {
     case "CLOSE":
       return {
@@ -43,6 +32,19 @@ const modalReducer = (state: IModalState, action: AuthActions) => {
     default:
       return state;
   }
+};
+
+interface IModalContext {
+  dispatch: React.Dispatch<AuthActions>;
+  state: IModalState;
+}
+const ModalContext = React.createContext<IModalContext>({
+  dispatch: () => {},
+  state: {},
+});
+
+const useModalContext = () => {
+  return useContext(ModalContext);
 };
 
 const ModalProvider: React.FC = ({ children }) => {
