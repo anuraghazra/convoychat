@@ -64,7 +64,7 @@ const StyledLoader = styled.div`
 
 export const Loading = () => {
   return (
-    <StyledLoader>
+    <StyledLoader data-testid="loading">
       <div className="lds-ellipsis">
         <div></div>
         <div></div>
