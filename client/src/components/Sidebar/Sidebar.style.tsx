@@ -3,7 +3,10 @@ import styled from "styled-components";
 const SidebarWrapper = styled.aside`
   padding: 20px;
   background-color: ${p => p.theme.colors.dark2};
-
+  height: 100%;
+  z-index: 3;
+  overflow-x: hidden;
+  
   .logo {
     margin-bottom: 50px;
   }

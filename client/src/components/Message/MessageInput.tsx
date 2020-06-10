@@ -1,14 +1,24 @@
 import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
-import { FaSmile } from "react-icons/fa";
+import { FaSmile, FaPaperPlane } from "react-icons/fa";
 import { Picker } from "emoji-mart";
 import "emoji-mart/css/emoji-mart.css";
 
-import { Flex, StyledInput, Dropdown } from "@convoy-ui";
+import { Flex, StyledInput, Dropdown, Button } from "@convoy-ui";
 import { textareaAutoResize } from "utils";
 
+const mql = window.matchMedia(`(min-width: 800px)`);
+
+const SendButton = styled(Button)`
+  width: 40px;
+  min-width: 40px;
+  height: 40px;
+  border-radius: 50px;
+  padding: 0;
+`;
+
 const MessageInputWrapper = styled.div`
-  position: sticky;
+  position: relative;
   bottom: 0;
   padding: ${p => p.theme.space.xlarge}px;
   background-color: ${p => p.theme.colors.dark2};
@@ -54,8 +64,14 @@ const MessageInput: React.FC<IMessageInput> = ({
   onEmojiClick,
   ...props
 }) => {
+  const isMobile = !mql.matches;
   const formRef = useRef<HTMLFormElement>();
   const textareaRef = useRef<HTMLTextAreaElement>();
+
+  const imparativeSubmit = (event: any) => {
+    event.preventDefault();
+    formRef?.current.dispatchEvent(new Event("submit", { cancelable: true }));
+  };
 
   const handleKeydown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
     textareaAutoResize(textareaRef?.current);
@@ -63,10 +79,10 @@ const MessageInput: React.FC<IMessageInput> = ({
     if (event.key === "Escape") {
       onCancel && onCancel();
     }
+    if (isMobile) return;
 
     if (event.key === "Enter" && !event.shiftKey) {
-      event.preventDefault();
-      formRef?.current.dispatchEvent(new Event("submit", { cancelable: true }));
+      imparativeSubmit(event);
     }
   };
 
@@ -91,18 +107,23 @@ const MessageInput: React.FC<IMessageInput> = ({
             {...props}
           />
         </form>
-        <Dropdown>
-          <Dropdown.Toggle>
-            <FaSmile />
-          </Dropdown.Toggle>
-          <Dropdown.Content style={{ position: "absolute", bottom: 0 }}>
-            <Picker
-              set="apple"
-              theme="dark"
-              onSelect={(emoji: any) => onEmojiClick && onEmojiClick(emoji)}
-            />
-          </Dropdown.Content>
-        </Dropdown>
+        {isMobile && (
+          <SendButton type icon={FaPaperPlane} onClick={imparativeSubmit} />
+        )}
+        {!isMobile && (
+          <Dropdown>
+            <Dropdown.Toggle>
+              <FaSmile />
+            </Dropdown.Toggle>
+            <Dropdown.Content style={{ position: "absolute", bottom: 0 }}>
+              <Picker
+                set="apple"
+                theme="dark"
+                onSelect={(emoji: any) => onEmojiClick && onEmojiClick(emoji)}
+              />
+            </Dropdown.Content>
+          </Dropdown>
+        )}
       </Flex>
     </MessageInputWrapper>
   );

@@ -7,7 +7,7 @@ const HorizontalShade = styled.div`
   width: 100vw;
   height: 3px;
   background-color: ${p => p.theme.colors.primary};
-  z-index: 5; 
+  z-index: 4; 
 `;
 
 export default HorizontalShade;

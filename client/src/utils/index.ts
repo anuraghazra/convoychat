@@ -1,26 +1,23 @@
 const initOAuthWindow = (onSuccess: Function) => () => {
-  let url =
-    process.env.NODE_ENV === "development"
-      ? "localhost:4000"
-      : window.location.host;
+  const isDev: boolean = process.env.NODE_ENV === "development";
+  const url: string = isDev ? "localhost:4000" : window.location.host;
 
-  window.open(
-    `${window.location.protocol}//${url}/auth/login`,
-    "__blank",
-    "width=500&height=800"
-  );
-  window.addEventListener("message", event => {
+  const consentURL = `${window.location.protocol}/${url}/auth/login`;
+
+  window.open(consentURL, "__blank", "width=500&height=800");
+  window.addEventListener("message", (event: MessageEvent) => {
     if (event.data === "success") {
       onSuccess();
     }
   });
 };
 
-const formatDate = (date: string): string =>
-  new Date(Number(date))
+const formatDate = (date: string): string => {
+  return new Date(Number(date))
     .toDateString()
     .slice(4, 10)
     .toLowerCase();
+}
 
 // https://github.com/withspectrum/spectrum/blob/alpha/admin/src/helpers/utils.js
 const timeAgo = (time: string): string | number => {
@@ -54,7 +51,7 @@ const scrollToBottom = (elm: HTMLElement) => {
 
 const textareaAutoResize = (element: HTMLTextAreaElement) => {
   if (!element) return;
-  element.style.height = "5px";
+  element.style.height = "1px";
   element.style.height = element.scrollHeight + "px";
 }
 

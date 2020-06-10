@@ -69,7 +69,7 @@ const Message: React.FC<IMessage> = ({
   };
 
   return (
-    <StyledMessage>
+    <StyledMessage className="message__item">
       <Flex direction="column">
         <Flex gap="medium" align="center" nowrap>
           <Avatar size={35} src={author?.avatarUrl} />

@@ -6,6 +6,7 @@ import {
   useSendMessageMutation,
 } from "graphql/generated/graphql";
 
+import Sidebar from "react-sidebar";
 import styled from "styled-components";
 import update from "immutability-helper";
 import { useForm } from "react-hook-form";
@@ -28,8 +29,9 @@ import {
   updateCacheAfterSendMessage,
   sendMessageOptimisticResponse,
 } from "./Room.helpers";
+import useResponsiveSidebar from "hooks/useResponsiveSidebar";
 
-const MessagesWrapper = styled.div`
+const MessagesWrapper = styled(Flex)`
   width: 100%;
 `;
 
@@ -40,6 +42,8 @@ interface IInputs {
 const Room: React.FC = () => {
   const { user } = useAuthContext();
   const { roomId } = useParams();
+  const { isDocked, isOpen, setIsOpen } = useResponsiveSidebar();
+
   const [isFetchingMore, setIsFetchingMore] = useState<boolean>(false);
   const bodyRef = useRef<HTMLElement | null>();
 
@@ -114,13 +118,21 @@ const Room: React.FC = () => {
       },
       updateQuery: (prev, { fetchMoreResult }) => {
         if (!fetchMoreResult) return prev;
-        return update(prev, {
+        const updatedData = update(prev, {
           messages: {
             messages: {
               $unshift: fetchMoreResult.messages?.messages,
             },
           },
         });
+
+        // scroll jumping fix
+        const lastMessage: any = bodyRef.current.getElementsByClassName(
+          "message__item"
+        )[0];
+        bodyRef.current.scrollTop = lastMessage.offsetTop - 70;
+
+        return updatedData;
       },
     });
   };
@@ -134,44 +146,64 @@ const Room: React.FC = () => {
 
   return (
     <>
-      <DashboardBody onScrollCapture={handleScroll} ref={bodyRef}>
-        {fetchRoomError && <span>{fetchRoomError?.message}</span>}
-        <Flex
-          nowrap
-          style={{ height: "100%" }}
-          direction="column"
-          justify="space-between"
-        >
-          <RoomHeader name={roomData?.room?.name} roomId={roomData?.room?.id} />
-
-          {fetchRoomLoading && <Loading />}
-          {sendError && <span>Error sending message</span>}
-          <MessagesWrapper>
-            <MessageList
-              messages={roomData?.messages?.messages as IMessage[]}
+      <Sidebar
+        touch
+        pullRight
+        open={isOpen}
+        docked={isDocked}
+        onSetOpen={setIsOpen}
+        styles={{
+          sidebar: {
+            width: "300px",
+          },
+        }}
+        sidebar={
+          <SidebarWrapper>
+            <h3>Members</h3>
+            <Spacer gap="large" />
+            <MemberList
+              roomId={roomId}
+              members={roomData?.room?.members as Member[]}
             />
+          </SidebarWrapper>
+        }
+      >
+        <DashboardBody>
+          {sendError && <span>{sendError?.message}</span>}
+          {fetchRoomError && <span>{fetchRoomError?.message}</span>}
 
-            <MessageInput
-              name="message"
-              errors={formErrors}
-              onSubmit={handleSubmit(onMessageSubmit)}
-              onEmojiClick={emoji => {
-                setValue("message", getValues().message + emoji.native);
-              }}
-              inputRef={register({ required: "Message is required" })}
-            />
-          </MessagesWrapper>
-        </Flex>
-      </DashboardBody>
+          <Flex
+            nowrap
+            direction="column"
+            justify="space-between"
+            style={{ minHeight: "100%" }}
+          >
+            <MessagesWrapper nowrap direction="column">
+              <RoomHeader
+                name={roomData?.room?.name}
+                roomId={roomData?.room?.id}
+              />
+              {fetchRoomLoading && <Loading />}
 
-      <SidebarWrapper>
-        <h3>Members</h3>
-        <Spacer gap="large" />
-        <MemberList
-          roomId={roomId}
-          members={roomData?.room?.members as Member[]}
-        />
-      </SidebarWrapper>
+              <MessageList
+                ref={bodyRef as any}
+                onScroll={handleScroll}
+                messages={roomData?.messages?.messages as IMessage[]}
+              />
+
+              <MessageInput
+                name="message"
+                errors={formErrors}
+                onSubmit={handleSubmit(onMessageSubmit)}
+                inputRef={register({ required: "Message is required" })}
+                onEmojiClick={emoji => {
+                  setValue("message", getValues().message + emoji.native);
+                }}
+              />
+            </MessagesWrapper>
+          </Flex>
+        </DashboardBody>
+      </Sidebar>
     </>
   );
 };
