@@ -157,6 +157,7 @@ const Room: React.FC = () => {
         styles={{
           sidebar: {
             width: "300px",
+            overflow: "visible",
           },
         }}
         sidebar={

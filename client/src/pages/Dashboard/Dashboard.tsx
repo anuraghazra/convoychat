@@ -22,6 +22,7 @@ const Dashboard = () => {
         styles={{
           sidebar: {
             width: "300px",
+            overflow: "visible",
           },
         }}
         open={isOpen}
