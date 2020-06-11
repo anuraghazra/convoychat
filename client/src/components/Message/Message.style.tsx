@@ -3,6 +3,7 @@ import styled from "styled-components";
 const StyledMessage = styled.section`
   font-size: 14px;
   padding: ${p => p.theme.space.xlarge}px;
+  word-break: break-word;
 
   p {
     margin: 0;
