@@ -33,19 +33,24 @@ const HomeWrapper = styled.div`
     left: -25px;
     width: 150px;
     height: 270px;
+    opacity: 0.5;
+    z-index: -1;
   }
   &:after {
     top: -50px;
     right: -25px;
     width: 150px;
     height: 270px;
+    opacity: 0.5;
+    z-index: -1;
   }
   
   .wrapper_card {
     position: relative;
     text-align: center;
     margin: auto;
-    width: 500px;
+    width: 100%;
+    max-width: 500px;
     margin-top: ${p => p.theme.space.huge}px;
     
     padding: ${p => p.theme.space.huge}px;
@@ -58,6 +63,15 @@ const HomeWrapper = styled.div`
 
     h2 {
       margin-bottom: 40px;
+    }
+
+    @media (${p => p.theme.media.mobile}) {
+      margin-top: 30%;
+
+      &:before {
+        top: 15px;
+        left: 0px;
+      }
     }
   }
 `;

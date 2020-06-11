@@ -4,7 +4,7 @@ import { FaSmile, FaPaperPlane } from "react-icons/fa";
 import { Picker } from "emoji-mart";
 import "emoji-mart/css/emoji-mart.css";
 
-import { Flex, StyledInput, Dropdown, Button } from "@convoy-ui";
+import { Flex, StyledInput, Dropdown, Button, IconButton } from "@convoy-ui";
 import { textareaAutoResize } from "utils";
 
 const mql = window.matchMedia(`(min-width: 800px)`);
@@ -35,10 +35,14 @@ const MessageInputWrapper = styled.div`
       padding-left: 20px;
       padding-right: 20px;
       resize: vertical;
+      resize: none;
     }
   }
   .form--input__wrapper {
     margin-bottom: 0;
+  }
+  .input__send-button {
+    margin: 0;
   }
 
   .dropdown--content {
@@ -109,12 +113,16 @@ const MessageInput: React.FC<IMessageInput> = ({
           />
         </form>
         {isMobile && (
-          <SendButton type icon={FaPaperPlane} onClick={imparativeSubmit} />
+          <SendButton
+            icon={FaPaperPlane}
+            onClick={imparativeSubmit}
+            className="input__send-button"
+          />
         )}
         {!isMobile && (
           <Dropdown>
             <Dropdown.Toggle>
-              <FaSmile />
+              <IconButton icon={<FaSmile />} />
             </Dropdown.Toggle>
             <Dropdown.Content style={{ position: "absolute", bottom: 0 }}>
               <Picker

@@ -18,6 +18,13 @@ const ReactModalStyles = css`
     &:focus {
       outline: none;
     }
+
+    @media (${p => p.theme.media.tablet}) {
+      top: 100%;
+      width: 100%;
+      border-radius: 0;
+      transform: translate(-50%, -100%);
+    }
   }
 
   .ModalOverlay {

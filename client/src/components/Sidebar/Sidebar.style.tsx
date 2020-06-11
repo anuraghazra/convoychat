@@ -5,7 +5,7 @@ const SidebarWrapper = styled.aside`
   background-color: ${p => p.theme.colors.dark2};
   height: 100%;
   z-index: 3;
-  overflow-x: hidden;
+  overflow-x: visible;
   
   .logo {
     margin-bottom: 50px;

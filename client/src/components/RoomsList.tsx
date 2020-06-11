@@ -1,17 +1,30 @@
 import React, { useState } from "react";
 import { MdAdd } from "react-icons/md";
+import { useHistory } from "react-router-dom";
 import { useListCurrentUserRoomsQuery } from "graphql/generated/graphql";
 
-import { Flex, Spacer, Loading } from "@convoy-ui";
+import { Flex, Spacer, Loading, IconButton } from "@convoy-ui";
 import { useModalContext } from "contexts/ModalContext";
 
 import RoomLink from "components/RoomLink";
 import InviteMembers from "pages/Modals/InviteMembers";
 
 const RoomsList: React.FC = () => {
+  const history = useHistory();
   const { dispatch } = useModalContext();
   const [modalRoomId, setModalRoomId] = useState<string>("");
-  const { data, loading, error } = useListCurrentUserRoomsQuery();
+
+  const { data, loading, error } = useListCurrentUserRoomsQuery({
+    onCompleted(data) {
+      // redirect to first room on the list on initial load
+      if (
+        history.location.pathname === "/" &&
+        data.currentUserRooms.length > 1
+      ) {
+        history.push(`/room/${data.currentUserRooms[0].id}`);
+      }
+    },
+  });
 
   return (
     <section>
@@ -19,8 +32,9 @@ const RoomsList: React.FC = () => {
 
       <Flex align="center" justify="space-between">
         <h3>Your Rooms</h3>
-        <MdAdd
+        <IconButton
           onClick={() => dispatch({ type: "OPEN", modal: "CreateRoom" })}
+          icon={<MdAdd />}
         />
       </Flex>
       <Spacer gap="large" />

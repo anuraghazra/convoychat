@@ -13,8 +13,13 @@ interface IMessageList {
 }
 
 const StyledMessageList = styled.section`
+  height: 100%;
   overflow-y: scroll;
+  overflow-x: hidden;
 
+  display: grid;
+  grid-template-rows: 1fr;
+  align-items: end;
   @media (${p => p.theme.media.tablet}) {
     margin-top: 70px;
   }
