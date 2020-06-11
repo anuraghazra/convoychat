@@ -8,15 +8,15 @@ import {
   ListCurrentUserRoomsDocument,
 } from "graphql/generated/graphql";
 
-import { Flex, Button, Dropdown } from "@convoy-ui";
+import { Flex, Button, Dropdown, IconButton } from "@convoy-ui";
 import { useModalContext } from "contexts/ModalContext";
 
 const StyledRoomLink = styled.div<{ isSelected?: boolean }>`
   padding: 10px 20px;
+  padding-right: 10px;
   margin-bottom: ${p => p.theme.space.small}px;
   border-radius: ${p => p.theme.radius.small}px;
   background-color: ${p => p.theme.colors.dark3};
-
   color: ${p => (p.isSelected ? p.theme.colors.primary : p.theme.colors.white)};
   a {
     color: inherit;
@@ -68,7 +68,7 @@ const RoomLink: React.FC<IRoomLink> = ({
 
         <Dropdown>
           <Dropdown.Toggle>
-            <FiMoreVertical />
+            <IconButton icon={<FiMoreVertical />} />
           </Dropdown.Toggle>
           <Dropdown.Content style={{ right: "initial", padding: "0 10px" }}>
             <Flex direction="column" gap="none">

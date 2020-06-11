@@ -1,7 +1,8 @@
 import React from "react";
 import styled from "styled-components";
-import { Avatar, Flex } from "@convoy-ui";
+import { Avatar, Flex, IconButton } from "@convoy-ui";
 import { Member as IMember } from "graphql/generated/graphql";
+import { FiUserMinus } from "react-icons/fi";
 
 const StyledMember = styled.section`
   padding: 15px;
@@ -14,36 +15,34 @@ const StyledMember = styled.section`
   .userinfo__displayname {
     font-size: 14px;
   }
+
+  svg {
+    cursor: pointer;
+  }
 `;
 
 interface MemberProps {
   user: IMember;
-  onRightClick?: (useId?: IMember) => void;
+  onActionClick?: (useId?: IMember) => void;
 }
-const Member: React.FC<MemberProps> = ({ user, onRightClick }) => {
-  const handleClick = (e: any) => {
-    if (e.nativeEvent.which === 3) {
-      onRightClick(user);
-    }
-  };
-
-  const preventContextMenu = (e: any) => {
-    e.preventDefault();
-  };
-
+const Member: React.FC<MemberProps> = ({ user, onActionClick }) => {
   return (
-    <StyledMember
-      onMouseDown={handleClick}
-      onContextMenuCapture={preventContextMenu}
-    >
-      <Flex gap="medium" align="center">
-        <Avatar size={35} src={user?.avatarUrl} />
-        <Flex direction="column">
-          <span className="userinfo__displayname">{user?.name}</span>
-          <small className="textcolor--gray" title={user?.username}>
-            {user?.username?.slice(0, 15)}...
-          </small>
+    <StyledMember>
+      <Flex gap="medium" align="center" justify="space-between" nowrap>
+        <Flex gap="medium" align="center">
+          <Avatar size={35} src={user?.avatarUrl} />
+          <Flex direction="column" nowrap>
+            <span className="userinfo__displayname">{user?.name}</span>
+            <small className="textcolor--gray" title={user?.username}>
+              {user?.username?.slice(0, 15)}...
+            </small>
+          </Flex>
         </Flex>
+
+        <IconButton
+          onClick={() => onActionClick(user)}
+          icon={<FiUserMinus />}
+        />
       </Flex>
     </StyledMember>
   );

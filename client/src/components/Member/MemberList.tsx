@@ -1,6 +1,5 @@
-import React, { useState } from "react";
+import React from "react";
 import update from "immutability-helper";
-import { ContextMenu, MenuItem, ContextMenuTrigger } from "react-contextmenu";
 
 import {
   GetRoomQuery,
@@ -10,11 +9,7 @@ import {
 } from "graphql/generated/graphql";
 
 import Member from "./Member";
-import { Flex, Button } from "@convoy-ui";
-import { FaUserMinus } from "react-icons/fa";
 import { MAX_MESSAGES } from "../../constants";
-
-const MEMBER_CONTEXTMENU_ID = "member_context_menu_item";
 
 interface IMemberList {
   members?: IMember[];
@@ -22,11 +17,9 @@ interface IMemberList {
 }
 
 const MemberList: React.FC<IMemberList> = ({ members, roomId }) => {
-  const [selectedMember, setSelectedMember] = useState<IMember | null>(null);
   const [removeMember] = useRemoveMemberMutation({
-    optimisticResponse: {
-      __typename: "Mutation",
-      removedMember: selectedMember,
+    onError(err) {
+      console.log(err);
     },
     update(cache, { data }) {
       let roomData = cache.readQuery<GetRoomQuery>({
@@ -46,43 +39,23 @@ const MemberList: React.FC<IMemberList> = ({ members, roomId }) => {
     },
   });
 
+  const handleRemoveMember = (member: IMember) => {
+    removeMember({
+      optimisticResponse: {
+        __typename: "Mutation",
+        removedMember: member,
+      },
+      variables: {
+        roomId: roomId,
+        memberId: member.id,
+      },
+    });
+  };
+
   return (
     <>
-      <ContextMenu id={MEMBER_CONTEXTMENU_ID}>
-        <Flex gap="medium" direction="column">
-          <MenuItem
-            onClick={() => {
-              removeMember({
-                variables: {
-                  roomId: roomId,
-                  memberId: selectedMember.id,
-                },
-              });
-            }}
-          >
-            <Button icon={FaUserMinus} variant="danger">
-              Remove Member
-            </Button>
-          </MenuItem>
-          <MenuItem onClick={() => {}}>
-            <Button icon={FaUserMinus} variant="primary">
-              Remove Member
-            </Button>
-          </MenuItem>
-        </Flex>
-      </ContextMenu>
-
       {members?.map(member => (
-        <ContextMenuTrigger
-          key={member.id}
-          holdToDisplay={1000}
-          id={MEMBER_CONTEXTMENU_ID}
-        >
-          <Member
-            user={member}
-            onRightClick={member => setSelectedMember(member)}
-          />
-        </ContextMenuTrigger>
+        <Member user={member} onActionClick={handleRemoveMember} />
       ))}
     </>
   );
