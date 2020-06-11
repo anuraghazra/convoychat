@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import MarkdownView from "react-showdown";
+import MarkdownView from "react-showdown-safe";
+import DOMPurify from "dompurify";
 import { useForm } from "react-hook-form";
 import { FaTrash, FaPen, FaSpinner } from "react-icons/fa";
 import {
@@ -110,10 +111,23 @@ const Message: React.FC<IMessage> = ({
               inputRef={register({ required: "Message is required" })}
             />
           ) : (
-            <MarkdownView
-              markdown={content}
-              options={{ tables: false, emoji: true }}
-            />
+            <div className="markdown-content">
+              <MarkdownView
+                markdown={content}
+                sanitizeHtml={html => DOMPurify.sanitize(html)}
+                options={{
+                  tables: false,
+                  emoji: true,
+                  tasklists: true,
+                  encodeEmails: true,
+                  ghMentions: true,
+                  ghMentionsLink: "/user/{u}",
+                  simplifiedAutoLink: true,
+                  ghCodeBlocks: true,
+                  backslashEscapesHTMLTags: true,
+                }}
+              />
+            </div>
           )}
         </div>
       </Flex>

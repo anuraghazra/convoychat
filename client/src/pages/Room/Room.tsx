@@ -84,6 +84,9 @@ const Room: React.FC = () => {
       getValues().message,
       user
     ),
+    onError(err) {
+      console.log(err);
+    },
     update: updateCacheAfterSendMessage,
   });
 

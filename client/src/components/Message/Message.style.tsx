@@ -43,6 +43,15 @@ const StyledMessage = styled.section`
   &:hover .message__actions {
     opacity: 1;
   }
+
+  .markdown-content {
+    a {
+      color: #758af6;
+      &:hover {
+        color: ${p => p.theme.colors.primary};
+      }
+    }
+  }
 `;
 
 export default StyledMessage;
