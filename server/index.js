@@ -8,6 +8,9 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const cookieSession = require("cookie-session");
 const expressStaticGzip = require("express-static-gzip");
+const mongoSanitize = require("express-mongo-sanitize");
+const xss = require("xss-clean");
+const helmet = require("helmet");
 
 require("./passport-config");
 
@@ -23,9 +26,24 @@ const rateLimitDirective = createRateLimitDirective({
 
 const pubsub = new PubSub();
 const app = express();
+const whitelist = ["https://convoychat.herokuapp.com/", "http://localhost:4000/"];
 
 app.use(cookieParser());
-app.use(cors({ credentials: true }));
+app.use(
+  cors({
+    credentials: true,
+    origin: function (origin, callback) {
+      if (whitelist.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+  })
+);
+app.use(helmet()); // security headers
+app.use(mongoSanitize()); // sanitization against NoSQL Injection Attacks
+app.use(xss()); // sanitize data
 
 const sessionMiddleware = cookieSession({
   secure: process.env.NODE_ENV === "production" ? true : false,
