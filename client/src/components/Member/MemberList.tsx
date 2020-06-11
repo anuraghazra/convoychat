@@ -55,7 +55,11 @@ const MemberList: React.FC<IMemberList> = ({ members, roomId }) => {
   return (
     <>
       {members?.map(member => (
-        <Member user={member} onActionClick={handleRemoveMember} />
+        <Member
+          key={member.id}
+          user={member}
+          onActionClick={handleRemoveMember}
+        />
       ))}
     </>
   );
