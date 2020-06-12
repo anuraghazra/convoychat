@@ -1,6 +1,6 @@
-import React, { useState } from "react";
-
 import "./__mocks__/matchMedia";
+
+import React, { useState } from "react";
 import MessageInput from "components/Message/MessageInput";
 import { renderWithStyledTheme } from "./testUtils";
 import { useForm } from "react-hook-form";

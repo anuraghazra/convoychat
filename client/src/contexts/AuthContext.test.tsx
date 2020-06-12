@@ -1,3 +1,4 @@
+import "../tests/__mocks__/matchMedia";
 import React from "react";
 import { fireEvent, act } from "@testing-library/react";
 import { MockedProvider, wait } from "@apollo/react-testing";
