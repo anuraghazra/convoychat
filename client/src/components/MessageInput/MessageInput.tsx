@@ -1,77 +1,64 @@
-import React, { useEffect, useRef } from "react";
-import styled from "styled-components";
+import React, { useEffect, useRef, useState } from "react";
 import { FaSmile, FaPaperPlane } from "react-icons/fa";
 import { Picker } from "emoji-mart";
 import "emoji-mart/css/emoji-mart.css";
 
-import { Flex, StyledInput, Dropdown, Button, IconButton } from "@convoy-ui";
+import { Flex, Dropdown, IconButton } from "@convoy-ui";
 import { textareaAutoResize } from "utils";
+import { MentionsInput, Mention } from "react-mentions";
+import {
+  MessageInputWrapper,
+  SendButton,
+  defaultMentionStyles,
+} from "./MessageInput.style";
+import { RoomMemberFragment } from "graphql/generated/graphql";
 
 const mql = window.matchMedia(`(min-width: 800px)`);
 
-const SendButton = styled(Button)`
-  width: 40px;
-  min-width: 40px;
-  height: 40px;
-  border-radius: 50px;
-  padding: 0;
-`;
-
-const MessageInputWrapper = styled.div`
-  position: relative;
-  bottom: 0;
-  padding: ${p => p.theme.space.xlarge}px;
-  background-color: ${p => p.theme.colors.dark2};
-
-  form {
-    width: 100%;
-    border-radius: ${p => p.theme.radius.small}px;
-
-    textarea {
-      width: 100%;
-      height: 100%;
-      max-height: 100px;
-      background-color: ${p => p.theme.colors.dark3};
-      padding-left: 20px;
-      padding-right: 20px;
-      resize: vertical;
-      resize: none;
-    }
-  }
-  .form--input__wrapper {
-    margin-bottom: 0;
-  }
-  .input__send-button {
-    margin: 0;
-  }
-
-  .dropdown--content {
-    padding: 0;
-  }
-`;
-
-interface IMessageInput {
-  errors?: any;
-  name?: string;
-  inputRef?: any;
-  onSubmit?: () => void;
-  onCancel?: () => void;
-  onEmojiClick?: (emoji: any) => void;
-  [x: string]: any;
+interface useMessageReturn {
+  value: string;
+  setValue: React.Dispatch<React.SetStateAction<string>>;
+  handleChange: (e: any) => void;
+  handleEmojiClick: (emoji: string) => void;
 }
 
+export const useMessageInput = ({
+  defaultValue,
+}: { defaultValue?: string } = {}): useMessageReturn => {
+  const [value, setValue] = useState<string>(defaultValue);
+  const handleChange = (e: any) => setValue(e.target.value);
+
+  const handleEmojiClick = (emoji: any) => {
+    setValue(value + emoji.native);
+  };
+
+  return { value, setValue, handleChange, handleEmojiClick };
+};
+
+interface IMessageInput {
+  value: string;
+  onCancel?: () => void;
+  onEmojiClick?: (emoji: any) => void;
+  onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
+  handleChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  mentionSuggestions: RoomMemberFragment[];
+  [x: string]: any;
+}
 const MessageInput: React.FC<IMessageInput> = ({
-  name,
-  errors,
-  inputRef,
+  value,
   onSubmit,
   onCancel,
+  handleChange,
   onEmojiClick,
+  mentionSuggestions,
   ...props
 }) => {
   const isMobile = !mql.matches;
   const formRef = useRef<HTMLFormElement>();
   const textareaRef = useRef<HTMLTextAreaElement>();
+  const suggestionsData = useRef<
+    { display: string; id: string }[] | undefined
+  >();
 
   const imparativeSubmit = (event: any) => {
     event.preventDefault();
@@ -95,22 +82,39 @@ const MessageInput: React.FC<IMessageInput> = ({
     textareaAutoResize(textareaRef?.current);
   }, []);
 
+  useEffect(() => {
+    suggestionsData.current = mentionSuggestions?.map(curr => {
+      return { display: curr.name, id: curr.username };
+    });
+  }, [mentionSuggestions]);
+
+  const getRef: any = (e: any) => {
+    textareaRef.current = e;
+  };
+
   return (
     <MessageInputWrapper className="message__input">
       <Flex gap="large" align="center" justify="space-between" nowrap>
         <form ref={formRef} onSubmit={onSubmit}>
-          <StyledInput
-            as="textarea"
-            name={name}
-            ref={(e: HTMLTextAreaElement) => {
-              textareaRef.current = e;
-              inputRef(e);
-            }}
+          <MentionsInput
+            data-testid="messageInput"
+            name={"message"}
+            inputRef={getRef}
             autoComplete={"off"}
             placeholder="Write something"
+            value={value}
+            onChange={handleChange}
             onKeyDown={handleKeydown}
+            style={defaultMentionStyles}
+            allowSuggestionsAboveCursor={true}
             {...props}
-          />
+          >
+            <Mention
+              trigger="@"
+              data={suggestionsData?.current || []}
+              displayTransform={(id: any) => `@${id} `}
+            />
+          </MentionsInput>
         </form>
         {isMobile && (
           <SendButton

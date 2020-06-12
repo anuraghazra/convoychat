@@ -1,3 +1,4 @@
+import "./__mocks__/matchMedia";
 import React from "react";
 
 import { Button } from "@convoy-ui";

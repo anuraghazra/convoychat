@@ -70,8 +70,8 @@ const RoomLink: React.FC<IRoomLink> = ({
           <Dropdown.Toggle>
             <IconButton icon={<FiMoreVertical />} />
           </Dropdown.Toggle>
-          <Dropdown.Content style={{ right: "initial", padding: "0 10px" }}>
-            <Flex direction="column" gap="none">
+          <Dropdown.Content style={{ right: "initial" }}>
+            <Dropdown.Item>
               <Button
                 variant="secondary"
                 onClick={handleAddMembers}
@@ -79,6 +79,8 @@ const RoomLink: React.FC<IRoomLink> = ({
               >
                 Add Members
               </Button>
+            </Dropdown.Item>
+            <Dropdown.Item>
               <Button
                 variant="danger"
                 isLoading={isDeleting}
@@ -87,7 +89,7 @@ const RoomLink: React.FC<IRoomLink> = ({
               >
                 Delete
               </Button>
-            </Flex>
+            </Dropdown.Item>
           </Dropdown.Content>
         </Dropdown>
       </Flex>

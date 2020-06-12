@@ -45,7 +45,7 @@ const StyledLabel = styled.label<{ hasErrors?: boolean }>`
   }
 `;
 
-export const StyledInput = styled.input`
+export const InputStyles = css`
   width: 100%;
   border: none;
   border-radius: ${p => p.theme.radius.small}px;
@@ -57,6 +57,10 @@ export const StyledInput = styled.input`
   &::placeholder {
     color: ${p => p.theme.colors.gray};
   }
+`;
+
+const StyledInput = styled.input`
+  ${InputStyles}
 `;
 
 export const InputWrapper = styled.div`

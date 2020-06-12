@@ -5,7 +5,11 @@ import React, {
   useCallback,
   useRef,
 } from "react";
+import Flex from "./Flex";
+import ReactDOM from "react-dom";
 import styled, { css } from "styled-components/macro";
+
+const mql = window.matchMedia(`(min-width: 800px)`);
 
 type TReactDispatch = React.DispatchWithoutAction;
 interface IDropdownContext {
@@ -34,6 +38,7 @@ interface DropdownContentProps extends React.HTMLAttributes<HTMLDivElement> {}
 type StaticComponents = {
   Toggle: React.FC<DropdownToggleProps>;
   Content: React.FC<DropdownContentProps>;
+  Item: React.FC;
 };
 
 export const Dropdown: React.FC<DropdownProps> & StaticComponents = ({
@@ -44,9 +49,12 @@ export const Dropdown: React.FC<DropdownProps> & StaticComponents = ({
 }) => {
   const id = useRef<HTMLDivElement | null>(null);
   const [isDropdownOpen, setDropdown] = useState<boolean>(false);
-
-  const toggle = () => setDropdown(!isDropdownOpen);
-  const close = () => setDropdown(false);
+  const toggle = () => {
+    setDropdown(!isDropdownOpen);
+  };
+  const close = () => {
+    setDropdown(false);
+  };
 
   const closeDropdown = useCallback(
     e => {
@@ -105,18 +113,37 @@ Dropdown.Toggle = React.memo(Toggle);
 
 const Content: React.FC<DropdownContentProps> = ({ children, ...props }) => {
   const { isDropdownOpen } = useContext(DropdownContext);
-  return (
+  const isMobile = !mql.matches;
+
+  // Backdrop in mobile
+  useEffect(() => {
+    if (isMobile && isDropdownOpen) {
+      document.body.classList.add("bodyOverlayBlur");
+    }
+    return () => document.body.classList.remove("bodyOverlayBlur");
+  }, [isDropdownOpen]);
+
+  const RenderContent = (
     <StyledDropdownContent
       data-testid="dropdown-content"
       className="dropdown--content"
       isOpen={isDropdownOpen}
       {...props}
     >
-      {isDropdownOpen && children}
+      <Flex direction="column">{isDropdownOpen && children}</Flex>
     </StyledDropdownContent>
   );
+
+  return isMobile
+    ? ReactDOM.createPortal(RenderContent, document.body)
+    : RenderContent;
 };
 Dropdown.Content = React.memo(Content);
+
+const Item: React.FC = ({ children }) => {
+  return <div className="dropdown__item">{children}</div>;
+};
+Dropdown.Item = Item;
 
 const StyledDropdownContent = styled.div<{ isOpen?: boolean }>`
   width: max-content;
@@ -138,4 +165,30 @@ const StyledDropdownContent = styled.div<{ isOpen?: boolean }>`
       pointer-events: all;
       transform: translateY(5px);
     `}
+
+  .dropdown__item {
+    width: 100%;
+    button {
+      width: 100%;
+    }
+  }
+  @media screen and (max-width: 400px) {
+    .dropdown__item {
+      button {
+        padding: 15px 10px;
+      }
+    }
+  }
+
+  @media (${p => p.theme.media.tablet}) {
+    position: fixed;
+    left: 0;
+    top: var(--app-height);
+    width: 100vw;
+    height: auto;
+    margin: 0;
+    padding: 20px;
+    border-radius: 0;
+    transform: ${p => (p.isOpen ? "translateY(-100%)" : "translateY(0%)")};
+  }
 `;

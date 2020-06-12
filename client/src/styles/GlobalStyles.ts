@@ -121,6 +121,35 @@ const GlobalStyles = createGlobalStyle`
     }
   }
 
+  .bodyOverlayBlur #root {
+    filter: blur(3px);
+  }
+  /* Notification Component Styles */
+  /* Had to put it on global styles because i used react portal */
+  .notification___dropdown {
+    .notification__header {
+      position: sticky;
+      top: 0;
+      height: 60px;
+      margin-left: -30px;
+      margin-right: -30px;
+      padding: 20px;
+      background-color: ${p => p.theme.colors.dark1};
+    }
+    
+    padding-top: 0 !important;
+    width: 350px;
+    height: 400px;
+    max-height: 400px;
+    overflow-x: hidden !important;
+    overflow-y: scroll !important;
+    padding: 20px 30px;
+
+    @media (${p => p.theme.media.tablet}) {
+      width: 100%;
+    }
+  }
+
   ${ReactModalStyles}
   ${EmojiMartStyles}
 `;

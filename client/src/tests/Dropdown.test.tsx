@@ -1,3 +1,4 @@
+import "./__mocks__/matchMedia";
 import React from "react";
 import { fireEvent, act } from "@testing-library/react";
 import { Dropdown } from "@convoy-ui";

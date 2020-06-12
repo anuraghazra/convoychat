@@ -26,14 +26,18 @@ const rateLimitDirective = createRateLimitDirective({
 
 const pubsub = new PubSub();
 const app = express();
-const whitelist = ["https://convoychat.herokuapp.com/", "http://localhost:4000/"];
+const whitelist = [
+  "https://convoychat.herokuapp.com/",
+  "http://localhost:4000/",
+  process.env.AUTH0_DOMAIN,
+];
 
 app.use(cookieParser());
 app.use(
   cors({
     credentials: true,
     origin: function (origin, callback) {
-      if (whitelist.includes(origin)) {
+      if (!origin || whitelist.includes(origin)) {
         callback(null, true);
       } else {
         callback(new Error("Not allowed by CORS"));

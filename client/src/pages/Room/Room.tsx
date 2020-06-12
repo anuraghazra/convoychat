@@ -9,20 +9,20 @@ import {
 import Sidebar from "react-sidebar";
 import styled from "styled-components";
 import update from "immutability-helper";
-import { useForm } from "react-hook-form";
 import { useParams } from "react-router-dom";
 
 import RoomHeader from "./RoomHeader";
 import MemberList from "components/Member/MemberList";
 import MessageList from "components/Message/MessageList";
-import MessageInput from "components/Message/MessageInput";
-import SidebarWrapper from "components/Sidebar/Sidebar.style";
+import MessageInput from "components/MessageInput/MessageInput";
+import { useMessageInput } from "components/MessageInput/MessageInput";
 import { DashboardBody } from "pages/Dashboard/Dashboard.style";
+import SidebarWrapper from "components/Sidebar/Sidebar.style";
 import subscribeToMessages from "./subscribeToMessages";
 
 import { scrollToBottom } from "utils";
 import { MAX_MESSAGES } from "../../constants";
-import { Flex, Spacer, Loading } from "@convoy-ui";
+import { Flex, Spacer } from "@convoy-ui";
 import { useAuthContext } from "contexts/AuthContext";
 
 import {
@@ -36,25 +36,14 @@ const MessagesWrapper = styled(Flex)`
   height: var(--app-height);
 `;
 
-interface IInputs {
-  message: string;
-}
-
 const Room: React.FC = () => {
   const { user } = useAuthContext();
   const { roomId } = useParams();
-  const { isDocked, isOpen, setIsOpen } = useResponsiveSidebar();
 
-  const [isFetchingMore, setIsFetchingMore] = useState<boolean>(false);
   const bodyRef = useRef<HTMLElement | null>();
-
-  const {
-    getValues,
-    setValue,
-    register,
-    handleSubmit,
-    errors: formErrors,
-  } = useForm<IInputs>();
+  const { isDocked, isOpen, setIsOpen } = useResponsiveSidebar();
+  const { value, setValue, handleChange, handleEmojiClick } = useMessageInput();
+  const [isFetchingMore, setIsFetchingMore] = useState<boolean>(false);
 
   // fetch room query
   const {
@@ -79,11 +68,7 @@ const Room: React.FC = () => {
 
   // send message mutation
   const [sendMessage, { error: sendError }] = useSendMessageMutation({
-    optimisticResponse: sendMessageOptimisticResponse(
-      roomId,
-      getValues().message,
-      user
-    ),
+    optimisticResponse: sendMessageOptimisticResponse(roomId, value, user),
     onError(err) {
       console.log(err);
     },
@@ -91,14 +76,14 @@ const Room: React.FC = () => {
   });
 
   // submit message
-  const onMessageSubmit = (data: IInputs) => {
+  const onMessageSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     sendMessage({
       variables: {
-        content: data.message,
+        content: (event.target as any).message.value,
         roomId: roomId,
       },
     });
-    setValue("message", "");
+    setValue("");
     window.setTimeout(() => {
       scrollToBottom(bodyRef?.current);
     }, 50);
@@ -198,13 +183,11 @@ const Room: React.FC = () => {
               />
 
               <MessageInput
-                name="message"
-                errors={formErrors}
-                onSubmit={handleSubmit(onMessageSubmit)}
-                inputRef={register({ required: "Message is required" })}
-                onEmojiClick={emoji => {
-                  setValue("message", getValues().message + emoji.native);
-                }}
+                value={value}
+                handleChange={handleChange}
+                onSubmit={onMessageSubmit}
+                onEmojiClick={handleEmojiClick}
+                mentionSuggestions={roomData?.room?.members}
               />
             </MessagesWrapper>
           </Flex>
