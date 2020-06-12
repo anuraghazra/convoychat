@@ -8,9 +8,10 @@ import { DashboardWrapper } from "./Dashboard.style";
 import SidebarContent from "components/Sidebar/Sidebar";
 import useResponsiveSidebar from "hooks/useResponsiveSidebar";
 
-
 const Dashboard = () => {
-  const { isDocked, isOpen, setIsOpen } = useResponsiveSidebar();
+  const { isDocked, isOpen, setIsOpen } = useResponsiveSidebar({
+    initialOpen: true,
+  });
 
   return (
     <DashboardWrapper>

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import MarkdownView from "react-showdown-safe";
+import MarkdownView from "react-showdown";
 import DOMPurify from "dompurify";
 import { useForm } from "react-hook-form";
 import { FaTrash, FaPen, FaSpinner } from "react-icons/fa";

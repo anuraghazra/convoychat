@@ -14,13 +14,7 @@ import NotificationItem from "components/Notification/NotificationItem";
 import NotificationBell from "components/Notification/NotificationBell";
 
 const StyledRoomHeader = styled.div`
-  .dropdown--content {
-    width: 350px;
-    height: 400px;
-    overflow: scroll;
-    padding: 20px 30px;
-    background-color: ${p => p.theme.colors.dark1};
-  }
+  
 `;
 
 interface IRoomHeader {
@@ -66,12 +60,16 @@ const RoomHeader: React.FC<IRoomHeader> = ({ roomId, name }) => {
             <Dropdown.Toggle>
               <NotificationBell count={unreadNotificationCount.current} />
             </Dropdown.Toggle>
-            <Dropdown.Content>
-              <Flex align="center" justify="space-between" nowrap>
+            <Dropdown.Content className="notification___dropdown">
+              <Flex
+                className="notification__header"
+                align="center"
+                justify="space-between"
+                nowrap
+              >
                 <h3>Notifications</h3>
                 <small className="textcolor--gray">Mark all as read</small>
               </Flex>
-              <Spacer gap="xlarge" />
               {loading ? (
                 <Loading />
               ) : (
