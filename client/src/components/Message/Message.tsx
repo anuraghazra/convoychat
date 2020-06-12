@@ -1,10 +1,14 @@
-import React, { useState } from "react";
-import MarkdownView from "react-showdown";
+import React, { useState, useRef, useEffect } from "react";
 import DOMPurify from "dompurify";
-import { useForm } from "react-hook-form";
+import MarkdownView from "react-showdown";
+import { useParams } from "react-router-dom";
+import { useApolloClient } from "@apollo/react-hooks";
+
 import { FaTrash, FaPen, FaSpinner } from "react-icons/fa";
 import {
   Member,
+  GetRoomQuery,
+  GetRoomDocument,
   useEditMessageMutation,
   useDeleteMessageMutation,
 } from "graphql/generated/graphql";
@@ -13,12 +17,11 @@ import { timeAgo } from "utils";
 import { Avatar, Flex } from "@convoy-ui";
 import { deleteMessageMutationUpdater } from "./Message.helpers";
 
-import MessageInput from "components/Message/MessageInput";
 import StyledMessage from "./Message.style";
+import { MAX_MESSAGES } from "../../constants";
+import MessageInput from "components/MessageInput/MessageInput";
+import { useMessageInput } from "components/MessageInput/MessageInput";
 
-interface IInputs {
-  message: string;
-}
 interface IMessage {
   id: string;
   content: string;
@@ -34,14 +37,13 @@ const Message: React.FC<IMessage> = ({
   author,
   isAuthor,
 }) => {
+  const client = useApolloClient();
+  const roomData = useRef<GetRoomQuery>();
+  const { roomId } = useParams();
   const [isEditing, setIsEditing] = useState<boolean>(false);
-  const {
-    register,
-    setValue,
-    getValues,
-    handleSubmit,
-    errors: formErrors,
-  } = useForm<IInputs>();
+  const { value, handleChange, handleEmojiClick } = useMessageInput({
+    defaultValue: content,
+  });
 
   let [
     deleteMessage,
@@ -62,12 +64,28 @@ const Message: React.FC<IMessage> = ({
   const handleDelete = () => {
     deleteMessage({ variables: { messageId: id } });
   };
-  const handleEdit = (data: any) => {
-    editMessage({ variables: { messageId: id, content: data.message } });
+  const handleEdit = (event: React.FormEvent<HTMLFormElement>) => {
+    editMessage({
+      variables: {
+        messageId: id,
+        content: (event.target as any).message.value,
+      },
+    });
   };
   const handleCancel = () => {
     setIsEditing(false);
   };
+
+  useEffect(() => {
+    try {
+      roomData.current = client.readQuery<GetRoomQuery>({
+        query: GetRoomDocument,
+        variables: { roomId: roomId, limit: MAX_MESSAGES, offset: 0 },
+      });
+    } catch (err) {
+      console.log(err);
+    }
+  }, [roomId]);
 
   return (
     <StyledMessage className="message__item">
@@ -100,15 +118,12 @@ const Message: React.FC<IMessage> = ({
           {isEditing ? (
             <MessageInput
               autoFocus
-              name="message"
-              errors={formErrors}
-              defaultValue={content}
+              value={value}
               onCancel={handleCancel}
-              onSubmit={handleSubmit(handleEdit)}
-              onEmojiClick={emoji => {
-                setValue("message", getValues().message + emoji.native);
-              }}
-              inputRef={register({ required: "Message is required" })}
+              onSubmit={handleEdit}
+              handleChange={handleChange}
+              onEmojiClick={handleEmojiClick}
+              mentionSuggestions={roomData.current?.room?.members}
             />
           ) : (
             <div className="markdown-content">

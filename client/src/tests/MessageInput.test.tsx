@@ -1,20 +1,23 @@
 import "./__mocks__/matchMedia";
 
 import React, { useState } from "react";
-import MessageInput from "components/Message/MessageInput";
+import MessageInput, {
+  useMessageInput,
+} from "components/MessageInput/MessageInput";
 import { renderWithStyledTheme } from "./testUtils";
-import { useForm } from "react-hook-form";
 import { fireEvent, act, cleanup } from "@testing-library/react";
 
 beforeEach(cleanup);
 
-describe("Button", () => {
+describe("MessageInput", () => {
   const TestComponent: React.FC<{ editing?: boolean }> = ({ editing }) => {
     const [isEditing, setIsEditing] = useState<boolean>(editing);
-    const { register, handleSubmit, getValues, setValue, errors } = useForm();
+    const { value, handleChange, handleEmojiClick } = useMessageInput({
+      defaultValue: "Hello world",
+    });
 
-    const handleEdit = (data: any) => {
-      console.log(data);
+    const handleEdit = (e: React.ChangeEvent<HTMLFormElement>) => {
+      console.log(e);
     };
 
     const handleCancel = () => {
@@ -28,24 +31,21 @@ describe("Button", () => {
         </button>
         {isEditing && (
           <MessageInput
-            data-testid="messageInput"
             autoFocus
+            value={value}
+            handleChange={handleChange}
             name="message"
-            errors={errors}
-            defaultValue={"Hello world"}
             onCancel={handleCancel}
-            onSubmit={handleSubmit(handleEdit)}
-            onEmojiClick={emoji => {
-              setValue("message", getValues().message + emoji.native);
-            }}
-            inputRef={register({ required: "Message is required" })}
+            onSubmit={handleEdit}
+            onEmojiClick={handleEmojiClick}
+            mentionSuggestions={[]}
           />
         )}
       </div>
     );
   };
 
-  it("should renders <Button>", async () => {
+  it("should renders <MessageInput>", async () => {
     const { queryByTestId, getByText } = renderWithStyledTheme(
       <TestComponent />
     );
@@ -70,6 +70,6 @@ describe("Button", () => {
     fireEvent.change(queryByTestId("messageInput"), {
       target: { value: "hey world" },
     });
-    expect(queryByTestId("messageInput")).toHaveValue("hey world");
+    expect(queryByTestId("messageInput")).toHaveValue("hey worldHello world");
   });
 });
