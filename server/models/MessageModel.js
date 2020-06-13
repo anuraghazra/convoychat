@@ -16,6 +16,12 @@ const MessageSchema = new mongoose.Schema(
       maxlength: 500,
       min: 2,
     },
+    mentions: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "user",
+      },
+    ],
   },
   { timestamps: true }
 );

@@ -13,7 +13,7 @@ import { useParams } from "react-router-dom";
 import RoomHeader from "./RoomHeader";
 import MessageList from "components/Message/MessageList";
 import MessageInput from "components/MessageInput/MessageInput";
-import { useMessageInput } from "components/MessageInput/MessageInput";
+import useMessageInput from "components/MessageInput/useMessageInput";
 import { DashboardBody } from "pages/Dashboard/Dashboard.style";
 import subscribeToMessages from "./subscribeToMessages";
 
@@ -54,6 +54,7 @@ const Room: React.FC = () => {
   const {
     value,
     setValue,
+    mentions,
     textareaRef,
     handleChange,
     handleEmojiClick,
@@ -83,7 +84,12 @@ const Room: React.FC = () => {
 
   // send message mutation
   const [sendMessage, { error: sendError }] = useSendMessageMutation({
-    optimisticResponse: sendMessageOptimisticResponse(roomId, value, user),
+    optimisticResponse: sendMessageOptimisticResponse(
+      roomId,
+      value,
+      user,
+      mentions.map(m => m.id)
+    ),
     onError(err) {
       console.log(err);
     },
@@ -93,9 +99,11 @@ const Room: React.FC = () => {
   // submit message
   const onMessageSubmit = useCallback(
     (event: React.FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
       sendMessage({
         variables: {
           content: (event.target as any).message.value,
+          mentions: mentions.map(m => m.id),
           roomId: roomId,
         },
       });
@@ -104,7 +112,7 @@ const Room: React.FC = () => {
         scrollToBottom(bodyRef?.current);
       }, 50);
     },
-    []
+    [mentions]
   );
 
   useEffect(() => {
@@ -145,12 +153,15 @@ const Room: React.FC = () => {
     });
   };
 
-  const handleScroll = useCallback((e: any) => {
-    e.persist();
-    if (bodyRef.current.scrollTop === 0) {
-      fetchMoreMessages();
-    }
-  }, []);
+  const handleScroll = useCallback(
+    (e: any) => {
+      e.persist();
+      if (bodyRef.current.scrollTop === 0) {
+        fetchMoreMessages();
+      }
+    },
+    [roomData?.messages?.messages?.length]
+  );
 
   return (
     <>

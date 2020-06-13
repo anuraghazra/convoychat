@@ -6,6 +6,7 @@ interface IAvatar {
 export const Avatar = styled.img<IAvatar>`
   width: ${p => (p.size ? p.size : 45)}px;
   height: ${p => (p.size ? p.size : 45)}px;
+  min-width: ${p => (p.size ? p.size : 45)}px;
   border-radius: 50px;
   margin-right: ${p => p.theme.space.medium}px;
 `;

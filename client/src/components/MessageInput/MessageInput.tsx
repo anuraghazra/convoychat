@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback } from "react";
+import React, { useEffect, useRef } from "react";
 import { FaSmile, FaPaperPlane } from "react-icons/fa";
 import { Picker } from "emoji-mart";
 import "emoji-mart/css/emoji-mart.css";
@@ -13,16 +13,9 @@ import { textareaAutoResize } from "utils";
 import { Flex, Dropdown, IconButton } from "@convoy-ui";
 import { RoomMemberFragment } from "graphql/generated/graphql";
 import { MentionsInput, Mention, OnChangeHandlerFunc } from "react-mentions";
+import { useAuthContext } from "contexts/AuthContext";
 
 const mql = window.matchMedia(`(min-width: 800px)`);
-
-interface useMessageReturn {
-  value: string;
-  handleChange: OnChangeHandlerFunc;
-  handleEmojiClick: (emoji: string) => void;
-  setValue: React.Dispatch<React.SetStateAction<string>>;
-  textareaRef: React.RefObject<HTMLTextAreaElement | undefined>;
-}
 
 interface IMessageInput {
   value: string;
@@ -48,9 +41,7 @@ const MessageInput: React.FC<IMessageInput> = ({
   const isMobile = !mql.matches;
   const formRef = useRef<HTMLFormElement>();
   const textareaRef = useRef<HTMLTextAreaElement>();
-  const suggestionsData = useRef<
-    { display: string; id: string }[] | undefined
-  >();
+  const suggestionsData = useRef<{ display: any; id: string }[] | undefined>();
 
   const imparativeSubmit = (event: any) => {
     event.preventDefault();
@@ -59,12 +50,10 @@ const MessageInput: React.FC<IMessageInput> = ({
 
   const handleKeydown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
     textareaAutoResize(textareaRef?.current);
-
     if (event.key === "Escape") {
       onCancel && onCancel();
     }
     if (isMobile) return;
-
     if (event.key === "Enter" && !event.shiftKey) {
       imparativeSubmit(event);
     }
@@ -76,7 +65,10 @@ const MessageInput: React.FC<IMessageInput> = ({
 
   useEffect(() => {
     suggestionsData.current = mentionSuggestions?.map(curr => {
-      return { display: curr.name, id: curr.username };
+      return {
+        display: curr.username,
+        id: curr.id,
+      };
     });
   }, [mentionSuggestions]);
 
@@ -105,7 +97,9 @@ const MessageInput: React.FC<IMessageInput> = ({
             <Mention
               trigger="@"
               data={suggestionsData?.current || []}
-              displayTransform={(id: any) => `@${id} `}
+              displayTransform={id =>
+                `@${suggestionsData.current.find(i => i.id === id).display} `
+              }
             />
           </MentionsInput>
         </form>
@@ -133,32 +127,6 @@ const MessageInput: React.FC<IMessageInput> = ({
       </Flex>
     </MessageInputWrapper>
   );
-};
-
-export const useMessageInput = ({
-  defaultValue,
-}: { defaultValue?: string } = {}): useMessageReturn => {
-  const textareaRef = useRef<HTMLTextAreaElement | undefined>();
-  const [value, setValue] = useState<string>(defaultValue || "");
-  const handleChange = useCallback(
-    (e: React.ChangeEvent<HTMLTextAreaElement>) => setValue(e.target.value),
-    []
-  );
-
-  const handleEmojiClick = useCallback((emoji: any) => {
-    setValue(prev => {
-      const el = textareaRef.current;
-      const start = el.selectionStart;
-      const end = el.selectionEnd;
-      const before = prev.substring(0, start);
-      const after = prev.substring(end, prev.length);
-      el.selectionStart = 5;
-      el.focus();
-      return before + emoji.native + after;
-    });
-  }, []);
-
-  return { value, setValue, handleChange, handleEmojiClick, textareaRef };
 };
 
 export default MessageInput;

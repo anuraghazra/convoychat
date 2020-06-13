@@ -6,6 +6,7 @@ const typeDefs = gql`
     roomId
     content
     createdAt
+    mentions
     author {
       id
       username
@@ -17,6 +18,7 @@ const typeDefs = gql`
     content
     roomId
     createdAt
+    mentions
     author {
       id
       name
@@ -25,12 +27,13 @@ const typeDefs = gql`
     }
   }
 
-  mutation sendMessage($roomId: ID!, $content: String!) {
-    sendMessage(roomId: $roomId, content: $content) {
+  mutation sendMessage($roomId: ID!, $content: String!, $mentions: [ID!]!) {
+    sendMessage(roomId: $roomId, content: $content, mentions: $mentions) {
       id
       roomId
       content
       createdAt
+      mentions
       author {
         id
         name

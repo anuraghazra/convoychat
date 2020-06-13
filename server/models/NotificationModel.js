@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const notificationTypes = require("../notificationTypes");
+const notificationTypes = require("../notification-topic");
 
 const NotificationSchema = new mongoose.Schema(
   {
