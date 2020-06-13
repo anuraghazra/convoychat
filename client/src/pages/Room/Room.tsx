@@ -1,6 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import {
-  Member,
   useGetRoomQuery,
   Message as IMessage,
   useSendMessageMutation,
@@ -12,29 +11,39 @@ import update from "immutability-helper";
 import { useParams } from "react-router-dom";
 
 import RoomHeader from "./RoomHeader";
-import MemberList from "components/Member/MemberList";
 import MessageList from "components/Message/MessageList";
 import MessageInput from "components/MessageInput/MessageInput";
 import { useMessageInput } from "components/MessageInput/MessageInput";
 import { DashboardBody } from "pages/Dashboard/Dashboard.style";
-import SidebarWrapper from "components/Sidebar/Sidebar.style";
 import subscribeToMessages from "./subscribeToMessages";
 
+import { Flex } from "@convoy-ui";
 import { scrollToBottom } from "utils";
 import { MAX_MESSAGES } from "../../constants";
-import { Flex, Spacer } from "@convoy-ui";
 import { useAuthContext } from "contexts/AuthContext";
 
 import {
   updateCacheAfterSendMessage,
   sendMessageOptimisticResponse,
 } from "./Room.helpers";
+import RightSidebar from "./RightSidebar";
 import useResponsiveSidebar from "hooks/useResponsiveSidebar";
 
 const MessagesWrapper = styled(Flex)`
   width: 100%;
   height: var(--app-height);
 `;
+const RoomBody = styled(DashboardBody)`
+  .room__body--flex {
+    min-height: 100%;
+  }
+`;
+const sidebarStyles = {
+  sidebar: {
+    width: "300px",
+    overflow: "visible",
+  },
+};
 
 const Room: React.FC = () => {
   const { user } = useAuthContext();
@@ -42,7 +51,13 @@ const Room: React.FC = () => {
 
   const bodyRef = useRef<HTMLElement | null>();
   const { isDocked, isOpen, setIsOpen } = useResponsiveSidebar();
-  const { value, setValue, handleChange, handleEmojiClick } = useMessageInput();
+  const {
+    value,
+    setValue,
+    textareaRef,
+    handleChange,
+    handleEmojiClick,
+  } = useMessageInput();
   const [isFetchingMore, setIsFetchingMore] = useState<boolean>(false);
 
   // fetch room query
@@ -76,18 +91,21 @@ const Room: React.FC = () => {
   });
 
   // submit message
-  const onMessageSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    sendMessage({
-      variables: {
-        content: (event.target as any).message.value,
-        roomId: roomId,
-      },
-    });
-    setValue("");
-    window.setTimeout(() => {
-      scrollToBottom(bodyRef?.current);
-    }, 50);
-  };
+  const onMessageSubmit = useCallback(
+    (event: React.FormEvent<HTMLFormElement>) => {
+      sendMessage({
+        variables: {
+          content: (event.target as any).message.value,
+          roomId: roomId,
+        },
+      });
+      setValue("");
+      window.setTimeout(() => {
+        scrollToBottom(bodyRef?.current);
+      }, 50);
+    },
+    []
+  );
 
   useEffect(() => {
     subscribeToMessages(
@@ -127,12 +145,12 @@ const Room: React.FC = () => {
     });
   };
 
-  const handleScroll = (e: any) => {
+  const handleScroll = useCallback((e: any) => {
     e.persist();
     if (bodyRef.current.scrollTop === 0) {
       fetchMoreMessages();
     }
-  };
+  }, []);
 
   return (
     <>
@@ -142,24 +160,12 @@ const Room: React.FC = () => {
         open={isOpen}
         docked={isDocked}
         onSetOpen={setIsOpen}
-        styles={{
-          sidebar: {
-            width: "300px",
-            overflow: "visible",
-          },
-        }}
+        styles={sidebarStyles}
         sidebar={
-          <SidebarWrapper>
-            <h3>Members</h3>
-            <Spacer gap="large" />
-            <MemberList
-              roomId={roomId}
-              members={roomData?.room?.members as Member[]}
-            />
-          </SidebarWrapper>
+          <RightSidebar roomId={roomId} members={roomData?.room?.members} />
         }
       >
-        <DashboardBody>
+        <RoomBody>
           {sendError && <span>{sendError?.message}</span>}
           {fetchRoomError && <span>{fetchRoomError?.message}</span>}
 
@@ -167,13 +173,10 @@ const Room: React.FC = () => {
             nowrap
             direction="column"
             justify="space-between"
-            style={{ minHeight: "100%" }}
+            className="room__body--flex"
           >
             <MessagesWrapper nowrap direction="column">
-              <RoomHeader
-                name={roomData?.room?.name}
-                roomId={roomData?.room?.id}
-              />
+              <RoomHeader name={roomData?.room?.name} />
 
               <MessageList
                 ref={bodyRef as any}
@@ -184,14 +187,15 @@ const Room: React.FC = () => {
 
               <MessageInput
                 value={value}
+                innerRef={textareaRef}
+                handleSubmit={onMessageSubmit}
                 handleChange={handleChange}
-                onSubmit={onMessageSubmit}
                 onEmojiClick={handleEmojiClick}
                 mentionSuggestions={roomData?.room?.members}
               />
             </MessagesWrapper>
           </Flex>
-        </DashboardBody>
+        </RoomBody>
       </Sidebar>
     </>
   );

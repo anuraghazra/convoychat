@@ -1,5 +1,5 @@
 import React from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import { Link } from "react-router-dom";
 import { FiMoreVertical } from "react-icons/fi";
 import { FaUsers, FaTrash, FaUserPlus } from "react-icons/fa";
@@ -14,10 +14,14 @@ import { useModalContext } from "contexts/ModalContext";
 const StyledRoomLink = styled.div<{ isSelected?: boolean }>`
   padding: 10px 20px;
   padding-right: 10px;
-  margin-bottom: ${p => p.theme.space.small}px;
-  border-radius: ${p => p.theme.radius.small}px;
-  background-color: ${p => p.theme.colors.dark3};
-  color: ${p => (p.isSelected ? p.theme.colors.primary : p.theme.colors.white)};
+
+  ${p => css`
+    margin-bottom: ${p.theme.space.small}px;
+    border-radius: ${p.theme.radius.small}px;
+    background-color: ${p.theme.colors.dark3};
+    color: ${p.isSelected ? p.theme.colors.primary : p.theme.colors.white};
+  `}
+
   a {
     color: inherit;
   }
@@ -39,7 +43,10 @@ const RoomLink: React.FC<IRoomLink> = ({
   onInviteMemberClick,
 }) => {
   const { dispatch } = useModalContext();
-  const [deleteRoom, { loading: isDeleting, error }] = useDeleteRoomMutation({
+  const [deleteRoom, { loading: isDeleting }] = useDeleteRoomMutation({
+    onError(err) {
+      console.log(err.message);
+    },
     refetchQueries: [{ query: ListCurrentUserRoomsDocument }],
   });
 
