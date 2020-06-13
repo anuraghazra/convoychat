@@ -127,7 +127,6 @@ export type MutationDeleteRoomArgs = {
 export type MutationSendMessageArgs = {
   roomId: Scalars['ID'];
   content: Scalars['String'];
-  mentions: Array<Scalars['ID']>;
 };
 
 
@@ -409,7 +408,6 @@ export type SubscriptionMessagePartsFragment = (
 export type SendMessageMutationVariables = {
   roomId: Scalars['ID'];
   content: Scalars['String'];
-  mentions: Array<Scalars['ID']>;
 };
 
 
@@ -935,8 +933,8 @@ export type DeleteRoomMutationHookResult = ReturnType<typeof useDeleteRoomMutati
 export type DeleteRoomMutationResult = ApolloReactCommon.MutationResult<DeleteRoomMutation>;
 export type DeleteRoomMutationOptions = ApolloReactCommon.BaseMutationOptions<DeleteRoomMutation, DeleteRoomMutationVariables>;
 export const SendMessageDocument = gql`
-    mutation sendMessage($roomId: ID!, $content: String!, $mentions: [ID!]!) {
-  sendMessage(roomId: $roomId, content: $content, mentions: $mentions) {
+    mutation sendMessage($roomId: ID!, $content: String!) {
+  sendMessage(roomId: $roomId, content: $content) {
     id
     roomId
     content
@@ -968,7 +966,6 @@ export type SendMessageMutationFn = ApolloReactCommon.MutationFunction<SendMessa
  *   variables: {
  *      roomId: // value for 'roomId'
  *      content: // value for 'content'
- *      mentions: // value for 'mentions'
  *   },
  * });
  */

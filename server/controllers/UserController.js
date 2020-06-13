@@ -5,8 +5,9 @@ const { Message } = require("../models/MessageModel");
 const { Notification } = require("../models/NotificationModel");
 const { ApolloError } = require("apollo-server-express");
 
-const NOTIFICATION_TOPIC = require("../notification-topic");
+const parseMentions = require("../utils/mention-parser");
 const sendNotification = require("../utils/sendNotification");
+const NOTIFICATION_TOPIC = require("../notification-topic");
 const { NEW_MESSAGE, DELETE_MESSAGE, UPDATE_MESSAGE } = require("../constants");
 
 exports.me = (_parent, _args, context) => {
@@ -37,7 +38,7 @@ exports.sendMessage = async (parent, args, context) => {
     let room = await Room.findOne({
       _id: args.roomId,
       members: { $in: [context.currentUser.id] },
-    });
+    }).populate("members");
 
     if (!room) {
       throw new ApolloError(
@@ -45,33 +46,48 @@ exports.sendMessage = async (parent, args, context) => {
       );
     }
 
+    // parse mentions
+    const mentions = parseMentions(args.content);
+
+    // check if mentioned users are member of the room
+    const mentioned_users = mentions
+      .map(m => {
+        let found = room.members.find(i => i.username === m);
+        if (found) {
+          return found._id;
+        }
+        return null;
+      })
+      // remove null values & current user if mentioned
+      .filter(userId => {
+        if (!userId) return false;
+        return `${userId}` !== `${context.currentUser.id}`;
+      });
+
     let message = new Message({
       content: args.content,
       roomId: args.roomId,
       author: context.currentUser.id,
-      mentions: [...args.mentions],
+      mentions: mentioned_users,
     });
     message.populate("author").execPopulate();
 
     // filter out the current User id to prevent self notification sending
-    let mentionNotifications = message.mentions
-      .filter(userId => {
-        userId !== context.currentUser.id;
-      })
-      .map(async id => {
-        return sendNotification({
-          context: context,
-          sender: context.currentUser.id,
-          receiver: id,
-          type: NOTIFICATION_TOPIC.MENTION,
-          payload: {
-            roomName: room.name,
-            message: message.content,
-            messageId: message._id,
-            roomId: room._id,
-          },
-        });
+    let mentionNotifications = message.mentions.map(async id => {
+      return sendNotification({
+        context: context,
+        sender: context.currentUser.id,
+        receiver: id,
+        type: NOTIFICATION_TOPIC.MENTION,
+        payload: {
+          roomName: room.name,
+          message: message.content,
+          messageId: message._id,
+          roomId: room._id,
+        },
       });
+    });
+
     await Promise.all(mentionNotifications);
 
     let saved = await message.save({ roomId: args.roomId });

@@ -54,7 +54,6 @@ const Room: React.FC = () => {
   const {
     value,
     setValue,
-    mentions,
     textareaRef,
     handleChange,
     handleEmojiClick,
@@ -84,12 +83,7 @@ const Room: React.FC = () => {
 
   // send message mutation
   const [sendMessage, { error: sendError }] = useSendMessageMutation({
-    optimisticResponse: sendMessageOptimisticResponse(
-      roomId,
-      value,
-      user,
-      mentions.map(m => m.id)
-    ),
+    optimisticResponse: sendMessageOptimisticResponse(roomId, value, user),
     onError(err) {
       console.log(err);
     },
@@ -103,7 +97,6 @@ const Room: React.FC = () => {
       sendMessage({
         variables: {
           content: (event.target as any).message.value,
-          mentions: mentions.map(m => m.id),
           roomId: roomId,
         },
       });
@@ -112,7 +105,7 @@ const Room: React.FC = () => {
         scrollToBottom(bodyRef?.current);
       }, 50);
     },
-    [mentions]
+    []
   );
 
   useEffect(() => {

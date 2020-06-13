@@ -1,4 +1,4 @@
-import { OnChangeHandlerFunc, MentionItem } from "react-mentions";
+import { OnChangeHandlerFunc } from "react-mentions";
 import { useRef, useState, useCallback } from "react";
 
 interface useMessageReturn {
@@ -7,7 +7,6 @@ interface useMessageReturn {
   handleEmojiClick: (emoji: string) => void;
   setValue: React.Dispatch<React.SetStateAction<string>>;
   textareaRef: React.RefObject<HTMLTextAreaElement | undefined>;
-  mentions: MentionItem[];
 }
 
 export const useMessageInput = ({
@@ -15,11 +14,9 @@ export const useMessageInput = ({
 }: { defaultValue?: string } = {}): useMessageReturn => {
   const textareaRef = useRef<HTMLTextAreaElement | undefined>();
   const [value, setValue] = useState<string>(defaultValue || "");
-  const [mentions, setMentions] = useState<MentionItem[]>([]);
 
   const handleChange: OnChangeHandlerFunc = useCallback(
     (e, _newValue, _newPlainText, mention) => {
-      setMentions(mention);
       setValue(e.target.value);
     },
     []
@@ -44,7 +41,6 @@ export const useMessageInput = ({
     handleChange,
     handleEmojiClick,
     textareaRef,
-    mentions,
   };
 };
 
