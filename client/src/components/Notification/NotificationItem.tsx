@@ -6,10 +6,10 @@ import { Flex, Avatar } from "@convoy-ui";
 
 import StyledNotificationItem from "./NotificationItem.style";
 import { actionLinks, NotificationSwitch } from "./NotificationSwitch";
-import { Notification as INotification } from "graphql/generated/graphql";
+import { NotificationDataFragment } from "graphql/generated/graphql";
 
 interface INotificationItem {
-  data: any;
+  data: NotificationDataFragment;
   onClick: (id: string) => void;
 }
 const NotificationItem: React.FC<INotificationItem> = ({ data, onClick }) => {

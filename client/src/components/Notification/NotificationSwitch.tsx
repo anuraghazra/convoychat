@@ -1,5 +1,5 @@
 import React from "react";
-import { Notification as INotification } from "graphql/generated/graphql";
+import { NotificationDataFragment } from "graphql/generated/graphql";
 
 export const types = {
   INVITATION: "INVITATION",
@@ -16,7 +16,10 @@ export const actionLinks = {
 };
 
 export const NotificationSwitch = {
-  [types.INVITATION]: (notification: INotification, payload: any) => {
+  [types.INVITATION]: (
+    notification: NotificationDataFragment,
+    payload: any
+  ) => {
     return (
       <span>
         <span className="textcolor--primary">{notification.sender.name}</span>{" "}
@@ -25,7 +28,7 @@ export const NotificationSwitch = {
       </span>
     );
   },
-  [types.MENTION]: (notification: INotification, payload: any) => {
+  [types.MENTION]: (notification: NotificationDataFragment, payload: any) => {
     return (
       <span>
         <span className="textcolor--primary">{notification.sender.name}</span>{" "}
