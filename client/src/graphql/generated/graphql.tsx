@@ -74,6 +74,7 @@ export type Message = {
   roomId: Scalars['ID'];
   author: Member;
   content: Scalars['String'];
+  mentions: Array<Scalars['ID']>;
   createdAt: Scalars['String'];
 };
 
@@ -126,6 +127,7 @@ export type MutationDeleteRoomArgs = {
 export type MutationSendMessageArgs = {
   roomId: Scalars['ID'];
   content: Scalars['String'];
+  mentions: Array<Scalars['ID']>;
 };
 
 
@@ -337,7 +339,7 @@ export type GetRoomQuery = (
     & Pick<Messages, 'totalDocs' | 'totalPages'>
     & { messages: Array<(
       { __typename?: 'Message' }
-      & Pick<Message, 'id' | 'roomId' | 'content' | 'createdAt'>
+      & Pick<Message, 'id' | 'roomId' | 'content' | 'createdAt' | 'mentions'>
       & { author: (
         { __typename?: 'Member' }
         & Pick<Member, 'id' | 'name' | 'username' | 'avatarUrl'>
@@ -388,7 +390,7 @@ export type DeleteRoomMutation = (
 
 export type MessagePartsFragment = (
   { __typename?: 'Message' }
-  & Pick<Message, 'id' | 'roomId' | 'content' | 'createdAt'>
+  & Pick<Message, 'id' | 'roomId' | 'content' | 'createdAt' | 'mentions'>
   & { author: (
     { __typename?: 'Member' }
     & Pick<Member, 'id' | 'username'>
@@ -397,7 +399,7 @@ export type MessagePartsFragment = (
 
 export type SubscriptionMessagePartsFragment = (
   { __typename?: 'Message' }
-  & Pick<Message, 'id' | 'content' | 'roomId' | 'createdAt'>
+  & Pick<Message, 'id' | 'content' | 'roomId' | 'createdAt' | 'mentions'>
   & { author: (
     { __typename?: 'Member' }
     & Pick<Member, 'id' | 'name' | 'username' | 'avatarUrl'>
@@ -407,6 +409,7 @@ export type SubscriptionMessagePartsFragment = (
 export type SendMessageMutationVariables = {
   roomId: Scalars['ID'];
   content: Scalars['String'];
+  mentions: Array<Scalars['ID']>;
 };
 
 
@@ -414,7 +417,7 @@ export type SendMessageMutation = (
   { __typename?: 'Mutation' }
   & { sendMessage: (
     { __typename?: 'Message' }
-    & Pick<Message, 'id' | 'roomId' | 'content' | 'createdAt'>
+    & Pick<Message, 'id' | 'roomId' | 'content' | 'createdAt' | 'mentions'>
     & { author: (
       { __typename?: 'Member' }
       & Pick<Member, 'id' | 'name' | 'username' | 'avatarUrl'>
@@ -592,6 +595,7 @@ export const MessagePartsFragmentDoc = gql`
   roomId
   content
   createdAt
+  mentions
   author {
     id
     username
@@ -604,6 +608,7 @@ export const SubscriptionMessagePartsFragmentDoc = gql`
   content
   roomId
   createdAt
+  mentions
   author {
     id
     name
@@ -787,6 +792,7 @@ export const GetRoomDocument = gql`
       roomId
       content
       createdAt
+      mentions
       author {
         id
         name
@@ -929,12 +935,13 @@ export type DeleteRoomMutationHookResult = ReturnType<typeof useDeleteRoomMutati
 export type DeleteRoomMutationResult = ApolloReactCommon.MutationResult<DeleteRoomMutation>;
 export type DeleteRoomMutationOptions = ApolloReactCommon.BaseMutationOptions<DeleteRoomMutation, DeleteRoomMutationVariables>;
 export const SendMessageDocument = gql`
-    mutation sendMessage($roomId: ID!, $content: String!) {
-  sendMessage(roomId: $roomId, content: $content) {
+    mutation sendMessage($roomId: ID!, $content: String!, $mentions: [ID!]!) {
+  sendMessage(roomId: $roomId, content: $content, mentions: $mentions) {
     id
     roomId
     content
     createdAt
+    mentions
     author {
       id
       name
@@ -961,6 +968,7 @@ export type SendMessageMutationFn = ApolloReactCommon.MutationFunction<SendMessa
  *   variables: {
  *      roomId: // value for 'roomId'
  *      content: // value for 'content'
+ *      mentions: // value for 'mentions'
  *   },
  * });
  */

@@ -27,6 +27,7 @@ export default gql`
         roomId
         content
         createdAt
+        mentions
         author {
           id
           name

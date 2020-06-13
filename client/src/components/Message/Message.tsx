@@ -20,7 +20,7 @@ import { deleteMessageMutationUpdater } from "./Message.helpers";
 import StyledMessage from "./Message.style";
 import { MAX_MESSAGES } from "../../constants";
 import MessageInput from "components/MessageInput/MessageInput";
-import { useMessageInput } from "components/MessageInput/MessageInput";
+import useMessageInput from "components/MessageInput/useMessageInput";
 
 interface IMessage {
   id: string;

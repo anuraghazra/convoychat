@@ -12,7 +12,8 @@ import {
 const sendMessageOptimisticResponse = (
   roomId: string,
   content: string,
-  user: Me
+  user: Me,
+  mentions: string[]
 ): SendMessageMutation => {
   return {
     __typename: "Mutation",
@@ -21,6 +22,7 @@ const sendMessageOptimisticResponse = (
       id: v4(),
       roomId,
       content: content,
+      mentions: mentions,
       createdAt: `${Date.now()}`,
       author: {
         id: user.id,
