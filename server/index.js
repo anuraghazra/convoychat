@@ -29,6 +29,7 @@ const app = express();
 const whitelist = [
   "https://convoychat.herokuapp.com/",
   "http://localhost:4000/",
+  "http://localhost:4000/graphql",
   process.env.AUTH0_DOMAIN,
 ];
 
@@ -36,13 +37,13 @@ app.use(cookieParser());
 app.use(
   cors({
     credentials: true,
-    origin: function (origin, callback) {
-      if (!origin || whitelist.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
+    // origin: function (origin, callback) {
+    //   if (!origin || whitelist.includes(origin)) {
+    //     callback(null, true);
+    //   } else {
+    //     callback(new Error("Not allowed by CORS"));
+    //   }
+    // },
   })
 );
 app.use(helmet()); // security headers

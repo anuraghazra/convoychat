@@ -1,12 +1,11 @@
 const crypto = require("crypto");
-const mongoose = require("mongoose");
-const { ApolloError } = require("apollo-server-express");
 const { User } = require("../models/UserModel");
 const { Room } = require("../models/RoomModel");
+const { ApolloError } = require("apollo-server-express");
 const { Invitation } = require("../models/InvitationModel");
-const { Notification } = require("../models/NotificationModel");
-const notificationTypes = require("../notificationTypes");
-const { NEW_NOTIFICATION } = require("../constants");
+
+const NOTIFICATION_TOPIC = require("../notification-topic");
+const sendNotification = require("../utils/sendNotification");
 
 exports.getInvitationInfo = async (parent, args, context) => {
   const invite = await Invitation.findOne({
@@ -161,7 +160,11 @@ exports.inviteMembers = async (parent, args, context) => {
 
   // send notification
   const notifications = args.members.map(async (id, index) => {
-    let noti = new Notification({
+    return sendNotification({
+      context: context,
+      sender: context.currentUser.id,
+      receiver: id,
+      type: NOTIFICATION_TOPIC.INVITATION,
       payload: {
         userId: id,
         roomName: foundRoom.name,
@@ -169,23 +172,7 @@ exports.inviteMembers = async (parent, args, context) => {
         invitedBy: context.currentUser.id,
         token: savedInvites[index].token,
       },
-      sender: context.currentUser.id,
-      receiver: id,
-      type: notificationTypes.INVITATION,
     });
-
-    // TODO: CLEAN THIS UP
-    let populated = await noti.execPopulate("sender");
-    let subscribtionData = populated.toObject();
-    context.pubsub.publish(NEW_NOTIFICATION, {
-      onNewNotification: {
-        ...subscribtionData,
-        id: subscribtionData._id,
-        createdAt: Date.now(),
-      },
-    });
-
-    return noti.save();
   });
 
   await Promise.all(notifications);

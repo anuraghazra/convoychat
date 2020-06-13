@@ -1,9 +1,12 @@
 const mongoose = require("mongoose");
-const { ApolloError } = require("apollo-server-express");
 const { User } = require("../models/UserModel");
 const { Room } = require("../models/RoomModel");
 const { Message } = require("../models/MessageModel");
 const { Notification } = require("../models/NotificationModel");
+const { ApolloError } = require("apollo-server-express");
+
+const NOTIFICATION_TOPIC = require("../notification-topic");
+const sendNotification = require("../utils/sendNotification");
 const { NEW_MESSAGE, DELETE_MESSAGE, UPDATE_MESSAGE } = require("../constants");
 
 exports.me = (_parent, _args, context) => {
@@ -46,8 +49,30 @@ exports.sendMessage = async (parent, args, context) => {
       content: args.content,
       roomId: args.roomId,
       author: context.currentUser.id,
+      mentions: [...args.mentions],
     });
     message.populate("author").execPopulate();
+
+    // filter out the current User id to prevent self notification sending
+    let mentionNotifications = message.mentions
+      .filter(userId => {
+        userId !== context.currentUser.id;
+      })
+      .map(async id => {
+        return sendNotification({
+          context: context,
+          sender: context.currentUser.id,
+          receiver: id,
+          type: NOTIFICATION_TOPIC.MENTION,
+          payload: {
+            roomName: room.name,
+            message: message.content,
+            messageId: message._id,
+            roomId: room._id,
+          },
+        });
+      });
+    await Promise.all(mentionNotifications);
 
     let saved = await message.save({ roomId: args.roomId });
     context.pubsub.publish(NEW_MESSAGE, { onNewMessage: saved });
