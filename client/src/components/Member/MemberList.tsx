@@ -5,6 +5,7 @@ import {
   GetRoomQuery,
   GetRoomDocument,
   Member as IMember,
+  RoomMemberFragment,
   useRemoveMemberMutation,
 } from "graphql/generated/graphql";
 
@@ -12,7 +13,7 @@ import Member from "./Member";
 import { MAX_MESSAGES } from "../../constants";
 
 interface IMemberList {
-  members?: IMember[];
+  members?: RoomMemberFragment[];
   roomId?: string;
 }
 
