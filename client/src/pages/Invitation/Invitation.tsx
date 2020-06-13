@@ -4,6 +4,7 @@ import { FaThumbsUp } from "react-icons/fa";
 import {
   useGetInvitationInfoQuery,
   useAcceptInvitationMutation,
+  ListCurrentUserRoomsDocument,
 } from "graphql/generated/graphql";
 
 import { Button, Loading } from "@convoy-ui";
@@ -19,6 +20,7 @@ const Invitation: React.FC = () => {
     { loading: acceptInvitationLoading },
   ] = useAcceptInvitationMutation({
     variables: { token },
+    refetchQueries: [{ query: ListCurrentUserRoomsDocument }],
     onError(err) {
       console.log(err);
     },
