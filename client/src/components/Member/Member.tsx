@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { Avatar, Flex, IconButton } from "@convoy-ui";
-import { Member as IMember } from "graphql/generated/graphql";
+import { RoomMemberFragment } from "graphql/generated/graphql";
 import { FiUserMinus } from "react-icons/fi";
 
 const StyledMember = styled.section`
@@ -22,8 +22,8 @@ const StyledMember = styled.section`
 `;
 
 interface MemberProps {
-  user: IMember;
-  onActionClick?: (useId?: IMember) => void;
+  user: RoomMemberFragment;
+  onActionClick?: (useId?: RoomMemberFragment) => void;
 }
 const Member: React.FC<MemberProps> = ({ user, onActionClick }) => {
   return (

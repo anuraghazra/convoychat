@@ -41,13 +41,13 @@ const RoomsList: React.FC = () => {
 
       {loading && <Loading />}
       {error && <span>Error Loading Rooms</span>}
-      {data?.currentUserRooms?.map((room, index) => {
+      {data?.currentUserRooms?.map(room => {
         return (
           <RoomLink
             id={room.id}
             key={room.id}
             name={room.name}
-            isSelected={false}
+            isSelected={!!history.location.pathname.match(room.id)}
             onInviteMemberClick={roomId => setModalRoomId(roomId)}
           />
         );

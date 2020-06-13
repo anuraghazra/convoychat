@@ -41,7 +41,12 @@ const Message: React.FC<IMessage> = ({
   const roomData = useRef<GetRoomQuery>();
   const { roomId } = useParams();
   const [isEditing, setIsEditing] = useState<boolean>(false);
-  const { value, handleChange, handleEmojiClick } = useMessageInput({
+  const {
+    value,
+    textareaRef,
+    handleChange,
+    handleEmojiClick,
+  } = useMessageInput({
     defaultValue: content,
   });
 
@@ -117,10 +122,10 @@ const Message: React.FC<IMessage> = ({
         <div className="message__content">
           {isEditing ? (
             <MessageInput
-              autoFocus
               value={value}
+              innerRef={textareaRef}
               onCancel={handleCancel}
-              onSubmit={handleEdit}
+              handleSubmit={handleEdit}
               handleChange={handleChange}
               onEmojiClick={handleEmojiClick}
               mentionSuggestions={roomData.current?.room?.members}

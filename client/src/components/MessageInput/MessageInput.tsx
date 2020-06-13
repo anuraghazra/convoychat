@@ -1,53 +1,45 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import { FaSmile, FaPaperPlane } from "react-icons/fa";
 import { Picker } from "emoji-mart";
 import "emoji-mart/css/emoji-mart.css";
 
-import { Flex, Dropdown, IconButton } from "@convoy-ui";
-import { textareaAutoResize } from "utils";
-import { MentionsInput, Mention } from "react-mentions";
 import {
-  MessageInputWrapper,
   SendButton,
+  MessageInputWrapper,
   defaultMentionStyles,
 } from "./MessageInput.style";
+
+import { textareaAutoResize } from "utils";
+import { Flex, Dropdown, IconButton } from "@convoy-ui";
 import { RoomMemberFragment } from "graphql/generated/graphql";
+import { MentionsInput, Mention, OnChangeHandlerFunc } from "react-mentions";
 
 const mql = window.matchMedia(`(min-width: 800px)`);
 
 interface useMessageReturn {
   value: string;
-  setValue: React.Dispatch<React.SetStateAction<string>>;
-  handleChange: (e: any) => void;
+  handleChange: OnChangeHandlerFunc;
   handleEmojiClick: (emoji: string) => void;
+  setValue: React.Dispatch<React.SetStateAction<string>>;
+  textareaRef: React.RefObject<HTMLTextAreaElement | undefined>;
 }
-
-export const useMessageInput = ({
-  defaultValue,
-}: { defaultValue?: string } = {}): useMessageReturn => {
-  const [value, setValue] = useState<string>(defaultValue);
-  const handleChange = (e: any) => setValue(e.target.value);
-
-  const handleEmojiClick = (emoji: any) => {
-    setValue(value + emoji.native);
-  };
-
-  return { value, setValue, handleChange, handleEmojiClick };
-};
 
 interface IMessageInput {
   value: string;
   onCancel?: () => void;
+  handleChange: OnChangeHandlerFunc;
   onEmojiClick?: (emoji: any) => void;
-  onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
-  handleChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   mentionSuggestions: RoomMemberFragment[];
+  handleSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
+  innerRef?: React.MutableRefObject<HTMLTextAreaElement | undefined>;
   [x: string]: any;
 }
+
 const MessageInput: React.FC<IMessageInput> = ({
   value,
-  onSubmit,
+  innerRef,
   onCancel,
+  handleSubmit,
   handleChange,
   onEmojiClick,
   mentionSuggestions,
@@ -90,12 +82,13 @@ const MessageInput: React.FC<IMessageInput> = ({
 
   const getRef: any = (e: any) => {
     textareaRef.current = e;
+    innerRef.current = e;
   };
 
   return (
     <MessageInputWrapper className="message__input">
       <Flex gap="large" align="center" justify="space-between" nowrap>
-        <form ref={formRef} onSubmit={onSubmit}>
+        <form ref={formRef} onSubmit={handleSubmit}>
           <MentionsInput
             data-testid="messageInput"
             name={"message"}
@@ -140,6 +133,32 @@ const MessageInput: React.FC<IMessageInput> = ({
       </Flex>
     </MessageInputWrapper>
   );
+};
+
+export const useMessageInput = ({
+  defaultValue,
+}: { defaultValue?: string } = {}): useMessageReturn => {
+  const textareaRef = useRef<HTMLTextAreaElement | undefined>();
+  const [value, setValue] = useState<string>(defaultValue || "");
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLTextAreaElement>) => setValue(e.target.value),
+    []
+  );
+
+  const handleEmojiClick = useCallback((emoji: any) => {
+    setValue(prev => {
+      const el = textareaRef.current;
+      const start = el.selectionStart;
+      const end = el.selectionEnd;
+      const before = prev.substring(0, start);
+      const after = prev.substring(end, prev.length);
+      el.selectionStart = 5;
+      el.focus();
+      return before + emoji.native + after;
+    });
+  }, []);
+
+  return { value, setValue, handleChange, handleEmojiClick, textareaRef };
 };
 
 export default MessageInput;

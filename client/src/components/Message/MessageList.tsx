@@ -26,7 +26,7 @@ const StyledMessageList = styled.section`
 `;
 
 const MessageList = React.forwardRef<HTMLElement, IMessageList>(
-  ({ messages, onScroll, isFetchingMore }, ref) => {
+  function MessageList({ messages, onScroll, isFetchingMore }, ref) {
     const { user } = useAuthContext();
 
     return (
@@ -53,4 +53,4 @@ const MessageList = React.forwardRef<HTMLElement, IMessageList>(
   }
 );
 
-export default MessageList;
+export default React.memo(MessageList);
