@@ -27,8 +27,8 @@ const typeDefs = gql`
     }
   }
 
-  mutation sendMessage($roomId: ID!, $content: String!, $mentions: [ID!]!) {
-    sendMessage(roomId: $roomId, content: $content, mentions: $mentions) {
+  mutation sendMessage($roomId: ID!, $content: String!) {
+    sendMessage(roomId: $roomId, content: $content) {
       id
       roomId
       content

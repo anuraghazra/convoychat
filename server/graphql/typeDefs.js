@@ -123,7 +123,7 @@ const typeDefs = gql`
     removeMemberFromRoom(roomId: ID!, memberId: ID!): Member!
     deleteRoom(roomId: ID!): Room
 
-    sendMessage(roomId: ID!, content: String!, mentions: [ID!]!): Message!
+    sendMessage(roomId: ID!, content: String!): Message!
     deleteMessage(messageId: ID!): Message!
     editMessage(messageId: ID!, content: String!): Message!
       @rateLimit(
