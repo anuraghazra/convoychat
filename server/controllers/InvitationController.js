@@ -1,3 +1,5 @@
+const yup = require("yup");
+require("../utils/yup-objectid");
 const crypto = require("crypto");
 const { User } = require("../models/UserModel");
 const { Room } = require("../models/RoomModel");
@@ -26,8 +28,14 @@ exports.getInvitationInfo = async (parent, args, context) => {
 };
 
 exports.createInvitationLink = async (parent, args, context) => {
+  const createInvitationValidator = yup
+    .object()
+    .shape({ roomId: yup.string().objectId("Invalid RoomId") });
+
+  const { roomId } = await createInvitationValidator.validate(args);
+
   const existingInvitation = await Invitation.findOne({
-    roomId: args.roomId,
+    roomId: roomId,
     invitedBy: context.currentUser.id,
     isPublic: true,
   });
@@ -46,7 +54,7 @@ exports.createInvitationLink = async (parent, args, context) => {
   const token = crypto.randomBytes(16).toString("hex");
   const invite = new Invitation({
     isPublic: true,
-    roomId: args.roomId,
+    roomId: roomId,
     invitedBy: context.currentUser.id,
     token: token,
   });
@@ -57,9 +65,15 @@ exports.createInvitationLink = async (parent, args, context) => {
 };
 
 exports.acceptInvitation = async (parent, args, context) => {
+  const acceptInvitationValidator = yup
+    .object()
+    .shape({ token: yup.string().required() });
+
+  const { token } = await acceptInvitationValidator.validate(args);
+
   // find invitation with token & userId
   const invitation = await Invitation.findOne({
-    token: args.token,
+    token: token,
   });
 
   if (!invitation) throw new ApolloError("Invalid Invitation");
@@ -87,7 +101,7 @@ exports.acceptInvitation = async (parent, args, context) => {
   // throw error and delete the invitation if maximum uses is reached
   if (invitation.uses.length >= invitation.maxUses) {
     await Invitation.findOneAndRemove({
-      token: args.token,
+      token: token,
     });
     throw new ApolloError("Maximum invitation usage limit exceeded");
   }
@@ -110,17 +124,11 @@ exports.acceptInvitation = async (parent, args, context) => {
 
   // delete the notification
   if (!invitation.isPublic) {
-    await Invitation.findOneAndRemove({
-      token: args.token,
-    });
+    await Invitation.findOneAndRemove({ token: token });
   } else {
     await Invitation.findOneAndUpdate(
-      {
-        token: args.token,
-      },
-      {
-        $addToSet: { uses: [userToAdd] },
-      }
+      { token: token },
+      { $addToSet: { uses: [userToAdd] } }
     );
   }
 
@@ -128,13 +136,20 @@ exports.acceptInvitation = async (parent, args, context) => {
 };
 
 exports.inviteMembers = async (parent, args, context) => {
-  if (!Array.isArray(args.members))
-    throw new ApolloError("Members have to be array of user ids");
+  const inviteMembersValidator = yup.object().shape({
+    roomId: yup.string().objectId("Invalid RoomId"),
+    members: yup.array(
+      yup.string().objectId("invalid memberId"),
+      "Members have to be array of ids"
+    ),
+  });
+
+  const { roomId, members } = await inviteMembersValidator.validate(args);
 
   // check if user is a memeber of the specified room
   let user = await User.findOne({
     _id: context.currentUser.id,
-    rooms: { $in: args.roomId },
+    rooms: { $in: roomId },
   });
 
   if (!user)
@@ -143,10 +158,10 @@ exports.inviteMembers = async (parent, args, context) => {
   let token = null;
 
   // create invitations
-  const invitations = args.members.map(memberId => {
+  const invitations = members.map(memberId => {
     token = crypto.randomBytes(16).toString("hex");
     let invite = new Invitation({
-      roomId: args.roomId,
+      roomId: roomId,
       userId: memberId,
       invitedBy: context.currentUser.id,
       token: token,
@@ -156,10 +171,10 @@ exports.inviteMembers = async (parent, args, context) => {
 
   const savedInvites = await Promise.all(invitations);
 
-  const foundRoom = await Room.findOne({ _id: args.roomId });
+  const foundRoom = await Room.findOne({ _id: roomId });
 
   // send notification
-  const notifications = args.members.map(async (id, index) => {
+  const notifications = members.map(async (id, index) => {
     return sendNotification({
       context: context,
       sender: context.currentUser.id,
@@ -168,7 +183,7 @@ exports.inviteMembers = async (parent, args, context) => {
       payload: {
         userId: id,
         roomName: foundRoom.name,
-        roomId: args.roomId,
+        roomId: roomId,
         invitedBy: context.currentUser.id,
         token: savedInvites[index].token,
       },

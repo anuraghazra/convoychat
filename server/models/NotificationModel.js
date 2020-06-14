@@ -19,6 +19,7 @@ const NotificationSchema = new mongoose.Schema(
     },
     type: {
       type: String,
+      required: true,
       enum: [notificationTypes.INVITATION, notificationTypes.MENTION],
     },
     payload: {

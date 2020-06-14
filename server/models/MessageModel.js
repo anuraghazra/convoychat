@@ -5,16 +5,19 @@ const MessageSchema = new mongoose.Schema(
   {
     roomId: {
       type: mongoose.Schema.Types.ObjectId,
+      required: true,
       ref: "room",
     },
     author: {
       type: mongoose.Schema.Types.ObjectId,
+      required: true,
       ref: "user",
     },
     content: {
       type: String,
       maxlength: 500,
-      min: 2,
+      required: true,
+      minlength: 1,
     },
     mentions: [
       {
