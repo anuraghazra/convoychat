@@ -1,3 +1,5 @@
+const yup = require("yup");
+require("../utils/yup-objectid");
 const mongoose = require("mongoose");
 const { User } = require("../models/UserModel");
 const { Room } = require("../models/RoomModel");
@@ -8,7 +10,8 @@ const { ApolloError } = require("apollo-server-express");
 const parseMentions = require("../utils/mention-parser");
 const sendNotification = require("../utils/sendNotification");
 const NOTIFICATION_TOPIC = require("../notification-topic");
-const { NEW_MESSAGE, DELETE_MESSAGE, UPDATE_MESSAGE } = require("../constants");
+const CONSTANTS = require("../constants");
+
 
 exports.me = (_parent, _args, context) => {
   return context.getUser();
@@ -35,8 +38,18 @@ exports.getUser = async (_, args) => {
 
 exports.sendMessage = async (parent, args, context) => {
   try {
+    const sendMessageValidator = yup.object().shape({
+      roomId: yup.string().objectId("Invalid RoomId").required(),
+      content: yup
+        .string()
+        .min(1, "Message can not be empty")
+        .max(500, "Message too long!")
+        .required(),
+    });
+    const { roomId, content } = await sendMessageValidator.validate(args);
+
     let room = await Room.findOne({
-      _id: args.roomId,
+      _id: roomId,
       members: { $in: [context.currentUser.id] },
     }).populate("members");
 
@@ -47,7 +60,7 @@ exports.sendMessage = async (parent, args, context) => {
     }
 
     // parse mentions
-    const mentions = parseMentions(args.content);
+    const mentions = parseMentions(content);
 
     // check if mentioned users are member of the room
     const mentioned_users = mentions
@@ -65,8 +78,8 @@ exports.sendMessage = async (parent, args, context) => {
       });
 
     let message = new Message({
-      content: args.content,
-      roomId: args.roomId,
+      content: content,
+      roomId: roomId,
       author: context.currentUser.id,
       mentions: mentioned_users,
     });
@@ -90,8 +103,8 @@ exports.sendMessage = async (parent, args, context) => {
 
     await Promise.all(mentionNotifications);
 
-    let saved = await message.save({ roomId: args.roomId });
-    context.pubsub.publish(NEW_MESSAGE, { onNewMessage: saved });
+    let saved = await message.save({ roomId: roomId });
+    context.pubsub.publish(CONSTANTS.NEW_MESSAGE, { onNewMessage: saved });
 
     return saved;
   } catch (err) {
@@ -101,12 +114,23 @@ exports.sendMessage = async (parent, args, context) => {
 
 exports.deleteMessage = async (_parent, args, context) => {
   try {
+    const deleteMessageValidator = yup
+      .object()
+      .shape({ messageId: yup.string().objectId("Invalid MessageID") });
+
+    const { messageId } = await deleteMessageValidator.validate(args);
+
     let message = await Message.findOneAndDelete({
-      _id: args.messageId,
+      _id: messageId,
       author: context.currentUser.id,
     });
+
+    if (!message) throw new ApolloError("Cannot find message with ID");
+
     await message.populate("author").execPopulate();
-    context.pubsub.publish(DELETE_MESSAGE, { onDeleteMessage: message });
+    context.pubsub.publish(CONSTANTS.DELETE_MESSAGE, {
+      onDeleteMessage: message,
+    });
 
     return message;
   } catch (err) {
@@ -116,16 +140,27 @@ exports.deleteMessage = async (_parent, args, context) => {
 
 exports.editMessage = async (_parent, args, context) => {
   try {
+    const deleteMessageValidator = yup.object().shape({
+      messageId: yup.string().objectId("Invalid MessageID").required(),
+      content: yup.string().min(1).max(500).required(),
+    });
+
+    const { messageId, content } = await deleteMessageValidator.validate(args);
+
     let message = await Message.findOneAndUpdate(
       {
-        _id: args.messageId,
+        _id: messageId,
         author: context.currentUser.id,
       },
-      { content: args.content },
+      { content: content },
       { new: true }
     );
+    if (!message) throw new ApolloError("Cannot find message with ID");
+
     await message.populate("author").execPopulate();
-    context.pubsub.publish(UPDATE_MESSAGE, { onUpdateMessage: message });
+    context.pubsub.publish(CONSTANTS.UPDATE_MESSAGE, {
+      onUpdateMessage: message,
+    });
 
     return message;
   } catch (err) {

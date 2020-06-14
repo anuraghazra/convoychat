@@ -33,7 +33,8 @@
     "passport": "^0.4.1",
     "passport-auth0": "^1.3.2",
     "uniqid": "^5.2.0",
-    "xss-clean": "^0.1.1"
+    "xss-clean": "^0.1.1",
+    "yup": "^0.29.1"
   },
   "devDependencies": {
     "concurrently": "^5.2.0",
