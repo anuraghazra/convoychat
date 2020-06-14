@@ -1,5 +1,6 @@
-const { NEW_NOTIFICATION } = require("../constants");
-const { Notification } = require("../models/NotificationModel");
+import { NEW_NOTIFICATION } from "../constants";
+import Notification from "../models/NotificationModel";
+
 /**
  *
  * @param {String} sender
@@ -8,7 +9,15 @@ const { Notification } = require("../models/NotificationModel");
  * @param {string} type
  * @param {any} context
  */
-async function sendNotification({ sender, receiver, payload, type, context }) {
+
+interface ISendNotification {
+  sender: string;
+  receiver: string;
+  payload: Object;
+  type: string;
+  context: any;
+}
+async function sendNotification({ sender, receiver, payload, type, context }: ISendNotification) {
   // SEND MENTION NOTIFICATION
   const noti = new Notification({
     sender: sender,
@@ -18,7 +27,8 @@ async function sendNotification({ sender, receiver, payload, type, context }) {
   });
 
   // TODO: CLEAN THIS UP
-  let populated = await noti.execPopulate("sender");
+  // NOTE THE POPULATE
+  let populated = await noti.execPopulate();
   let subscribtionData = populated.toObject();
   context.pubsub.publish(NEW_NOTIFICATION, {
     onNewNotification: {
@@ -31,4 +41,4 @@ async function sendNotification({ sender, receiver, payload, type, context }) {
   return noti.save();
 }
 
-module.exports = sendNotification;
+export default sendNotification

@@ -1,24 +1,32 @@
-const passport = require("passport");
-const mongoose = require("mongoose");
-const Auth0Strategy = require("passport-auth0");
-const MockStrategy = require("passport-mock-strategy");
-const { User } = require("./models/UserModel");
-const { generateUsername } = require("./utils");
+import passport from "passport";
+import mongoose from "mongoose";
+import Auth0Strategy from "passport-auth0";
+import MockStrategy from "passport-mock-strategy";
+import User from "./models/UserModel";
+import { generateUsername } from "./utils";
 
-passport.serializeUser((user, done) => {
+passport.serializeUser((user: any, done) => {
   return done(null, user._id);
 });
 
-passport.deserializeUser(async (id, done) => {
+passport.deserializeUser(async (id: string, done) => {
   if (!mongoose.isValidObjectId(id)) return done(null, null);
   const user = await User.findById(id).populate("rooms");
   return done(null, user);
 });
 
+
+interface IUpsertUser {
+  socialId: any;
+  email: any;
+  avatarUrl: any;
+  username: string;
+  displayName: any;
+}
 const UpsertUser = async (
-  provider,
-  { socialId, email, username, displayName, avatarUrl },
-  done
+  provider: string,
+  { socialId, email, username, displayName, avatarUrl }: IUpsertUser,
+  done: any
 ) => {
   let userData = {
     avatarUrl: avatarUrl,
@@ -47,15 +55,15 @@ const UpsertUser = async (
 };
 
 // Configure Passport to use Auth0
-var strategy = new Auth0Strategy(
+const strategy = new Auth0Strategy(
   {
-    domain: process.env.AUTH0_DOMAIN,
-    clientID: process.env.AUTH0_CLIENT_ID,
-    clientSecret: process.env.AUTH0_CLIENT_SECRET,
+    domain: process.env.AUTH0_DOMAIN as string,
+    clientID: process.env.AUTH0_CLIENT_ID as string,
+    clientSecret: process.env.AUTH0_CLIENT_SECRET as string,
     callbackURL:
       process.env.AUTH0_CALLBACK_URL || "http://localhost:4000/auth/callback",
   },
-  async function (accessToken, refreshToken, extraParams, profile, done) {
+  async function (_accessToken, _refreshToken, _extraParams, profile, done) {
     // accessToken is the token to call Auth0 API (not needed in the most cases)
     // extraParams.id_token has the JSON Web Token
     // profile has all the information from the user
@@ -63,8 +71,8 @@ var strategy = new Auth0Strategy(
       "google",
       {
         socialId: profile.id,
-        email: profile.emails[0].value,
-        avatarUrl: profile.picture,
+        email: profile.emails && profile.emails[0].value,
+        avatarUrl: profile.photos && profile.photos[0].value,
         username: generateUsername(profile.displayName),
         displayName: profile.displayName,
       },
@@ -77,9 +85,9 @@ var strategy = new Auth0Strategy(
 if (process.env.NODE_ENV === "development") {
   passport.use(
     new MockStrategy(
-      { name: "mock", user: { email: process.env.MOCK_EMAIL } },
-      async (data, done) => {
-        let user = await User.findOne({ email: data.email });
+      { name: "mock", user: ({ emails: [{ value: process.env.MOCK_EMAIL, type: 'gmail' }] } as any) },
+      async (data: any, done: any) => {
+        let user = await User.findOne({ email: data.emails[0].value });
         done(null, user);
       }
     )

@@ -1,7 +1,7 @@
 const { withFilter } = require("apollo-server-express");
 const { NEW_MESSAGE, DELETE_MESSAGE, UPDATE_MESSAGE } = require("../constants");
 
-const filterRoom = argName => (payload, variables) => {
+const filterRoom = (argName: string) => (payload, variables) => {
   return payload[argName].roomId.toString() === variables.roomId;
 };
 
@@ -23,7 +23,7 @@ const onUpdateMessage = {
   }, filterRoom("onUpdateMessage")),
 };
 
-module.exports = {
+export default {
   onNewMessage,
   onDeleteMessage,
   onUpdateMessage,

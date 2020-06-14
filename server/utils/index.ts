@@ -1,12 +1,12 @@
-const uniqid = require("uniqid");
+import { time } from "uniqid";
 
-const generateUsername = name => {
+const generateUsername = (name: string) => {
   let specials = /[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/\s]/gi;
   let sanitized = name.toLowerCase().replace(specials, "");
-  let uniqueId = uniqid.time();
+  let uniqueId = time();
   return `${sanitized}-${uniqueId}`;
 };
 
-module.exports = {
+export {
   generateUsername,
 };

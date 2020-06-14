@@ -1,15 +1,16 @@
-const yup = require("yup");
-require("../utils/yup-objectid");
-const crypto = require("crypto");
-const { User } = require("../models/UserModel");
-const { Room } = require("../models/RoomModel");
-const { ApolloError } = require("apollo-server-express");
-const { Invitation } = require("../models/InvitationModel");
+import yup from "yup";
+import "../utils/yup-objectid";
+import crypto from "crypto";
+import User from "../models/UserModel"
+import Room from "../models/RoomModel"
+import { ApolloError } from "apollo-server-express"
+import Invitation, { InvitationSchema } from "../models/InvitationModel";
 
-const NOTIFICATION_TOPIC = require("../notification-topic");
-const sendNotification = require("../utils/sendNotification");
+import NOTIFICATION_TOPIC from "../notification-topic";
+import sendNotification from "../utils/sendNotification";
+import * as mongoose from 'mongoose';
 
-exports.getInvitationInfo = async (parent, args, context) => {
+export const getInvitationInfo = async (parent, args, context) => {
   const invite = await Invitation.findOne({
     token: args.token,
   })
@@ -27,10 +28,10 @@ exports.getInvitationInfo = async (parent, args, context) => {
   };
 };
 
-exports.createInvitationLink = async (parent, args, context) => {
+export const createInvitationLink = async (parent, args, context) => {
   const createInvitationValidator = yup
     .object()
-    .shape({ roomId: yup.string().objectId("Invalid RoomId") });
+    .shape<{ roomId: mongoose.Types.ObjectId }>({ roomId: yup.string().objectId("Invalid RoomId") });
 
   const { roomId } = await createInvitationValidator.validate(args);
 
@@ -64,10 +65,10 @@ exports.createInvitationLink = async (parent, args, context) => {
   return { link: `https://convoychat.herokuapp.com/invitations/${token}` };
 };
 
-exports.acceptInvitation = async (parent, args, context) => {
+export const acceptInvitation = async (parent, args, context) => {
   const acceptInvitationValidator = yup
     .object()
-    .shape({ token: yup.string().required() });
+    .shape<{ token: string }>({ token: yup.string().required() });
 
   const { token } = await acceptInvitationValidator.validate(args);
 
@@ -78,7 +79,7 @@ exports.acceptInvitation = async (parent, args, context) => {
 
   if (!invitation) throw new ApolloError("Invalid Invitation");
 
-  let userToAdd = null;
+  let userToAdd: any = null;
   // if invitation is public add the current user
   if (invitation.isPublic === true) {
     console.log("Invitation is public add Current user");
@@ -109,6 +110,7 @@ exports.acceptInvitation = async (parent, args, context) => {
   // add user to the room
   const room = await Room.findOneAndUpdate(
     { _id: invitation.roomId },
+    // @ts-ignore
     { $addToSet: { members: [userToAdd] } },
     { new: true }
   );
@@ -117,7 +119,10 @@ exports.acceptInvitation = async (parent, args, context) => {
 
   // update user.rooms
   await User.update(
-    { _id: userToAdd },
+    {
+      _id: userToAdd
+    },
+    // @ts-ignore
     { $addToSet: { rooms: [room.id] } },
     { new: true }
   );
@@ -128,6 +133,7 @@ exports.acceptInvitation = async (parent, args, context) => {
   } else {
     await Invitation.findOneAndUpdate(
       { token: token },
+      // @ts-ignore
       { $addToSet: { uses: [userToAdd] } }
     );
   }
@@ -135,12 +141,14 @@ exports.acceptInvitation = async (parent, args, context) => {
   return true;
 };
 
-exports.inviteMembers = async (parent, args, context) => {
-  const inviteMembersValidator = yup.object().shape({
+export const inviteMembers = async (parent, args, context) => {
+  const inviteMembersValidator = yup.object().shape<{
+    roomId: mongoose.Schema.Types.ObjectId,
+    members: mongoose.Types.ObjectId[] | undefined
+  }>({
     roomId: yup.string().objectId("Invalid RoomId"),
     members: yup.array(
       yup.string().objectId("invalid memberId"),
-      "Members have to be array of ids"
     ),
   });
 
@@ -149,16 +157,17 @@ exports.inviteMembers = async (parent, args, context) => {
   // check if user is a memeber of the specified room
   let user = await User.findOne({
     _id: context.currentUser.id,
+    // @ts-ignore
     rooms: { $in: roomId },
   });
 
   if (!user)
-    throw ApolloError("You are not a member of room, Cannot invite members");
+    throw new ApolloError("You are not a member of room, Cannot invite members");
 
   let token = null;
 
   // create invitations
-  const invitations = members.map(memberId => {
+  const invitations = members?.map(memberId => {
     token = crypto.randomBytes(16).toString("hex");
     let invite = new Invitation({
       roomId: roomId,
@@ -169,27 +178,29 @@ exports.inviteMembers = async (parent, args, context) => {
     return invite.save();
   });
 
-  const savedInvites = await Promise.all(invitations);
+  // @ts-ignore
+  const savedInvites: InvitationSchema[] = await Promise.all(invitations);
 
   const foundRoom = await Room.findOne({ _id: roomId });
 
   // send notification
-  const notifications = members.map(async (id, index) => {
+  const notifications = members?.map(async (id, index) => {
     return sendNotification({
       context: context,
       sender: context.currentUser.id,
-      receiver: id,
+      receiver: id as any,
       type: NOTIFICATION_TOPIC.INVITATION,
       payload: {
         userId: id,
-        roomName: foundRoom.name,
+        roomName: foundRoom?.name,
         roomId: roomId,
         invitedBy: context.currentUser.id,
-        token: savedInvites[index].token,
+        token: savedInvites![index].token,
       },
     });
   });
 
+  // @ts-ignore
   await Promise.all(notifications);
 
   // TODO: Send Email invitations

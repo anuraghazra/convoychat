@@ -1,11 +1,12 @@
-const yup = require("yup");
-require("../utils/yup-objectid");
-const { ApolloError } = require("apollo-server-express");
-const { User } = require("../models/UserModel");
-const { Room } = require("../models/RoomModel");
-const { Message } = require("../models/MessageModel");
+import * as yup from "yup";
+import "../utils/yup-objectid";
+import { ApolloError } from "apollo-server-express";
+import User from "../models/UserModel";
+import Room from "../models/RoomModel";
+import Message from "../models/MessageModel";
+import { mongoose } from "@typegoose/typegoose";
 
-exports.listRooms = async () => {
+export const listRooms = async () => {
   try {
     let rooms = await Room.find({})
       .populate("members")
@@ -21,7 +22,7 @@ exports.listRooms = async () => {
   }
 };
 
-exports.listCurrentUserRooms = async (_parent, _args, context) => {
+export const listCurrentUserRooms = async (_parent, _args, context) => {
   try {
     let rooms = await Room.find({ members: context.currentUser.id })
       .populate("members")
@@ -37,7 +38,7 @@ exports.listCurrentUserRooms = async (_parent, _args, context) => {
   }
 };
 
-exports.getRoom = async (_, args, context) => {
+export const getRoom = async (_, args, context) => {
   try {
     let user = await Room.findOne({
       _id: args.id,
@@ -57,7 +58,7 @@ exports.getRoom = async (_, args, context) => {
   }
 };
 
-exports.getMessages = async (_parent, args, _context) => {
+export const getMessages = async (_parent, args, _context) => {
   const MAX_ITEMS = args.limit;
   const offset = parseInt(args.offset);
   let messages = await Message.find({ roomId: args.roomId })
@@ -71,11 +72,11 @@ exports.getMessages = async (_parent, args, _context) => {
   };
 };
 
-exports.createRoom = async (_parent, args, context) => {
+export const createRoom = async (_parent, args, context) => {
   try {
     const createRoomValidator = yup
       .object()
-      .shape({ name: yup.string().min("2").max("25") });
+      .shape({ name: yup.string().min(2).max(25) });
 
     const { name } = await createRoomValidator.validate(args);
 
@@ -89,6 +90,7 @@ exports.createRoom = async (_parent, args, context) => {
 
     await User.findByIdAndUpdate(
       { _id: context.currentUser.id },
+      // @ts-ignore
       { $addToSet: { rooms: [room.id] } },
       { new: true }
     );
@@ -100,11 +102,11 @@ exports.createRoom = async (_parent, args, context) => {
   }
 };
 
-exports.deleteRoom = async (_parent, args, context) => {
+export const deleteRoom = async (_parent, args, context) => {
   try {
     const deleteRoomValidator = yup
       .object()
-      .shape({ roomId: yup.string().objectId("Invalid RoomId") });
+      .shape<{ roomId: mongoose.Schema.Types.ObjectId }>({ roomId: yup.string().objectId("Invalid RoomId") });
 
     const { roomId } = await deleteRoomValidator.validate(args);
 
@@ -127,9 +129,12 @@ exports.deleteRoom = async (_parent, args, context) => {
   }
 };
 
-exports.addMembersToRoom = async (_parent, args, context) => {
+export const addMembersToRoom = async (_parent, args, context) => {
   try {
-    const deleteRoomValidator = yup.object().shape({
+    const deleteRoomValidator = yup.object().shape<{
+      roomId: mongoose.Types.ObjectId,
+      members: mongoose.Types.ObjectId[]
+    }>({
       roomId: yup.string().objectId("Invalid RoomId"),
       members: yup.array(yup.string().objectId("Invalid memberId")),
     });
@@ -157,6 +162,7 @@ exports.addMembersToRoom = async (_parent, args, context) => {
 
     await User.update(
       { _id: { $in: [...members] } },
+      // @ts-ignore
       { $addToSet: { rooms: [room.id] } },
       { new: true, multi: true }
     );
@@ -167,9 +173,11 @@ exports.addMembersToRoom = async (_parent, args, context) => {
   }
 };
 
-exports.removeMemberFromRoom = async (_parent, args, context) => {
+export const removeMemberFromRoom = async (_parent, args, context) => {
   try {
-    const removeMemberValidator = yup.object().shape({
+    const removeMemberValidator = yup.object().shape<{
+      roomId: mongoose.Types.ObjectId, memberId: mongoose.Types.ObjectId,
+    }>({
       roomId: yup.string().objectId("Invalid RoomId"),
       memberId: yup.string().objectId("Invalid MemberId"),
     });

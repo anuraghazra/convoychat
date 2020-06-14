@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   INVITATION: "INVITATION",
   MENTION: "MENTION",
 };

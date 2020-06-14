@@ -1,18 +1,31 @@
-const { GraphQLJSON, GraphQLJSONObject } = require("graphql-type-json");
-const RoomController = require("../controllers/RoomController");
-const UserController = require("../controllers/UserController");
-const InvitationController = require("../controllers/InvitationController");
-const MessageSubscriptions = require("../controllers/MessageSubscriptions");
-const { NEW_NOTIFICATION } = require("../constants");
-const { withFilter } = require("apollo-server-express");
+import { GraphQLJSON, GraphQLJSONObject } from "graphql-type-json";
+import * as RoomController from "../controllers/RoomController";
+import * as UserController from "../controllers/UserController";
+import * as InvitationController from "../controllers/InvitationController";
+import MessageSubscriptions from "../controllers/MessageSubscriptions";
+import { NEW_NOTIFICATION } from "../constants";
+import { withFilter, IResolvers } from "apollo-server-express";
+import { GraphQLScalarType } from "graphql";
 
-const useAuth = require("../utils/useAuth");
+import useAuth from "../utils/useAuth";
 
-const filterUser = argName => (payload, variables, context) => {
+const filterUser = (argName: string) => (payload, variables, context) => {
   return payload[argName].receiver.toString() === context.currentUser.id;
 };
 
-const resolvers = {
+type ResolverFn = IResolvers<any, any>;
+interface ResolverMap {
+  [field: string]: any;
+}
+interface Resolvers {
+  JSON: any;
+  JSONObject: any;
+  Subscription: ResolverMap,
+  Query: ResolverMap;
+  Mutation: ResolverMap;
+}
+
+const resolvers: Resolvers = {
   JSON: GraphQLJSON,
   JSONObject: GraphQLJSONObject,
   Subscription: {
@@ -56,4 +69,4 @@ const resolvers = {
   },
 };
 
-module.exports = resolvers;
+export default resolvers;

@@ -1,25 +1,29 @@
-require("dotenv").config();
-const http = require("http");
-const express = require("express");
-const passport = require("passport");
-const mongoose = require("mongoose");
+import dotenv from 'dotenv';
+import path from 'path'
+import http from "http";
+import express from "express";
+import passport from "passport";
+import mongoose from "mongoose";
 
-const cors = require("cors");
-const cookieParser = require("cookie-parser");
-const cookieSession = require("cookie-session");
-const expressStaticGzip = require("express-static-gzip");
-const mongoSanitize = require("express-mongo-sanitize");
-const xss = require("xss-clean");
-const helmet = require("helmet");
+import cors from "cors";
+import cookieParser from "cookie-parser";
+import cookieSession from "cookie-session";
+import expressStaticGzip from "express-static-gzip";
+import mongoSanitize from "express-mongo-sanitize";
+import xss from "xss-clean";
+import helmet from "helmet";
 
-require("./passport-config");
+dotenv.config()
+import "./passport-config";
 
-const { buildContext, createOnConnect } = require("graphql-passport");
-const { PubSub, ApolloServer, ApolloError } = require("apollo-server-express");
-const { createRateLimitDirective } = require("graphql-rate-limit");
+import { buildContext, createOnConnect } from "graphql-passport";
+import { PubSub, ApolloServer, ApolloError } from "apollo-server-express";
+import { createRateLimitDirective } from "graphql-rate-limit";
 
-const typeDefs = require("./graphql/typeDefs");
-const resolvers = require("./graphql/resolvers");
+import typeDefs from "./graphql/typeDefs";
+import resolvers from "./graphql/resolvers";
+import authRoute from "./routes/auth";
+
 const rateLimitDirective = createRateLimitDirective({
   identifyContext: ctx => ctx.id,
 });
@@ -53,7 +57,7 @@ app.use(xss()); // sanitize data
 const sessionMiddleware = cookieSession({
   secure: process.env.NODE_ENV === "production" ? true : false,
   name: "session",
-  keys: [process.env.SESSION_SECRECT],
+  keys: [(process.env.SESSION_SECRECT as any)],
   maxAge: 24 * 60 * 60 * 1000, // session will expire after 24 hours
 });
 const passportMiddleware = passport.initialize();
@@ -63,23 +67,23 @@ app.use(sessionMiddleware);
 app.use(passportMiddleware);
 app.use(passportSessionMiddleware);
 
-const authRoute = require("./routes/auth");
+
 app.use("/auth", authRoute);
 
 const server = new ApolloServer({
   typeDefs: typeDefs,
-  resolvers: resolvers,
+  resolvers: resolvers as any,
   schemaDirectives: {
     rateLimit: rateLimitDirective,
   },
   subscriptions: {
     path: "/subscriptions",
     // https://github.com/jkettmann/graphql-passport#usage-with-subscriptions
-    onConnect: createOnConnect([
+    onConnect: (createOnConnect([
       sessionMiddleware,
       passportMiddleware,
       passportSessionMiddleware,
-    ]),
+    ]) as any),
   },
   context: ({ req, res, connection }) => {
     let context = connection && connection.context;
@@ -111,7 +115,7 @@ server.applyMiddleware({
   app,
   path: "/graphql",
   onHealthCheck: () => {
-    new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       if (mongoose.connection.readyState === 200) {
         return resolve();
       }
@@ -124,7 +128,7 @@ const httpServer = http.createServer(app);
 server.installSubscriptionHandlers(httpServer);
 
 // static client
-app.use("/", expressStaticGzip("client/build"));
+app.use("/", expressStaticGzip("client/build", {}));
 if (process.env.NODE_ENV === "production") {
   app.get("/*", function (req, res) {
     res.sendFile(path.join(__dirname, "../client/build/index.html"), function (
@@ -139,7 +143,7 @@ if (process.env.NODE_ENV === "production") {
 
 httpServer.listen({ port: 4000 }, () => {
   mongoose.connect(
-    process.env.DB_URL,
+    (process.env.DB_URL as string),
     { useUnifiedTopology: true, useNewUrlParser: true },
     err => {
       if (err) throw err;

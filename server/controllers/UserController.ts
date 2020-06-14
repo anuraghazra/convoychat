@@ -1,23 +1,22 @@
-const yup = require("yup");
-require("../utils/yup-objectid");
-const mongoose = require("mongoose");
-const { User } = require("../models/UserModel");
-const { Room } = require("../models/RoomModel");
-const { Message } = require("../models/MessageModel");
-const { Notification } = require("../models/NotificationModel");
-const { ApolloError } = require("apollo-server-express");
+import * as yup from "yup";
+import "../utils/yup-objectid";
+import * as mongoose from "mongoose";
+import User from "../models/UserModel";
+import Room from "../models/RoomModel";
+import Message from "../models/MessageModel";
+import Notification from "../models/NotificationModel";
+import { ApolloError } from "apollo-server-express";
 
-const parseMentions = require("../utils/mention-parser");
-const sendNotification = require("../utils/sendNotification");
-const NOTIFICATION_TOPIC = require("../notification-topic");
-const CONSTANTS = require("../constants");
+import parseMentions from "../utils/mention-parser";
+import sendNotification from "../utils/sendNotification";
+import NOTIFICATION_TOPIC from "../notification-topic";
+import * as CONSTANTS from "../constants";
 
-
-exports.me = (_parent, _args, context) => {
+export const me = (_parent, _args, context) => {
   return context.getUser();
 };
 
-exports.listUsers = async (_parent, _args, context) => {
+export const listUsers = async (_parent, _args, context) => {
   try {
     const users = await User.find({ _id: { $ne: context.currentUser.id } });
     return users;
@@ -26,7 +25,7 @@ exports.listUsers = async (_parent, _args, context) => {
   }
 };
 
-exports.getUser = async (_, args) => {
+export const getUser = async (_, args) => {
   try {
     let user = await User.findOne({ _id: args.id }).populate("rooms");
     if (!user) throw new ApolloError(`User not found with id ${args.id}`);
@@ -36,9 +35,9 @@ exports.getUser = async (_, args) => {
   }
 };
 
-exports.sendMessage = async (parent, args, context) => {
+export const sendMessage = async (parent, args, context) => {
   try {
-    const sendMessageValidator = yup.object().shape({
+    const sendMessageValidator = yup.object().shape<{ roomId: mongoose.Types.ObjectId, content: string }>({
       roomId: yup.string().objectId("Invalid RoomId").required(),
       content: yup
         .string()
@@ -65,8 +64,9 @@ exports.sendMessage = async (parent, args, context) => {
     // check if mentioned users are member of the room
     const mentioned_users = mentions
       .map(m => {
-        let found = room.members.find(i => i.username === m);
+        let found = room?.members.find((i: any) => i.username === m);
         if (found) {
+          // @ts-ignore
           return found._id;
         }
         return null;
@@ -90,20 +90,22 @@ exports.sendMessage = async (parent, args, context) => {
       return sendNotification({
         context: context,
         sender: context.currentUser.id,
-        receiver: id,
+        receiver: id as any,
         type: NOTIFICATION_TOPIC.MENTION,
         payload: {
-          roomName: room.name,
+          roomName: room?.name,
           message: message.content,
           messageId: message._id,
-          roomId: room._id,
+          roomId: room?._id,
         },
       });
     });
 
     await Promise.all(mentionNotifications);
 
-    let saved = await message.save({ roomId: roomId });
+    // TODO: FIX THE prev.save hook on message Model
+    // let saved = await message.save({ roomId: roomId });
+    let saved = await message.save();
     context.pubsub.publish(CONSTANTS.NEW_MESSAGE, { onNewMessage: saved });
 
     return saved;
@@ -112,7 +114,7 @@ exports.sendMessage = async (parent, args, context) => {
   }
 };
 
-exports.deleteMessage = async (_parent, args, context) => {
+export const deleteMessage = async (_parent, args, context) => {
   try {
     const deleteMessageValidator = yup
       .object()
@@ -138,7 +140,7 @@ exports.deleteMessage = async (_parent, args, context) => {
   }
 };
 
-exports.editMessage = async (_parent, args, context) => {
+export const editMessage = async (_parent, args, context) => {
   try {
     const deleteMessageValidator = yup.object().shape({
       messageId: yup.string().objectId("Invalid MessageID").required(),
@@ -168,7 +170,7 @@ exports.editMessage = async (_parent, args, context) => {
   }
 };
 
-exports.getNotifications = async (_parent, args, context) => {
+export const getNotifications = async (_parent, args, context) => {
   try {
     let notifications = await Notification.find({
       receiver: mongoose.Types.ObjectId(context.currentUser.id),
@@ -182,7 +184,7 @@ exports.getNotifications = async (_parent, args, context) => {
   }
 };
 
-exports.readNotification = async (_parent, args, context) => {
+export const readNotification = async (_parent, args, context) => {
   try {
     let notifications = await Notification.findOneAndUpdate(
       {
