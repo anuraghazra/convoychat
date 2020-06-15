@@ -4,8 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "dev:tsc": "tsc --watch",
+    "dev:watch": "nodemon dist/index",
     "start": "tsc && node dist/index",
-    "server:watch": "nodemon server/index.ts --exec ts-node dist/index",
+    "server:nodemon": "concurrently \"npm run dev:tsc\" \"npm run dev:watch\"",
+    "server:watch": "nodemon server/index.ts --exec ts-node-dev dist/index",
+    "server:watch_tsc": "tsc --watch && nodemon dist/index.js",
     "codegen": "cd client && npm run codegen",
     "develop": "concurrently \"npm run server:watch\" \"cd client && npm start\"",
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -58,6 +62,7 @@
     "passport-mock-strategy": "^2.0.0",
     "prettier": "^2.0.5",
     "ts-node": "^8.10.2",
+    "ts-node-dev": "^1.0.0-pre.48",
     "typescript": "^3.9.5"
   }
 }

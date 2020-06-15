@@ -1,14 +1,15 @@
 import * as yup from "yup";
 import "../utils/yup-objectid";
-import { ApolloError } from "apollo-server-express";
-import User from "../models/UserModel";
-import Room from "../models/RoomModel";
-import Message from "../models/MessageModel";
 import { mongoose } from "@typegoose/typegoose";
+import { ApolloError } from "apollo-server-express";
+
+import UserModel from "../entities/User";
+import RoomModel from "../entities/Room";
+import MessageModel from "../entities/Message";
 
 export const listRooms = async () => {
   try {
-    let rooms = await Room.find({})
+    let rooms = await RoomModel.find({})
       .populate("members")
       .populate({
         path: "messages",
@@ -24,7 +25,7 @@ export const listRooms = async () => {
 
 export const listCurrentUserRooms = async (_parent, _args, context) => {
   try {
-    let rooms = await Room.find({ members: context.currentUser.id })
+    let rooms = await RoomModel.find({ members: context.currentUser.id })
       .populate("members")
       .populate({
         path: "messages",
@@ -40,7 +41,7 @@ export const listCurrentUserRooms = async (_parent, _args, context) => {
 
 export const getRoom = async (_, args, context) => {
   try {
-    let user = await Room.findOne({
+    let user = await RoomModel.findOne({
       _id: args.id,
       members: { $in: [context.currentUser] },
     })
@@ -61,7 +62,7 @@ export const getRoom = async (_, args, context) => {
 export const getMessages = async (_parent, args, _context) => {
   const MAX_ITEMS = args.limit;
   const offset = parseInt(args.offset);
-  let messages = await Message.find({ roomId: args.roomId })
+  let messages = await MessageModel.find({ roomId: args.roomId })
     .sort({ createdAt: -1 })
     .populate("author");
 
@@ -80,7 +81,7 @@ export const createRoom = async (_parent, args, context) => {
 
     const { name } = await createRoomValidator.validate(args);
 
-    let room = new Room({
+    let room = new RoomModel({
       name: name,
       members: [context.currentUser.id],
       messages: [],
@@ -88,7 +89,7 @@ export const createRoom = async (_parent, args, context) => {
     });
     await room.populate("members").execPopulate();
 
-    await User.findByIdAndUpdate(
+    await UserModel.findByIdAndUpdate(
       { _id: context.currentUser.id },
       // @ts-ignore
       { $addToSet: { rooms: [room.id] } },
@@ -110,14 +111,16 @@ export const deleteRoom = async (_parent, args, context) => {
 
     const { roomId } = await deleteRoomValidator.validate(args);
 
-    let room = await Room.findOneAndDelete({
+    let room = await RoomModel.findOneAndDelete({
+      // @ts-ignore
       _id: roomId,
       owner: context.currentUser.id,
     });
 
-    await User.update(
+    await UserModel.update(
       { _id: context.currentUser.id },
       {
+        // @ts-ignore
         $pull: { rooms: { _id: roomId } },
       },
       { new: true, multi: true }
@@ -141,7 +144,7 @@ export const addMembersToRoom = async (_parent, args, context) => {
 
     const { roomId, members } = await deleteRoomValidator.validate(args);
 
-    let room = await Room.findOneAndUpdate(
+    let room = await RoomModel.findOneAndUpdate(
       {
         _id: roomId,
         owner: context.currentUser.id,
@@ -160,7 +163,7 @@ export const addMembersToRoom = async (_parent, args, context) => {
 
     if (!room) throw new ApolloError("Could not add members to room");
 
-    await User.update(
+    await UserModel.update(
       { _id: { $in: [...members] } },
       // @ts-ignore
       { $addToSet: { rooms: [room.id] } },
@@ -188,7 +191,7 @@ export const removeMemberFromRoom = async (_parent, args, context) => {
       throw new ApolloError("You cannot not remove yourself from room");
     }
 
-    const room = await Room.findOneAndUpdate(
+    const room = await RoomModel.findOneAndUpdate(
       {
         _id: roomId,
         owner: context.currentUser.id,
@@ -199,7 +202,7 @@ export const removeMemberFromRoom = async (_parent, args, context) => {
       { new: true }
     );
 
-    const removedMember = await User.findOneAndUpdate(
+    const removedMember = await UserModel.findOneAndUpdate(
       { _id: args.memberId },
       { $pull: { rooms: roomId } },
       { new: true }

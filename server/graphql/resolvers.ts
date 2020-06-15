@@ -4,10 +4,12 @@ import * as UserController from "../controllers/UserController";
 import * as InvitationController from "../controllers/InvitationController";
 import MessageSubscriptions from "../controllers/MessageSubscriptions";
 import { NEW_NOTIFICATION } from "../constants";
-import { withFilter, IResolvers } from "apollo-server-express";
+import { withFilter, IResolvers, PubSubOptions } from "apollo-server-express";
 import { GraphQLScalarType } from "graphql";
-
+import { PassportContext } from "graphql-passport";
 import useAuth from "../utils/useAuth";
+import { Request, Response } from "express";
+import { User } from "../entities/User";
 
 const filterUser = (argName: string) => (payload, variables, context) => {
   return payload[argName].receiver.toString() === context.currentUser.id;
@@ -23,6 +25,13 @@ interface Resolvers {
   Subscription: ResolverMap,
   Query: ResolverMap;
   Mutation: ResolverMap;
+}
+
+export interface Context extends PassportContext<User, any, any, Request> {
+  pubsub: any;
+  req: Request;
+  res: Response;
+  currentUser: any;
 }
 
 const resolvers: Resolvers = {

@@ -10,10 +10,11 @@
     "sourceMap": true,
     "outDir": "dist",
     "strict": false,
+    "incremental": true,
     "allowJs": true,
     "noImplicitAny": false,
     "forceConsistentCasingInFileNames": true,
     "typeRoots": ["./server/types", "./node_modules/@types"]
   },
-  "exclude": ["./client", "node_modules"]
+  "exclude": ["./client", "node_modules", "dist"]
 }

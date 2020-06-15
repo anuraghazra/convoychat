@@ -1,11 +1,12 @@
 import * as yup from "yup";
 import "../utils/yup-objectid";
 import * as mongoose from "mongoose";
-import User from "../models/UserModel";
-import Room from "../models/RoomModel";
-import Message from "../models/MessageModel";
-import Notification from "../models/NotificationModel";
 import { ApolloError } from "apollo-server-express";
+
+import UserModel from "../entities/User";
+import RoomModel from "../entities/Room";
+import MessageModel from "../entities/Message";
+import NotificationModel from "../entities/Notification";
 
 import parseMentions from "../utils/mention-parser";
 import sendNotification from "../utils/sendNotification";
@@ -18,7 +19,7 @@ export const me = (_parent, _args, context) => {
 
 export const listUsers = async (_parent, _args, context) => {
   try {
-    const users = await User.find({ _id: { $ne: context.currentUser.id } });
+    const users = await UserModel.find({ _id: { $ne: context.currentUser.id } });
     return users;
   } catch (err) {
     throw new ApolloError(err);
@@ -27,7 +28,7 @@ export const listUsers = async (_parent, _args, context) => {
 
 export const getUser = async (_, args) => {
   try {
-    let user = await User.findOne({ _id: args.id }).populate("rooms");
+    let user = await UserModel.findOne({ _id: args.id }).populate("rooms");
     if (!user) throw new ApolloError(`User not found with id ${args.id}`);
     return user;
   } catch (err) {
@@ -47,7 +48,7 @@ export const sendMessage = async (parent, args, context) => {
     });
     const { roomId, content } = await sendMessageValidator.validate(args);
 
-    let room = await Room.findOne({
+    let room = await RoomModel.findOne({
       _id: roomId,
       members: { $in: [context.currentUser.id] },
     }).populate("members");
@@ -77,7 +78,7 @@ export const sendMessage = async (parent, args, context) => {
         return `${userId}` !== `${context.currentUser.id}`;
       });
 
-    let message = new Message({
+    let message = new MessageModel({
       content: content,
       roomId: roomId,
       author: context.currentUser.id,
@@ -122,7 +123,7 @@ export const deleteMessage = async (_parent, args, context) => {
 
     const { messageId } = await deleteMessageValidator.validate(args);
 
-    let message = await Message.findOneAndDelete({
+    let message = await MessageModel.findOneAndDelete({
       _id: messageId,
       author: context.currentUser.id,
     });
@@ -149,7 +150,7 @@ export const editMessage = async (_parent, args, context) => {
 
     const { messageId, content } = await deleteMessageValidator.validate(args);
 
-    let message = await Message.findOneAndUpdate(
+    let message = await MessageModel.findOneAndUpdate(
       {
         _id: messageId,
         author: context.currentUser.id,
@@ -172,7 +173,7 @@ export const editMessage = async (_parent, args, context) => {
 
 export const getNotifications = async (_parent, args, context) => {
   try {
-    let notifications = await Notification.find({
+    let notifications = await NotificationModel.find({
       receiver: mongoose.Types.ObjectId(context.currentUser.id),
     })
       .populate("sender")
@@ -186,7 +187,7 @@ export const getNotifications = async (_parent, args, context) => {
 
 export const readNotification = async (_parent, args, context) => {
   try {
-    let notifications = await Notification.findOneAndUpdate(
+    let notifications = await NotificationModel.findOneAndUpdate(
       {
         _id: args.id,
         receiver: mongoose.Types.ObjectId(context.currentUser.id),

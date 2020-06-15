@@ -1,17 +1,17 @@
 import yup from "yup";
 import "../utils/yup-objectid";
 import crypto from "crypto";
-import User from "../models/UserModel"
-import Room from "../models/RoomModel"
+import UserModel from "../entities/User"
+import RoomModel from "../entities/Room"
 import { ApolloError } from "apollo-server-express"
-import Invitation, { InvitationSchema } from "../models/InvitationModel";
+import InvitationModel, { Invitation } from "../entities/Invitation";
 
 import NOTIFICATION_TOPIC from "../notification-topic";
 import sendNotification from "../utils/sendNotification";
 import * as mongoose from 'mongoose';
 
 export const getInvitationInfo = async (parent, args, context) => {
-  const invite = await Invitation.findOne({
+  const invite = await InvitationModel.findOne({
     token: args.token,
   })
     .populate("roomId")
@@ -35,7 +35,7 @@ export const createInvitationLink = async (parent, args, context) => {
 
   const { roomId } = await createInvitationValidator.validate(args);
 
-  const existingInvitation = await Invitation.findOne({
+  const existingInvitation = await InvitationModel.findOne({
     roomId: roomId,
     invitedBy: context.currentUser.id,
     isPublic: true,
@@ -53,7 +53,7 @@ export const createInvitationLink = async (parent, args, context) => {
 
   // TODO: add expiry time in invitation token
   const token = crypto.randomBytes(16).toString("hex");
-  const invite = new Invitation({
+  const invite = new InvitationModel({
     isPublic: true,
     roomId: roomId,
     invitedBy: context.currentUser.id,
@@ -73,7 +73,7 @@ export const acceptInvitation = async (parent, args, context) => {
   const { token } = await acceptInvitationValidator.validate(args);
 
   // find invitation with token & userId
-  const invitation = await Invitation.findOne({
+  const invitation = await InvitationModel.findOne({
     token: token,
   });
 
@@ -101,14 +101,14 @@ export const acceptInvitation = async (parent, args, context) => {
 
   // throw error and delete the invitation if maximum uses is reached
   if (invitation.uses.length >= invitation.maxUses) {
-    await Invitation.findOneAndRemove({
+    await InvitationModel.findOneAndRemove({
       token: token,
     });
     throw new ApolloError("Maximum invitation usage limit exceeded");
   }
 
   // add user to the room
-  const room = await Room.findOneAndUpdate(
+  const room = await RoomModel.findOneAndUpdate(
     { _id: invitation.roomId },
     // @ts-ignore
     { $addToSet: { members: [userToAdd] } },
@@ -118,7 +118,7 @@ export const acceptInvitation = async (parent, args, context) => {
   if (!room) throw new ApolloError("Could not add members to room");
 
   // update user.rooms
-  await User.update(
+  await UserModel.update(
     {
       _id: userToAdd
     },
@@ -129,9 +129,9 @@ export const acceptInvitation = async (parent, args, context) => {
 
   // delete the notification
   if (!invitation.isPublic) {
-    await Invitation.findOneAndRemove({ token: token });
+    await InvitationModel.findOneAndRemove({ token: token });
   } else {
-    await Invitation.findOneAndUpdate(
+    await InvitationModel.findOneAndUpdate(
       { token: token },
       // @ts-ignore
       { $addToSet: { uses: [userToAdd] } }
@@ -155,7 +155,7 @@ export const inviteMembers = async (parent, args, context) => {
   const { roomId, members } = await inviteMembersValidator.validate(args);
 
   // check if user is a memeber of the specified room
-  let user = await User.findOne({
+  let user = await UserModel.findOne({
     _id: context.currentUser.id,
     // @ts-ignore
     rooms: { $in: roomId },
@@ -169,7 +169,7 @@ export const inviteMembers = async (parent, args, context) => {
   // create invitations
   const invitations = members?.map(memberId => {
     token = crypto.randomBytes(16).toString("hex");
-    let invite = new Invitation({
+    let invite = new InvitationModel({
       roomId: roomId,
       userId: memberId,
       invitedBy: context.currentUser.id,
@@ -179,9 +179,10 @@ export const inviteMembers = async (parent, args, context) => {
   });
 
   // @ts-ignore
-  const savedInvites: InvitationSchema[] = await Promise.all(invitations);
+  const savedInvites: Invitation[] = await Promise.all(invitations);
 
-  const foundRoom = await Room.findOne({ _id: roomId });
+  // @ts-ignore
+  const foundRoom = await RoomModel.findOne({ _id: roomId });
 
   // send notification
   const notifications = members?.map(async (id, index) => {

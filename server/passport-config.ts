@@ -2,26 +2,26 @@ import passport from "passport";
 import mongoose from "mongoose";
 import Auth0Strategy from "passport-auth0";
 import MockStrategy from "passport-mock-strategy";
-import User from "./models/UserModel";
+import UserModel, { User } from "./entities/User";
 import { generateUsername } from "./utils";
 
-passport.serializeUser((user: any, done) => {
+passport.serializeUser((user: User, done) => {
   return done(null, user._id);
 });
 
 passport.deserializeUser(async (id: string, done) => {
   if (!mongoose.isValidObjectId(id)) return done(null, null);
-  const user = await User.findById(id).populate("rooms");
+  const user = await UserModel.findById(id).populate("rooms");
   return done(null, user);
 });
 
 
 interface IUpsertUser {
-  socialId: any;
-  email: any;
-  avatarUrl: any;
+  socialId: string;
+  email: string;
+  avatarUrl: string;
   username: string;
-  displayName: any;
+  displayName: string;
 }
 const UpsertUser = async (
   provider: string,
@@ -38,13 +38,13 @@ const UpsertUser = async (
   };
 
   try {
-    let matchedUser = await User.findOne({ email: userData.email });
+    let matchedUser = await UserModel.findOne({ email: userData.email });
     if (matchedUser) {
       console.log("matched user", matchedUser.email);
       return done(null, matchedUser);
     }
 
-    let newUser = new User(userData);
+    let newUser = new UserModel(userData);
     await newUser.save();
 
     console.log("newUser created", newUser.email);
@@ -67,17 +67,21 @@ const strategy = new Auth0Strategy(
     // accessToken is the token to call Auth0 API (not needed in the most cases)
     // extraParams.id_token has the JSON Web Token
     // profile has all the information from the user
-    await UpsertUser(
-      "google",
-      {
-        socialId: profile.id,
-        email: profile.emails && profile.emails[0].value,
-        avatarUrl: profile.photos && profile.photos[0].value,
-        username: generateUsername(profile.displayName),
-        displayName: profile.displayName,
-      },
-      done
-    );
+    try {
+      await UpsertUser(
+        "google",
+        {
+          socialId: profile.id,
+          email: profile.emails[0].value,
+          avatarUrl: (profile as any).picture,
+          username: generateUsername(profile.displayName),
+          displayName: profile.displayName,
+        },
+        done
+      );
+    } catch (err) {
+      console.log(err)
+    }
   }
 );
 
@@ -87,7 +91,7 @@ if (process.env.NODE_ENV === "development") {
     new MockStrategy(
       { name: "mock", user: ({ emails: [{ value: process.env.MOCK_EMAIL, type: 'gmail' }] } as any) },
       async (data: any, done: any) => {
-        let user = await User.findOne({ email: data.emails[0].value });
+        let user = await UserModel.findOne({ email: data.emails[0].value });
         done(null, user);
       }
     )

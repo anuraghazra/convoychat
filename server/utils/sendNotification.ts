@@ -1,5 +1,6 @@
-import { NEW_NOTIFICATION } from "../constants";
-import Notification from "../models/NotificationModel";
+import CONSTANTS from "../constants";
+import NotificationModel, { Notification } from "../entities/Notification";
+import { Context } from "../graphql/resolvers";
 
 /**
  *
@@ -10,19 +11,15 @@ import Notification from "../models/NotificationModel";
  * @param {any} context
  */
 
-interface ISendNotification {
-  sender: string;
-  receiver: string;
-  payload: Object;
-  type: string;
-  context: any;
+interface ISendNotification extends Notification {
+  context: Context;
 }
 async function sendNotification({ sender, receiver, payload, type, context }: ISendNotification) {
   // SEND MENTION NOTIFICATION
-  const noti = new Notification({
+  const noti = new NotificationModel({
+    type: type,
     sender: sender,
     receiver: receiver,
-    type: type,
     payload: payload,
   });
 
@@ -30,7 +27,7 @@ async function sendNotification({ sender, receiver, payload, type, context }: IS
   // NOTE THE POPULATE
   let populated = await noti.execPopulate();
   let subscribtionData = populated.toObject();
-  context.pubsub.publish(NEW_NOTIFICATION, {
+  context.pubsub.publish(CONSTANTS.NEW_NOTIFICATION, {
     onNewNotification: {
       ...subscribtionData,
       id: subscribtionData._id,
