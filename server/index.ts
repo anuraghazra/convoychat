@@ -32,6 +32,8 @@ import { TypegooseMiddleware } from "./utils/typegoose-middleware";
 import UserResolver from "./modules/user/user-resolver";
 import MessageResolver from "./modules/message/message-resolver";
 import RoomResolver from "./modules/room/room-resolver";
+import NotificationResolver from "./modules/notification/notification-resolver";
+import InvitationResolver from "./modules/invitation/invitation-resolver";
 
 const rateLimitDirective = createRateLimitDirective({
   identifyContext: ctx => ctx.id,
@@ -65,7 +67,13 @@ app.use("/auth", authRoute);
 
 async function bootstrap() {
   const schema = await buildSchema({
-    resolvers: [UserResolver, MessageResolver, RoomResolver],
+    resolvers: [
+      RoomResolver,
+      UserResolver,
+      MessageResolver,
+      InvitationResolver,
+      NotificationResolver,
+    ],
     globalMiddlewares: [TypegooseMiddleware],
     scalarsMap: [{ type: ObjectID, scalar: ObjectIdScalar }],
     authChecker: useAuth,

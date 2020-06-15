@@ -1,6 +1,8 @@
+import Member from "./Member";
 import { User } from "./User";
 import { ObjectID } from 'mongodb';
-import { Field, registerEnumType, ID } from "type-graphql";
+import { GraphQLJSONObject } from "graphql-type-json";
+import { Field, registerEnumType, ID, ObjectType } from "type-graphql";
 import { prop, Ref, getModelForClass, modelOptions, index } from "@typegoose/typegoose";
 
 export enum NOTIFICATION_TYPE {
@@ -12,20 +14,32 @@ registerEnumType(NOTIFICATION_TYPE, {
   description: "Notification types enums",
 });
 
-@modelOptions({ options: { customName: 'room', }, schemaOptions: { timestamps: true, collection: "rooms" } })
+@ObjectType()
+@modelOptions({
+  options: {
+    customName: 'notification',
+  },
+  schemaOptions: {
+    timestamps: true,
+    collection: "notifications"
+  }
+})
 @index(
   { createdAt: 1 },
   { expireAfterSeconds: 604800 } // 7 Days
 )
 export class Notification {
   @Field(type => ID)
-  _id!: ObjectID
+  _id!: ObjectID;
 
-  @Field(type => User)
+  @Field()
+  createdAt!: Date;
+
+  @Field(type => Member)
   @prop({ ref: 'user', required: true })
   public sender!: Ref<User>;
 
-  @Field(type => User)
+  @Field(type => ID)
   @prop({ ref: 'user', required: true })
   public receiver!: Ref<User>;
 
@@ -37,7 +51,7 @@ export class Notification {
   @prop({ enum: NOTIFICATION_TYPE, required: true })
   public type!: string;
 
-  @Field(type => Object)
+  @Field(type => GraphQLJSONObject)
   @prop({ default: {} })
   public payload?: Object
 }

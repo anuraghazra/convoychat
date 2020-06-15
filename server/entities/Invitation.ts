@@ -1,11 +1,10 @@
-import * as mongoose from 'mongoose';
-import { prop, Ref, arrayProp, getModelForClass, modelOptions, index } from '@typegoose/typegoose';
 import { User } from './User';
 import { Room } from './Room';
 import { ObjectID } from 'mongodb';
-import { Field, ID } from 'type-graphql';
-import { ObjectIdScalar } from '../utils/objectid-scalar';
+import { Field, ID, ObjectType } from 'type-graphql';
+import { prop, Ref, arrayProp, getModelForClass, modelOptions, index } from '@typegoose/typegoose';
 
+@ObjectType()
 @modelOptions({
   options: {
     customName: 'invitation',
@@ -38,15 +37,15 @@ export class Invitation {
   @Field()
   createdAt!: Date;
 
-  @Field(type => User)
+  @Field(type => ID)
   @prop({ ref: 'user', required: true })
   public invitedBy!: Ref<User>;
 
-  @Field(type => User)
-  @prop({ ref: 'user', required: true })
+  @Field(type => ID)
+  @prop({ ref: 'user' })
   public userId!: Ref<User>;
 
-  @Field(type => Room)
+  @Field(type => ID)
   @prop({ ref: 'room', required: true })
   public roomId!: Ref<Room>;
 

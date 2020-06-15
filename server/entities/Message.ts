@@ -1,9 +1,9 @@
-import { prop, Ref, getModelForClass, arrayProp, modelOptions, pre } from "@typegoose/typegoose";
-import { Field, ObjectType, ID } from "type-graphql";
-import { ObjectID } from 'mongodb';
-import { User } from "./User";
-import RoomModel, { Room } from "./Room";
 import Member from './Member';
+import { User } from "./User";
+import { ObjectID } from 'mongodb';
+import RoomModel, { Room } from "./Room";
+import { Field, ObjectType, ID } from "type-graphql";
+import { prop, Ref, getModelForClass, arrayProp, modelOptions, pre } from "@typegoose/typegoose";
 
 @ObjectType()
 @modelOptions({

@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import { Room } from './Room';
-import { Field, ObjectType, ID } from 'type-graphql';
 import { ObjectID } from 'mongodb'
+import { Field, ObjectType, ID } from 'type-graphql';
 
 type Ref<T> = T | ObjectID;
 

@@ -1,12 +1,18 @@
-import { prop, Ref, getModelForClass, arrayProp, modelOptions } from "@typegoose/typegoose";
+import Member from "./Member";
+import { ObjectID } from 'mongodb';
 import { User } from "../entities/User";
 import { Message } from "../entities/Message";
 import { Field, ObjectType, ID } from "type-graphql";
-import { ObjectID } from 'mongodb';
-import Member from "./Member";
+import { prop, Ref, getModelForClass, arrayProp, modelOptions } from "@typegoose/typegoose";
 
 @ObjectType()
-@modelOptions({ options: { customName: 'room', }, schemaOptions: { timestamps: true, collection: "rooms" } })
+@modelOptions({
+  options: { customName: 'room', },
+  schemaOptions: {
+    timestamps: true,
+    collection: "rooms"
+  }
+})
 export class Room {
   @Field(type => ID)
   _id: ObjectID;
@@ -19,11 +25,11 @@ export class Room {
   public name!: String;
 
   @Field(type => [Member])
-  @arrayProp({ ref: 'user', required: true })
+  @arrayProp({ ref: 'user' })
   public members?: Ref<Member>[];
 
   @Field(type => [Message])
-  @arrayProp({ ref: 'message', required: true })
+  @arrayProp({ ref: 'message' })
   public messages!: Ref<Message>[];
 
   @Field(type => ID)

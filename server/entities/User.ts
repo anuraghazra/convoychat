@@ -1,17 +1,21 @@
 import "reflect-metadata";
-import { prop as Property, arrayProp, getModelForClass, modelOptions } from '@typegoose/typegoose';
 import { Room } from './Room';
-import { Field, ObjectType, ID } from 'type-graphql';
 import { ObjectID } from 'mongodb'
-import * as mongoose from 'mongoose';
-import { ObjectIdScalar } from "../utils/objectid-scalar";
-type Ref<T> = T | ObjectID;
+import { Field, ObjectType, ID } from 'type-graphql';
+import { prop as Property, Ref, arrayProp, getModelForClass, modelOptions } from '@typegoose/typegoose';
+
 enum Providers {
   GOOGLE = 'google',
   GITHUB = 'github',
 }
 
-@modelOptions({ options: { customName: 'user', }, schemaOptions: { timestamps: true, collection: "users" } })
+@modelOptions({
+  options: { customName: 'user', },
+  schemaOptions: {
+    timestamps: true,
+    collection: "users"
+  }
+})
 @ObjectType()
 export class User {
   @Field(type => ID)
@@ -31,7 +35,7 @@ export class User {
   public username!: string;
 
   @Field(type => [ID])
-  @arrayProp({ ref: 'room', required: true })
+  @arrayProp({ ref: 'room' })
   public rooms!: Ref<Room>[];
 
   @Property({ required: true, unique: true })

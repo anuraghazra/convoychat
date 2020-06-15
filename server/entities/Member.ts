@@ -1,10 +1,8 @@
 import "reflect-metadata";
 import { Room } from './Room';
-import { Field, ObjectType, ID } from 'type-graphql';
 import { ObjectID } from 'mongodb'
-import { ObjectIdScalar } from "../utils/objectid-scalar";
-
-type Ref<T> = T | ObjectID;
+import { Ref } from "@typegoose/typegoose";
+import { Field, ObjectType, ID } from 'type-graphql';
 
 @ObjectType()
 export class Member {

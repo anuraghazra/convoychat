@@ -1,22 +1,48 @@
 import "reflect-metadata";
-import { ObjectID } from 'mongodb'
+import { ObjectID } from "mongodb";
 import { Context } from "../../graphql/resolvers";
 import { ApolloError } from "apollo-server-express";
-import { Resolver, Ctx, Arg, Authorized, Mutation, Args } from 'type-graphql';
+import {
+  Resolver,
+  Ctx,
+  Arg,
+  Authorized,
+  Mutation,
+  Args,
+  Query,
+  ArgsType,
+  Field,
+  Int,
+} from "type-graphql";
 
 import Member from "../../entities/Member";
 import RoomModel from "../../entities/Room";
 import MessageModel, { Message } from "../../entities/Message";
 
-import CONSTANTS from '../../constants';
+import CONSTANTS from "../../constants";
+import { Messages } from "./message-types";
 import parseMentions from "../../utils/mention-parser";
-import NOTIFICATION_TOPIC from '../../notification-topic';
+import NOTIFICATION_TOPIC from "../../notification-topic";
 import sendNotification from "../../utils/sendNotification";
-import { sendMessageArgs, deleteMessageArgs } from "./message-inputs";
+import { sendMessageArgs, deleteMessageArgs, getMessagesArgs } from "./message-inputs";
 
 
 @Resolver(of => Message)
 class MessageResolver {
+  @Authorized()
+  @Query(() => Messages)
+  async getMessages(@Args() { limit, offset, roomId }: getMessagesArgs) {
+    let messages = await MessageModel.find({ roomId: roomId })
+      .sort({ createdAt: -1 })
+      .populate("author");
+
+    return {
+      totalDocs: messages.length,
+      totalPages: Math.floor(messages.length / limit),
+      messages: messages.slice(offset, limit + offset).reverse(),
+    };
+  }
+
   @Authorized()
   @Mutation(() => Message)
   async sendMessage(
@@ -91,11 +117,10 @@ class MessageResolver {
     }
   }
 
-
   @Authorized()
   @Mutation(() => Message)
   async deleteMessage(
-    @Arg('messageId') messageId: ObjectID,
+    @Arg("messageId") messageId: ObjectID,
     @Ctx() context: Context
   ) {
     try {

@@ -13,8 +13,7 @@
     "incremental": true,
     "allowJs": true,
     "noImplicitAny": false,
-    "forceConsistentCasingInFileNames": true,
-    "typeRoots": ["./server/types", "./node_modules/@types"]
+    "forceConsistentCasingInFileNames": true
   },
   "exclude": ["./client", "node_modules", "dist"]
 }
