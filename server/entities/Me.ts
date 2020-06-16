@@ -7,7 +7,7 @@ type Ref<T> = T | ObjectID;
 
 @ObjectType()
 export class Me {
-  @Field(type => ID)
+  @Field({ name: "id" })
   _id: ObjectID;
 
   @Field()

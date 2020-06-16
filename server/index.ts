@@ -34,6 +34,8 @@ import MessageResolver from "./modules/message/message-resolver";
 import RoomResolver from "./modules/room/room-resolver";
 import NotificationResolver from "./modules/notification/notification-resolver";
 import InvitationResolver from "./modules/invitation/invitation-resolver";
+import MessageSubscriptions from "./modules/message/message-subscriptions";
+import NotificationsSubscriptions from "./modules/notification/notification-subscriptions";
 
 const rateLimitDirective = createRateLimitDirective({
   identifyContext: ctx => ctx.id,
@@ -73,10 +75,14 @@ async function bootstrap() {
       MessageResolver,
       InvitationResolver,
       NotificationResolver,
+      MessageSubscriptions,
+      NotificationsSubscriptions
     ],
+    emitSchemaFile: path.resolve(__dirname, "./graphql/schema.gql"),
     globalMiddlewares: [TypegooseMiddleware],
     scalarsMap: [{ type: ObjectID, scalar: ObjectIdScalar }],
     authChecker: useAuth,
+    pubSub: pubsub,
   })
 
   const server = new ApolloServer({

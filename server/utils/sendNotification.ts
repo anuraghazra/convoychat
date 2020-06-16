@@ -1,6 +1,6 @@
 import CONSTANTS from "../constants";
 import NotificationModel, { Notification } from "../entities/Notification";
-import { Context } from "../graphql/resolvers";
+import { Context } from "../modules/context.type";
 
 interface ISendNotification extends Omit<Notification, "_id" | "createdAt"> {
   context: Context;
@@ -21,13 +21,10 @@ async function sendNotification({ sender, receiver, payload, type, context }: IS
     let populated = await noti.populate('sender').execPopulate();
     let subscribtionData = populated.toObject();
     context.pubsub.publish(CONSTANTS.NEW_NOTIFICATION, {
-      onNewNotification: {
-        ...subscribtionData,
-        id: subscribtionData._id,
-        createdAt: Date.now(),
-      },
+      ...subscribtionData,
+      id: subscribtionData._id,
+      createdAt: new Date(),
     });
-    console.log({ populated })
 
     return noti.save();
   } catch (err) {

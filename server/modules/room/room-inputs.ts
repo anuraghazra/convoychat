@@ -1,4 +1,4 @@
-import { ArgsType, Field } from "type-graphql";
+import { ArgsType, Field} from "type-graphql";
 import { Length } from "class-validator";
 import { ObjectID } from 'mongodb';
 
@@ -11,9 +11,9 @@ export class createRoomArgs {
 
 @ArgsType()
 export class removeMembersArgs {
-  @Field({ nullable: false })
+  @Field(type => ObjectID, { nullable: false })
   roomId: ObjectID;
 
-  @Field({ nullable: false })
+  @Field(type => ObjectID, { nullable: false })
   memberId: ObjectID;
 }

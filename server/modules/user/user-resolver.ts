@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import { ObjectID } from 'mongodb'
-import { Context } from "../../graphql/resolvers";
+import { Context } from "../context.type";
 import { ApolloError } from "apollo-server-express";
 import { Resolver, Query, Ctx, Arg, Authorized, Mutation } from 'type-graphql';
 

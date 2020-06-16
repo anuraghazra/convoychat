@@ -8,17 +8,17 @@ export class sendMessageArgs {
   roomId: ObjectID
 
   @Field({ nullable: false })
-  @Length(2, 25)
+  @Length(2, 500)
   content: string
 }
 
 @ArgsType()
-export class deleteMessageArgs {
+export class editMessageArgs {
   @Field({ nullable: false })
   messageId: ObjectID
 
   @Field({ nullable: false })
-  @Length(2, 25)
+  @Length(2, 500)
   content: string
 }
 

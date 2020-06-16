@@ -31,7 +31,7 @@ import { prop, Ref, arrayProp, getModelForClass, modelOptions, index } from '@ty
   }
 )
 export class Invitation {
-  @Field(type => ID)
+  @Field(type => ID, { name: "id" })
   _id!: ObjectID;
 
   @Field()
@@ -55,7 +55,6 @@ export class Invitation {
   @arrayProp({ ref: 'users' })
   public uses!: Ref<User>[];
 
-  @Field()
   @prop({ required: true })
   public token!: string;
 

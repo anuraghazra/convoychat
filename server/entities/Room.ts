@@ -2,7 +2,7 @@ import Member from "./Member";
 import { ObjectID } from 'mongodb';
 import { User } from "../entities/User";
 import { Message } from "../entities/Message";
-import { Field, ObjectType, ID } from "type-graphql";
+import { Field, ObjectType } from "type-graphql";
 import { prop, Ref, getModelForClass, arrayProp, modelOptions } from "@typegoose/typegoose";
 
 @ObjectType()
@@ -14,7 +14,7 @@ import { prop, Ref, getModelForClass, arrayProp, modelOptions } from "@typegoose
   }
 })
 export class Room {
-  @Field(type => ID)
+  @Field(type => ObjectID, { name: "id" })
   _id: ObjectID;
 
   @Field()
@@ -32,7 +32,7 @@ export class Room {
   @arrayProp({ ref: 'message' })
   public messages!: Ref<Message>[];
 
-  @Field(type => ID)
+  @Field(type => ObjectID)
   @prop({ ref: 'user', required: true })
   public owner!: Ref<User>;
 }

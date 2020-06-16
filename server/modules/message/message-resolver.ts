@@ -1,18 +1,17 @@
 import "reflect-metadata";
 import { ObjectID } from "mongodb";
-import { Context } from "../../graphql/resolvers";
+import { Context } from "../context.type";
 import { ApolloError } from "apollo-server-express";
 import {
-  Resolver,
-  Ctx,
   Arg,
-  Authorized,
-  Mutation,
   Args,
   Query,
-  ArgsType,
-  Field,
-  Int,
+  PubSub,
+  PubSubEngine,
+  Ctx,
+  Resolver,
+  Mutation,
+  Authorized,
 } from "type-graphql";
 
 import Member from "../../entities/Member";
@@ -24,7 +23,7 @@ import { Messages } from "./message-types";
 import parseMentions from "../../utils/mention-parser";
 import NOTIFICATION_TOPIC from "../../notification-topic";
 import sendNotification from "../../utils/sendNotification";
-import { sendMessageArgs, deleteMessageArgs, getMessagesArgs } from "./message-inputs";
+import { sendMessageArgs, editMessageArgs, getMessagesArgs } from "./message-inputs";
 
 
 @Resolver(of => Message)
@@ -47,7 +46,8 @@ class MessageResolver {
   @Mutation(() => Message)
   async sendMessage(
     @Args() { roomId, content }: sendMessageArgs,
-    @Ctx() context: Context
+    @Ctx() context: Context,
+    @PubSub() pubsub: PubSubEngine
   ) {
     try {
       let room = await RoomModel.findOne({
@@ -105,13 +105,11 @@ class MessageResolver {
 
       await Promise.all(mentionNotifications);
 
-      // TODO: FIX THE prev.save hook on message Model
-      // let saved = await message.save({ roomId: roomId });
       (message as any).$roomId = roomId;
-      let saved = await message.save();
-      context.pubsub.publish(CONSTANTS.NEW_MESSAGE, { onNewMessage: saved });
+      let savedMessage = await message.save();
+      pubsub.publish(CONSTANTS.NEW_MESSAGE, savedMessage.toObject());
 
-      return saved;
+      return savedMessage;
     } catch (err) {
       throw new ApolloError(err);
     }
@@ -121,7 +119,8 @@ class MessageResolver {
   @Mutation(() => Message)
   async deleteMessage(
     @Arg("messageId") messageId: ObjectID,
-    @Ctx() context: Context
+    @Ctx() context: Context,
+    @PubSub() pubsub: PubSubEngine
   ) {
     try {
       let message = await MessageModel.findOneAndDelete({
@@ -132,9 +131,7 @@ class MessageResolver {
       if (!message) throw new ApolloError("Cannot find message with ID");
 
       await message.populate("author").execPopulate();
-      context.pubsub.publish(CONSTANTS.DELETE_MESSAGE, {
-        onDeleteMessage: message,
-      });
+      pubsub.publish(CONSTANTS.DELETE_MESSAGE, message.toObject());
 
       return message;
     } catch (err) {
@@ -145,8 +142,9 @@ class MessageResolver {
   @Authorized()
   @Mutation(() => Message)
   async editMessage(
-    @Args() { messageId, content }: deleteMessageArgs,
-    @Ctx() context: Context
+    @Args() { messageId, content }: editMessageArgs,
+    @Ctx() context: Context,
+    @PubSub() pubsub: PubSubEngine
   ) {
     try {
       let message = await MessageModel.findOneAndUpdate(
@@ -160,9 +158,7 @@ class MessageResolver {
       if (!message) throw new ApolloError("Cannot find message with ID");
 
       await message.populate("author").execPopulate();
-      context.pubsub.publish(CONSTANTS.UPDATE_MESSAGE, {
-        onUpdateMessage: message,
-      });
+      pubsub.publish(CONSTANTS.UPDATE_MESSAGE, message.toObject());
 
       return message;
     } catch (err) {

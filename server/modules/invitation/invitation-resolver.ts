@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import crypto from 'crypto'
 import { ObjectID } from 'mongodb'
-import { Context } from "../../graphql/resolvers";
+import { Context } from "../context.type";
 import { ApolloError } from "apollo-server-express";
 import { Resolver, Ctx, Arg, Authorized, Mutation, Query, Field, ArgsType, Args } from 'type-graphql';
 

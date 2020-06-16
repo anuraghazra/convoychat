@@ -25,7 +25,7 @@ import { prop, Ref, getModelForClass, arrayProp, modelOptions, pre } from "@type
   return next();
 })
 export class Message {
-  @Field(type => ID)
+  @Field(type => ID, { name: "id" })
   readonly _id: ObjectID;
 
   @Field({ nullable: true })

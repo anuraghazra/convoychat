@@ -1,5 +1,5 @@
 import { AuthChecker } from "type-graphql";
-import { Context } from "../graphql/resolvers";
+import { Context } from "../modules/context.type";
 import { AuthenticationError } from "apollo-server-express";
 
 const useAuth: AuthChecker<Context> = (

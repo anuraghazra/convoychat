@@ -6,11 +6,8 @@ import { Field, ObjectType, ID } from 'type-graphql';
 
 @ObjectType()
 export class Member {
-  @Field(type => ID)
+  @Field(type => ID, { name: "id" })
   _id: ObjectID;
-
-  @Field()
-  updatedAt!: Date;
 
   @Field()
   createdAt!: Date;

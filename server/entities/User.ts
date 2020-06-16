@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import { Room } from './Room';
 import { ObjectID } from 'mongodb'
-import { Field, ObjectType, ID } from 'type-graphql';
+import { Field, ObjectType } from 'type-graphql';
 import { prop as Property, Ref, arrayProp, getModelForClass, modelOptions } from '@typegoose/typegoose';
 
 enum Providers {
@@ -18,7 +18,7 @@ enum Providers {
 })
 @ObjectType()
 export class User {
-  @Field(type => ID)
+  @Field(type => ObjectID, { name: "id" })
   _id: ObjectID;
 
   updatedAt!: Date;
@@ -34,7 +34,7 @@ export class User {
   @Property({ required: true, trim: true, minlength: 2, maxlength: 100, unique: true })
   public username!: string;
 
-  @Field(type => [ID])
+  @Field(type => [Room])
   @arrayProp({ ref: 'room' })
   public rooms!: Ref<Room>[];
 

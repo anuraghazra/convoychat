@@ -1,12 +1,13 @@
 import "reflect-metadata";
 import { ObjectID } from 'mongodb'
-import { Context } from "../../graphql/resolvers";
+import { Context } from "../context.type";
 import { ApolloError } from "apollo-server-express";
 import { Resolver, Query, Ctx, Arg, Authorized, Mutation, Args } from 'type-graphql';
 
 import UserModel from "../../entities/User";
 import RoomModel, { Room } from "../../entities/Room";
 import { createRoomArgs, removeMembersArgs } from "./room-inputs";
+import Member from "../../entities/Member";
 
 @Resolver(of => Room)
 class RoomResolver {
@@ -32,7 +33,8 @@ class RoomResolver {
   @Query(() => [Room])
   async listCurrentUserRooms(@Ctx() context: Context): Promise<Room[]> {
     try {
-      let rooms = await RoomModel.find({ members: context.currentUser.id })
+      console.log(context.currentUser.id)
+      let rooms = await RoomModel.find({ members: new ObjectID(context.currentUser.id) })
         .populate("members")
         .populate({
           path: "messages",
@@ -127,11 +129,11 @@ class RoomResolver {
   }
 
   @Authorized()
-  @Mutation(() => Room, { nullable: true })
+  @Mutation(() => Member, { nullable: true })
   async removeMemberFromRoom(
     @Args() { roomId, memberId }: removeMembersArgs,
     @Ctx() context: Context
-  ) {
+  ): Promise<Member> {
     try {
       if (memberId.equals(context.currentUser.id)) {
         throw new ApolloError("You cannot not remove yourself from room");

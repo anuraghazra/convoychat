@@ -29,7 +29,7 @@ registerEnumType(NOTIFICATION_TYPE, {
   { expireAfterSeconds: 604800 } // 7 Days
 )
 export class Notification {
-  @Field(type => ID)
+  @Field(type => ID, { name: "id" })
   _id!: ObjectID;
 
   @Field()
