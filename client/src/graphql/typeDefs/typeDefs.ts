@@ -27,7 +27,7 @@ const typeDefs = gql`
     }
   }
 
-  mutation sendMessage($roomId: ID!, $content: String!) {
+  mutation sendMessage($roomId: ObjectId!, $content: String!) {
     sendMessage(roomId: $roomId, content: $content) {
       id
       roomId
@@ -43,31 +43,31 @@ const typeDefs = gql`
     }
   }
   
-  mutation deleteMessage($messageId: ID!) {
+  mutation deleteMessage($messageId: ObjectId!) {
     deletedMessage: deleteMessage(messageId: $messageId) {
       ...MessageParts
     }
   }
 
-  mutation editMessage($messageId: ID!, $content: String!) {
+  mutation editMessage($messageId: ObjectId!, $content: String!) {
     editedMessage: editMessage(messageId: $messageId, content: $content) {
         ...MessageParts
     }
   }
 
-  subscription onNewMessage($roomId: ID!) {
+  subscription onNewMessage($roomId: ObjectId!) {
     onNewMessage(roomId: $roomId) {
       ...SubscriptionMessageParts
     }
   }
 
-  subscription onDeleteMessage($roomId: ID!) {
+  subscription onDeleteMessage($roomId: ObjectId!) {
     onDeleteMessage(roomId: $roomId) {
       ...SubscriptionMessageParts
     }
   }
   
-  subscription onUpdateMessage($roomId: ID!) {
+  subscription onUpdateMessage($roomId: ObjectId!) {
     onUpdateMessage(roomId: $roomId) {
       ...SubscriptionMessageParts
     }

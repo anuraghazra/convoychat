@@ -55,7 +55,7 @@ export default gql`
     }
   }
 
-  mutation readNotification($id: ID!) {
+  mutation readNotification($id: ObjectId!) {
     readNotification(id: $id) {
       ...NotificationData
     }
@@ -66,8 +66,6 @@ export default gql`
       ...NotificationData
     }
   }
-
-  
 
   mutation logout {
     logout
