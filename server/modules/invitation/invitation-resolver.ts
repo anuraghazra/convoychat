@@ -2,10 +2,11 @@ import "reflect-metadata";
 import crypto from 'crypto'
 import { ObjectID } from 'mongodb'
 import { Context } from "../context.type";
+import { Ref } from "@typegoose/typegoose";
 import { ApolloError } from "apollo-server-express";
 import { Resolver, Ctx, Arg, Authorized, Mutation, Query, Field, ArgsType, Args } from 'type-graphql';
 
-import UserModel from "../../entities/User";
+import UserModel, { User } from "../../entities/User";
 import RoomModel from "../../entities/Room";
 import NOTIFICATION_TOPIC from '../../notification-topic'
 import sendNotification from "../../utils/sendNotification";
@@ -164,7 +165,7 @@ class InvitationResolver {
 
     if (!invitation) throw new ApolloError("Invalid Invitation");
 
-    let userToAdd: any = null;
+    let userToAdd: Ref<User> = null;
     // if invitation is public add the current user
     if (invitation.isPublic === true) {
       console.log("Invitation is public add Current user");
@@ -195,8 +196,8 @@ class InvitationResolver {
     // add user to the room
     const room = await RoomModel.findOneAndUpdate(
       { _id: invitation.roomId },
-      // @ts-ignore
-      { $addToSet: { members: [userToAdd] } },
+      // TODO: fix this
+      { $addToSet: { members: userToAdd } },
       { new: true }
     );
 
@@ -207,8 +208,7 @@ class InvitationResolver {
       {
         _id: userToAdd
       },
-      // @ts-ignore
-      { $addToSet: { rooms: [room.id] } },
+      { $addToSet: { rooms: room.id } },
       { new: true }
     );
 
@@ -218,8 +218,7 @@ class InvitationResolver {
     } else {
       await InvitationModel.findOneAndUpdate(
         { token: token },
-        // @ts-ignore
-        { $addToSet: { uses: [userToAdd] } }
+        { $addToSet: { uses: userToAdd } }
       );
     }
 
