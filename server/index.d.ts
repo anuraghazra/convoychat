@@ -3,6 +3,7 @@ declare module 'xss-clean'
 declare var process: {
   env: {
     DB_URL: string,
+    TEST_DB_URI: string,
     SERVER_SECRET: string,
     SESSION_SECRECT: string,
     AUTH0_CLIENT_ID: string,

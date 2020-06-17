@@ -4,6 +4,7 @@ import Auth0Strategy from "passport-auth0";
 import MockStrategy from "passport-mock-strategy";
 import UserModel, { User } from "./entities/User";
 import { generateUsername } from "./utils";
+import UpsertUser from './utils/upsert-user'
 
 passport.serializeUser((user: User, done) => {
   return done(null, user._id);
@@ -15,44 +16,6 @@ passport.deserializeUser(async (id: string, done) => {
   return done(null, user);
 });
 
-
-interface IUpsertUser {
-  socialId: string;
-  email: string;
-  avatarUrl: string;
-  username: string;
-  displayName: string;
-}
-const UpsertUser = async (
-  provider: string,
-  { socialId, email, username, displayName, avatarUrl }: IUpsertUser,
-  done: any
-) => {
-  let userData = {
-    avatarUrl: avatarUrl,
-    provider: provider,
-    socialId: socialId,
-    username: username,
-    email: email,
-    name: displayName,
-  };
-
-  try {
-    let matchedUser = await UserModel.findOne({ email: userData.email });
-    if (matchedUser) {
-      console.log("matched user", matchedUser.email);
-      return done(null, matchedUser);
-    }
-
-    let newUser = new UserModel(userData);
-    await newUser.save();
-
-    console.log("newUser created", newUser.email);
-    return done(null, newUser);
-  } catch (err) {
-    return done(err, null);
-  }
-};
 
 // Configure Passport to use Auth0
 const strategy = new Auth0Strategy(

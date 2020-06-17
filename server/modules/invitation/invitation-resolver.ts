@@ -97,8 +97,7 @@ class InvitationResolver {
       // check if user is a memeber of the specified room
       let user = await UserModel.findOne({
         _id: context.currentUser.id,
-        // @ts-ignore
-        rooms: { $in: roomId },
+        rooms: { $in: [roomId] },
       });
 
       if (!user) {
