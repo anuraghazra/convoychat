@@ -44,7 +44,7 @@ export class Message {
   public content!: string
 
   @Field(type => [ID])
-  @arrayProp({ ref: 'user', required: true })
+  @arrayProp({ ref: 'user' })
   public mentions!: Ref<User>[]
 }
 
