@@ -3,7 +3,7 @@ import { User } from "./User";
 import { ObjectID } from 'mongodb';
 import { GraphQLJSONObject } from "graphql-type-json";
 import { Field, registerEnumType, ID, ObjectType } from "type-graphql";
-import { prop, Ref, getModelForClass, modelOptions, index } from "@typegoose/typegoose";
+import { prop, Ref, getModelForClass, modelOptions, index, Severity } from "@typegoose/typegoose";
 
 export enum NOTIFICATION_TYPE {
   INVITATION = "INVITATION",
@@ -17,6 +17,8 @@ registerEnumType(NOTIFICATION_TYPE, {
 @ObjectType()
 @modelOptions({
   options: {
+    // https://github.com/typegoose/typegoose/issues/239
+    allowMixed: Severity.ALLOW,
     customName: 'notification',
   },
   schemaOptions: {

@@ -1,16 +1,14 @@
-import mongoose from 'mongoose';
 import dotenv from 'dotenv';
-import UpsertUser from '../utils/upsert-user'
-import fakeUser from './fake-user';
+import mongoose from 'mongoose';
+import UserModel from '../entities/User';
+import { fakeUser, fakeUser2 } from './fake-user';
 dotenv.config();
 
 export const connect = async () => {
   const uri = process.env.TEST_DB_URI
   const mongooseOpts = {
     useNewUrlParser: true,
-    autoReconnect: true,
-    reconnectTries: Number.MAX_VALUE,
-    reconnectInterval: 1000
+    useUnifiedTopology: true,
   }
 
   await mongoose.connect(uri, mongooseOpts);
@@ -31,28 +29,24 @@ export const clearDatabase = async () => {
   }
 }
 
-export const populate = async () => {
-  // create fake user
-  await UpsertUser(
-    "google",
-    {
-      socialId: fakeUser.socialId,
-      email: fakeUser.email,
-      avatarUrl: fakeUser.avatarUrl,
-      username: fakeUser.username,
-      displayName: fakeUser.name,
-    },
-    () => { }
-  );
-  await UpsertUser(
-    "google",
-    {
-      socialId: '12345',
-      email: 'newuser@gmail.com',
-      avatarUrl: fakeUser.avatarUrl,
-      username: 'newuser-abcd',
-      displayName: 'New user',
-    },
-    () => { }
-  );
+export const populateUsers = async () => {
+  // create fake users
+  await new UserModel({
+    _id: fakeUser.id,
+    provider: "google",
+    socialId: fakeUser.socialId,
+    email: fakeUser.email,
+    avatarUrl: fakeUser.avatarUrl,
+    username: fakeUser.username,
+    name: fakeUser.name,
+  }).save();
+
+  await new UserModel({
+    provider: fakeUser2.provider,
+    socialId: fakeUser2.socialId,
+    email: fakeUser2.email,
+    avatarUrl: fakeUser.avatarUrl,
+    username: fakeUser2.username,
+    name: fakeUser2.name,
+  }).save()
 }

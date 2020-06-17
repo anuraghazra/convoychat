@@ -13,7 +13,7 @@
     "server:watch_tsc": "tsc --watch && nodemon dist/server/index.js",
     "codegen": "cd client && npm run codegen",
     "develop": "concurrently \"npm run server:watch\" \"cd client && npm start\"",
-    "test": "jest --runInBand --detectOpenHandles",
+    "test": "jest --watch --runInBand --detectOpenHandles",
     "prettier": "prettier --write **/*.{ts,js,css,html}"
   },
   "author": "Anurag Hazra",

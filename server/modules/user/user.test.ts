@@ -1,25 +1,46 @@
 import UserModel from "../../entities/User";
 import { gCall } from "../../test-utils/gcall";
-import fakeUser from "../../test-utils/fake-user";
+import { fakeUser, fakeUser2 } from "../../test-utils/fake-user";
 import * as dbHelper from '../../test-utils/db-helpers';
+
+const queries = {
+  me: `
+    query me {
+      me {
+        name
+        username
+      }
+    }
+  `,
+  listUsers: `
+    query listUsers {
+      listUsers {
+        name
+        username
+      }
+    }
+  `,
+  getUser: `
+    query GetUser($id: ObjectId!) {
+      getUser(id: $id) {
+        name
+        username
+        rooms {
+          name
+        }
+      }
+    }
+  `
+}
 
 afterEach(async () => await dbHelper.clearDatabase());
 afterAll(async () => await dbHelper.closeDatabase());
 beforeAll(async () => await dbHelper.connect())
-beforeEach(async () => await dbHelper.populate());
+beforeEach(async () => await dbHelper.populateUsers());
 
 describe("UserResolver", () => {
   it("Me", async () => {
-    const query = `
-      query me {
-        me {
-          name
-          username
-        }
-      }
-    `;
-
-    let me = await gCall({ source: query });
+    const me = await gCall({ source: queries.me });
 
     expect(me).toMatchObject({
       data: {
@@ -32,44 +53,22 @@ describe("UserResolver", () => {
   })
 
   it("listUsers", async () => {
-    const query = `
-      query listUsers {
-        listUsers {
-          name
-          username
-        }
-      }
-    `;
+    const users = await gCall({ source: queries.listUsers });
 
-    let user = await gCall({ source: query });
-
-    expect(user).toMatchObject({
+    expect(users).toMatchObject({
       data: {
         listUsers: [
-          { name: fakeUser.name, username: fakeUser.username, },
-          { name: 'New user', username: 'newuser-abcd', }
+          { name: fakeUser2.name, username: fakeUser2.username }
         ]
       }
     })
   })
 
   it("getUser", async () => {
-    const query = `
-      query GetUser($id: ObjectId!) {
-        getUser(id: $id) {
-          name
-          username
-          rooms {
-            name
-          }
-        }
-      }
-    `;
-
-    let findId = await UserModel.findOne({ email: fakeUser.email })
-    let user = await gCall({
-      source: query,
-      variableValues: { id: findId.id }
+    const findId = await UserModel.findOne({ email: fakeUser.email })
+    const user = await gCall({
+      source: queries.getUser,
+      variableValues: { id: findId._id }
     });
 
     expect(user).toMatchObject({

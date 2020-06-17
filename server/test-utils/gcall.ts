@@ -1,7 +1,7 @@
 import { graphql, GraphQLSchema } from "graphql";
 import { Maybe } from "graphql/jsutils/Maybe";
 import { createSchema } from "../modules/create-schema";
-import fakeUser from "./fake-user";
+import { fakeUser } from "./fake-user";
 
 interface Options {
   source: string;
@@ -16,18 +16,23 @@ export const gCall = async ({ source, variableValues }: Options) => {
   if (!schema) {
     schema = await createSchema();
   }
+
+  const user = {
+    ...fakeUser,
+  }
+
   return graphql(
     schema,
     source,
     undefined,
     {
       currentUser: {
-        ...fakeUser
+        ...user
       },
-      getUser: () => fakeUser,
+      getUser: () => user,
       logout: () => { },
       req: {
-        user: fakeUser,
+        user: user
       },
       res: {},
     },

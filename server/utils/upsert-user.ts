@@ -24,14 +24,14 @@ const UpsertUser = async (
   try {
     let matchedUser = await UserModel.findOne({ email: userData.email });
     if (matchedUser) {
-      console.log("matched user", matchedUser.email);
+      // console.log("matched user", matchedUser.email);
       return done(null, matchedUser);
     }
 
     let newUser = new UserModel(userData);
     await newUser.save();
 
-    console.log("newUser created", newUser.email);
+    // console.log("newUser created", newUser.email);
     return done(null, newUser);
   } catch (err) {
     return done(err, null);

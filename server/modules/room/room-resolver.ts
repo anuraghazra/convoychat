@@ -33,8 +33,7 @@ class RoomResolver {
   @Query(() => [Room])
   async listCurrentUserRooms(@Ctx() context: Context): Promise<Room[]> {
     try {
-      console.log(context.currentUser.id)
-      let rooms = await RoomModel.find({ members: new ObjectID(context.currentUser.id) })
+      let rooms = await RoomModel.find({ members: context.currentUser.id })
         .populate("members")
         .populate({
           path: "messages",

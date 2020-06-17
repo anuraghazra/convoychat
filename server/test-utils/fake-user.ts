@@ -2,9 +2,9 @@ const fakeUser = {
   rooms: [],
   _id: '5ee76eb57b9686e1634038dd',
   id: '5ee76eb57b9686e1634038dd',
-  avatarUrl: 'https://lh3.googleusercontent.com/a-/A3h14GhxgedFrKCXKlxuMoXRFBRXlLEfSSz653EQzIY6hg',
+  avatarUrl: 'https://fakavatar.com/img.png',
   provider: 'google',
-  socialId: 'google-oauth2|112234753428952267131',
+  socialId: 'fakesocialid123',
   username: 'fakeuser-kbghla47',
   email: 'fakeuser@gmail.com',
   name: 'Fake User',
@@ -12,4 +12,13 @@ const fakeUser = {
   updatedAt: '2020 - 06 - 16T13: 34: 54.110Z',
 }
 
-export default fakeUser;
+const fakeUser2 = {
+  provider: "google",
+  socialId: 'fakesocialid456',
+  avatarUrl: fakeUser.avatarUrl,
+  username: 'newuser-abcd',
+  email: 'newuser@gmail.com',
+  name: 'New user',
+}
+
+export { fakeUser, fakeUser2 };
