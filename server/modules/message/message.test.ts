@@ -79,7 +79,7 @@ const initialize = async () => {
     `,
     variableValues: { name: ROOM_NAME }
   });
-  ROOM_ID = result.data.createRoom.id;
+  return result
 }
 
 
@@ -91,7 +91,8 @@ afterAll(async () => {
 beforeAll(async () => {
   await dbHelper.connect();
   await dbHelper.populateUsers();
-  await initialize()
+  let res = await initialize()
+  ROOM_ID = res.data.createRoom.id;
 })
 // afterEach(async () => await dbHelper.clearDatabase());
 // beforeEach(async () => await dbHelper.populate());
