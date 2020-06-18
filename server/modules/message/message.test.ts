@@ -9,7 +9,16 @@ import { Maybe } from "graphql/jsutils/Maybe";
 import NotificationModel, { NOTIFICATION_TYPE } from "../../entities/Notification";
 
 const ROOM_NAME = "Test Room";
-let ROOM_ID: Maybe<ObjectID> = null;
+
+const getRoomInfo = async () => {
+  let res = await RoomModel.findOne({ name: ROOM_NAME });
+  return {
+    ROOM_ID: res.id,
+    ROOM_NAME: res.name,
+    ROOM_OWNER: res.owner,
+    ROOM_MEMBERS: res.members,
+  }
+}
 
 const queries = {
   sendMessage: `
@@ -68,7 +77,7 @@ const queries = {
 
 
 const initialize = async () => {
-  let result = await gCall({
+  await gCall({
     source: `
       mutation createRoom($name: String!) {
         createRoom(name: $name) {
@@ -79,29 +88,26 @@ const initialize = async () => {
     `,
     variableValues: { name: ROOM_NAME }
   });
-  return result
 }
 
 
 afterAll(async () => {
   await dbHelper.clearDatabase();
   await dbHelper.closeDatabase();
-  ROOM_ID = null;
 });
 beforeAll(async () => {
   await dbHelper.connect();
   await dbHelper.populateUsers();
-  let res = await initialize()
-  ROOM_ID = res.data.createRoom.id;
+  await initialize()
 })
-// afterEach(async () => await dbHelper.clearDatabase());
-// beforeEach(async () => await dbHelper.populate());
 
 
 describe("MessageResolver", () => {
   const messageContent = `Hello @${fakeUser2.username} @notauser`;
 
   it("SendMessage should throw error if not a member", async () => {
+    let { ROOM_ID } = await getRoomInfo();
+
     let currentUser = await UserModel.findOne({ email: fakeUser2.email })
     const messageResult = await gCall({
       currentUser: currentUser,
@@ -113,6 +119,8 @@ describe("MessageResolver", () => {
   });
 
   it("should send message", async () => {
+    let { ROOM_ID } = await getRoomInfo();
+
     const messageResult = await gCall({
       source: queries.sendMessage,
       variableValues: { roomId: ROOM_ID, content: "Hello world" }
@@ -136,6 +144,8 @@ describe("MessageResolver", () => {
   });
 
   it("should send message and parse mentions", async () => {
+    let { ROOM_ID } = await getRoomInfo();
+
     // PREPARE: ADD USER TO ROOM FIRST
     const fakeUserId = await UserModel.findOne({ username: fakeUser2.username });
     // add user to the room
@@ -186,6 +196,8 @@ describe("MessageResolver", () => {
   });
 
   it('should getMessages', async () => {
+    let { ROOM_ID } = await getRoomInfo();
+
     const messageResult = await gCall({
       source: queries.getMesages,
       variableValues: { roomId: ROOM_ID, limit: 10, offset: 0 }
@@ -211,7 +223,9 @@ describe("MessageResolver", () => {
   })
 
   it("should edit message", async () => {
-    let message = await MessageModel.findOne({ content: messageContent });
+    let { ROOM_ID } = await getRoomInfo();
+
+    let message = await MessageModel.findOne({ author: fakeUser.id });
     const messageResult = await gCall({
       source: queries.editMessage,
       variableValues: { messageId: message.id, content: "Edited message" }
@@ -235,8 +249,10 @@ describe("MessageResolver", () => {
   });
 
   it("should delete message", async () => {
+    let { ROOM_ID } = await getRoomInfo();
+
     const messageContent = "Edited message";
-    const message = await MessageModel.findOne({ content: messageContent });
+    const message = await MessageModel.findOne({ author: fakeUser.id });
     const messageResult = await gCall({
       source: queries.deleteMessage,
       variableValues: { messageId: message.id, content: messageContent }
