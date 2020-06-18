@@ -37,7 +37,9 @@ class InvitationResolver {
       .populate("roomId")
       .populate("invitedBy");
 
-    if (!invite) throw new ApolloError("Could not get invitation info");
+    const currentUserInvite = `${context.currentUser.id}` === `${invite.userId}`;
+    const isInviteForUser = !invite.isPublic && currentUserInvite;
+    if (!invite || !isInviteForUser) throw new ApolloError("Could not get invitation info");
 
     return {
       id: invite.id,
