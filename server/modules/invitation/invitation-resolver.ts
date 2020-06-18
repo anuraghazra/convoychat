@@ -62,11 +62,12 @@ class InvitationResolver {
       isPublic: true,
     });
 
+    const baseURL =
+      process.env.NODE_ENV !== "production"
+        ? "http://localhost:3000"
+        : "https://convoychat.herokuapp.com";
+
     if (existingInvitation) {
-      const baseURL =
-        process.env.NODE_ENV === "development"
-          ? "http://localhost:3000"
-          : "https://convoychat.herokuapp.com";
       return {
         link: `${baseURL}/invitation/${existingInvitation.token}`,
       };
@@ -86,7 +87,7 @@ class InvitationResolver {
 
     await invite.save();
 
-    return { link: `https://convoychat.herokuapp.com/invitations/${token}` };
+    return { link: `${baseURL}/invitation/${token}` };
   }
 
   @Authorized()
@@ -169,7 +170,6 @@ class InvitationResolver {
     let userToAdd: Ref<User> = null;
     // if invitation is public add the current user
     if (invitation.isPublic === true) {
-      console.log("Invitation is public add Current user");
       userToAdd = context.currentUser.id;
     }
 
@@ -178,7 +178,6 @@ class InvitationResolver {
       invitation.isPublic === false &&
       `${invitation.userId}` === `${context.currentUser.id}`
     ) {
-      console.log("Invitation is private");
       userToAdd = invitation.userId;
     }
 
@@ -197,7 +196,6 @@ class InvitationResolver {
     // add user to the room
     const room = await RoomModel.findOneAndUpdate(
       { _id: invitation.roomId },
-      // TODO: fix this
       { $addToSet: { members: userToAdd } },
       { new: true }
     );
@@ -206,9 +204,7 @@ class InvitationResolver {
 
     // update user.rooms
     await UserModel.update(
-      {
-        _id: userToAdd
-      },
+      { _id: userToAdd },
       { $addToSet: { rooms: room.id } },
       { new: true }
     );
