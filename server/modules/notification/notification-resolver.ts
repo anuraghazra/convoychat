@@ -12,7 +12,7 @@ class NotificationResolver {
   @Query(() => [Notification])
   async getNotifications(@Ctx() context: Context) {
     try {
-      let notifications = await NotificationModel.find({
+      const notifications = await NotificationModel.find({
         receiver: context.currentUser.id,
       })
         .populate("sender")
@@ -31,11 +31,8 @@ class NotificationResolver {
     @Ctx() context: Context
   ) {
     try {
-      let notification = await NotificationModel.findOneAndUpdate(
-        {
-          _id: id,
-          receiver: context.currentUser.id,
-        },
+      const notification = await NotificationModel.findOneAndUpdate(
+        { _id: id, receiver: context.currentUser.id },
         { seen: true },
         { new: true }
       )

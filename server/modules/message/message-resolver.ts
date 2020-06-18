@@ -21,8 +21,8 @@ import MessageModel, { Message } from "../../entities/Message";
 import CONSTANTS from "../../constants";
 import { Messages } from "./message-types";
 import parseMentions from "../../utils/mention-parser";
-import NOTIFICATION_TOPIC from "../../notification-topic";
 import sendNotification from "../../utils/sendNotification";
+import { NOTIFICATION_TYPE } from "../../entities/Notification";
 import { sendMessageArgs, editMessageArgs, getMessagesArgs } from "./message-inputs";
 
 
@@ -93,7 +93,7 @@ class MessageResolver {
           context: context,
           sender: context.currentUser.id,
           receiver: id as any,
-          type: NOTIFICATION_TOPIC.MENTION,
+          type: NOTIFICATION_TYPE.MENTION,
           payload: {
             roomName: room?.name,
             message: message.content,

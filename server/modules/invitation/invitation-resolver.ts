@@ -8,8 +8,8 @@ import { Resolver, Ctx, Arg, Authorized, Mutation, Query, Field, ArgsType, Args 
 
 import UserModel, { User } from "../../entities/User";
 import RoomModel from "../../entities/Room";
-import NOTIFICATION_TOPIC from '../../notification-topic'
 import sendNotification from "../../utils/sendNotification";
+import { NOTIFICATION_TYPE } from "../../entities/Notification";
 import InvitationModel, { Invitation } from "../../entities/Invitation";
 import { InvitationLinkResult, InvitationDetails } from "./invitation-types";
 
@@ -129,7 +129,7 @@ class InvitationResolver {
           context: context,
           sender: context.currentUser.id,
           receiver: id,
-          type: NOTIFICATION_TOPIC.INVITATION,
+          type: NOTIFICATION_TYPE.INVITATION,
           payload: {
             userId: id,
             roomName: foundRoom.name,
