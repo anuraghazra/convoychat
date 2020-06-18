@@ -25,6 +25,45 @@ const queries = {
       }
     }
   `,
+  getMesages: `
+    query getMessages($limit: Int!, $offset: Int!, $roomId: ObjectId!) {
+      getMessages(limit: $limit, offset: $offset, roomId: $roomId) {
+        totalDocs
+        totalPages
+        messages {
+          content
+          roomId
+          author {
+            name
+          }
+        }
+      }
+    }
+  `,
+  editMessage: `
+    mutation editMessage($messageId: ObjectId!, $content: String!) {
+      editMessage(messageId: $messageId, content: $content) {
+        id
+        content
+        roomId
+        author {
+          name
+        }
+      }
+    }
+  `,
+  deleteMessage: `
+    mutation deleteMessage($messageId: ObjectId!) {
+      deleteMessage(messageId: $messageId) {
+        id
+        content
+        roomId
+        author {
+          name
+        }
+      }
+    }
+  `,
 }
 
 
@@ -59,6 +98,8 @@ beforeAll(async () => {
 
 
 describe("MessageResolver", () => {
+  const messageContent = `Hello @${fakeUser2.username} @notauser`;
+
   it("SendMessage should throw error if not a member", async () => {
     let currentUser = await UserModel.findOne({ email: fakeUser2.email })
     const messageResult = await gCall({
@@ -76,7 +117,6 @@ describe("MessageResolver", () => {
       variableValues: { roomId: ROOM_ID, content: "Hello world" }
     });
 
-    console.log({ messageResult })
     expect(messageResult?.data?.sendMessage).toEqual(
       expect.objectContaining({
         content: "Hello world",
@@ -111,7 +151,6 @@ describe("MessageResolver", () => {
     );
 
     // ----
-    const messageContent = `Hello @${fakeUser2.username}`
     const messageResult = await gCall({
       source: queries.sendMessage,
       variableValues: { roomId: ROOM_ID, content: messageContent }
@@ -140,10 +179,82 @@ describe("MessageResolver", () => {
     expect(dbNotification.sender).toEqual(new ObjectID(fakeUser.id));
     expect(dbNotification.type).toEqual(NOTIFICATION_TYPE.MENTION);
 
-    let payload: any = dbNotification.payload;
+    const payload: any = dbNotification.payload;
     expect(payload.message).toEqual(messageContent);
     expect(payload.roomName).toEqual(_room?.name);
-
   });
 
+  it('should getMessages', async () => {
+    const messageResult = await gCall({
+      source: queries.getMesages,
+      variableValues: { roomId: ROOM_ID, limit: 10, offset: 0 }
+    });
+    expect(messageResult?.data?.getMessages).toEqual(
+      expect.objectContaining({
+        totalDocs: 2,
+        totalPages: 0,
+        messages: [
+          {
+            content: "Hello world",
+            roomId: ROOM_ID,
+            author: { name: fakeUser.name }
+          },
+          {
+            content: "Hello @newuser-abcd @notauser",
+            roomId: ROOM_ID,
+            author: { name: fakeUser.name }
+          }
+        ]
+      })
+    )
+  })
+
+  it("should edit message", async () => {
+    let message = await MessageModel.findOne({ content: messageContent });
+    const messageResult = await gCall({
+      source: queries.editMessage,
+      variableValues: { messageId: message.id, content: "Edited message" }
+    });
+
+    expect(messageResult?.data?.editMessage).toEqual(
+      expect.objectContaining({
+        content: "Edited message",
+        roomId: ROOM_ID,
+        author: {
+          name: fakeUser.name
+        }
+      })
+    )
+
+    const messageId = messageResult.data?.editMessage?.id;
+    const dbMessage = await MessageModel.findOne({ _id: messageId });
+    const dbRoom = await RoomModel.findOne({ messages: { $in: messageId } });
+    expect(dbMessage?.content).toEqual("Edited message")
+    expect(dbRoom?.messages).toContainEqual(new ObjectID(messageId));
+  });
+
+  it("should delete message", async () => {
+    const messageContent = "Edited message";
+    const message = await MessageModel.findOne({ content: messageContent });
+    const messageResult = await gCall({
+      source: queries.deleteMessage,
+      variableValues: { messageId: message.id, content: messageContent }
+    });
+
+    expect(messageResult?.data?.deleteMessage).toEqual(
+      expect.objectContaining({
+        content: messageContent,
+        roomId: ROOM_ID,
+        author: {
+          name: fakeUser.name
+        }
+      })
+    )
+
+    const messageId = messageResult.data?.editMessage?.id;
+    const dbMessage = await MessageModel.findOne({ _id: messageId })
+    const dbRoom = await RoomModel.findOne({ messages: { $in: messageId } })
+    expect(dbMessage).toBeNull();
+    expect(dbRoom).toBeNull();
+  });
 }) 
