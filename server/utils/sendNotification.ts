@@ -8,7 +8,6 @@ interface ISendNotification extends Omit<Notification, "_id" | "createdAt"> {
 async function sendNotification({ sender, receiver, payload, type, context }: ISendNotification) {
   // SEND MENTION NOTIFICATION
   try {
-    console.log(sender, receiver)
     const noti = new NotificationModel({
       type: type,
       sender: sender as any,
