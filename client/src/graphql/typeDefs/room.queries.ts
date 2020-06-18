@@ -9,7 +9,7 @@ export default gql`
     createdAt
   }
 
-  query getRoom($roomId: ID!, $limit: Int!, $offset: Int!) {
+  query getRoom($roomId: ObjectId!, $limit: Int!, $offset: Int!) {
     room: getRoom(id: $roomId) {
       id
       name
@@ -38,7 +38,7 @@ export default gql`
     }
   }
 
-  mutation removeMember($roomId: ID!, $memberId: ID!) {
+  mutation removeMember($roomId: ObjectId!, $memberId: ObjectId!) {
     removedMember: removeMemberFromRoom(roomId: $roomId, memberId: $memberId) {
       ...RoomMember
     }
@@ -53,7 +53,7 @@ export default gql`
     }
   }
 
-  mutation deleteRoom($roomId: ID!) {
+  mutation deleteRoom($roomId: ObjectId!) {
     deletedRoom: deleteRoom(roomId: $roomId) {
       id
       name

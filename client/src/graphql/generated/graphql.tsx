@@ -9,73 +9,98 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
+  /** Mongo object id scalar type */
+  ObjectId: any;
+  /** The javascript `Date` as string. Type represents date and time as the ISO Date string. */
+  DateTime: any;
   /** The `JSONObject` scalar type represents JSON objects as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf). */
   JSONObject: any;
-  /** The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf). */
-  JSON: any;
-  /** The `Upload` scalar type represents a file upload. */
-  Upload: any;
 };
 
-export enum CacheControlScope {
-  Public = 'PUBLIC',
-  Private = 'PRIVATE'
-}
-
-export type Invitation = {
-  __typename?: 'Invitation';
-  id: Scalars['ID'];
-  roomId: Scalars['ID'];
-  userId: Scalars['ID'];
-  invitedBy: Scalars['ID'];
-  isPublic: Scalars['Boolean'];
-  createdAt: Scalars['String'];
-};
-
-export type InvitationDetails = {
-  __typename?: 'InvitationDetails';
-  id: Scalars['ID'];
-  room?: Maybe<Room>;
-  invitedBy: Member;
-  isPublic: Scalars['Boolean'];
-  createdAt: Scalars['String'];
-};
-
-export type InvitationLinkResult = {
-  __typename?: 'InvitationLinkResult';
-  link: Scalars['String'];
+export type Query = {
+  __typename?: 'Query';
+  me: Me;
+  listUsers: Array<Member>;
+  getUser: User;
+  getMessages: Messages;
+  listRooms: Array<Room>;
+  listCurrentUserRooms: Array<Room>;
+  getRoom: Room;
+  getNotifications: Array<Notification>;
+  getInvitationInfo: InvitationDetails;
 };
 
 
+export type QueryGetUserArgs = {
+  id: Scalars['ObjectId'];
+};
+
+
+export type QueryGetMessagesArgs = {
+  roomId: Scalars['ObjectId'];
+  limit: Scalars['Int'];
+  offset: Scalars['Int'];
+};
+
+
+export type QueryGetRoomArgs = {
+  id: Scalars['ObjectId'];
+};
+
+
+export type QueryGetInvitationInfoArgs = {
+  token: Scalars['String'];
+};
 
 export type Me = {
   __typename?: 'Me';
-  id: Scalars['ID'];
+  id: Scalars['ObjectId'];
   name: Scalars['String'];
-  email: Scalars['String'];
   username: Scalars['String'];
+  email: Scalars['String'];
+  avatarUrl: Scalars['String'];
   rooms: Array<Room>;
-  avatarUrl?: Maybe<Scalars['String']>;
 };
+
+
+export type Room = {
+  __typename?: 'Room';
+  id: Scalars['ObjectId'];
+  createdAt: Scalars['DateTime'];
+  name: Scalars['String'];
+  members: Array<Member>;
+  messages: Array<Message>;
+  owner: Scalars['ObjectId'];
+};
+
 
 export type Member = {
   __typename?: 'Member';
   id: Scalars['ID'];
+  createdAt: Scalars['DateTime'];
   name: Scalars['String'];
-  avatarUrl?: Maybe<Scalars['String']>;
   username: Scalars['String'];
+  avatarUrl: Scalars['String'];
   rooms: Array<Scalars['ID']>;
-  createdAt: Scalars['String'];
 };
 
 export type Message = {
   __typename?: 'Message';
   id: Scalars['ID'];
+  createdAt?: Maybe<Scalars['DateTime']>;
   roomId: Scalars['ID'];
   author: Member;
   content: Scalars['String'];
   mentions: Array<Scalars['ID']>;
-  createdAt: Scalars['String'];
+};
+
+export type User = {
+  __typename?: 'User';
+  id: Scalars['ObjectId'];
+  createdAt: Scalars['DateTime'];
+  name: Scalars['String'];
+  username: Scalars['String'];
+  rooms: Array<Room>;
 };
 
 export type Messages = {
@@ -85,20 +110,63 @@ export type Messages = {
   messages: Array<Message>;
 };
 
+export type Notification = {
+  __typename?: 'Notification';
+  id: Scalars['ID'];
+  createdAt: Scalars['DateTime'];
+  sender: Member;
+  receiver: Scalars['ID'];
+  seen: Scalars['Boolean'];
+  type: Notification_Type;
+  payload: Scalars['JSONObject'];
+};
+
+/** Notification types enums */
+export enum Notification_Type {
+  Invitation = 'INVITATION',
+  Mention = 'MENTION'
+}
+
+
+export type InvitationDetails = {
+  __typename?: 'InvitationDetails';
+  id: Scalars['ID'];
+  room?: Maybe<Room>;
+  invitedBy: Member;
+  isPublic: Scalars['Boolean'];
+  createdAt: Scalars['DateTime'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
-  createRoom: Room;
-  addMembersToRoom: Room;
-  removeMemberFromRoom: Member;
-  deleteRoom?: Maybe<Room>;
+  logout: Scalars['Boolean'];
   sendMessage: Message;
   deleteMessage: Message;
   editMessage: Message;
-  inviteMembers: Array<Invitation>;
-  acceptInvitation?: Maybe<Scalars['Boolean']>;
-  createInvitationLink: InvitationLinkResult;
+  createRoom: Room;
+  deleteRoom?: Maybe<Room>;
+  removeMemberFromRoom?: Maybe<Member>;
   readNotification: Notification;
-  logout?: Maybe<Scalars['Boolean']>;
+  createInvitationLink: InvitationLinkResult;
+  inviteMembers: Array<Invitation>;
+  acceptInvitation: Scalars['Boolean'];
+};
+
+
+export type MutationSendMessageArgs = {
+  roomId: Scalars['ObjectId'];
+  content: Scalars['String'];
+};
+
+
+export type MutationDeleteMessageArgs = {
+  messageId: Scalars['ObjectId'];
+};
+
+
+export type MutationEditMessageArgs = {
+  messageId: Scalars['ObjectId'];
+  content: Scalars['String'];
 };
 
 
@@ -107,43 +175,30 @@ export type MutationCreateRoomArgs = {
 };
 
 
-export type MutationAddMembersToRoomArgs = {
-  roomId: Scalars['ID'];
-  members: Array<Scalars['ID']>;
+export type MutationDeleteRoomArgs = {
+  roomId: Scalars['ObjectId'];
 };
 
 
 export type MutationRemoveMemberFromRoomArgs = {
-  roomId: Scalars['ID'];
-  memberId: Scalars['ID'];
+  roomId: Scalars['ObjectId'];
+  memberId: Scalars['ObjectId'];
 };
 
 
-export type MutationDeleteRoomArgs = {
-  roomId: Scalars['ID'];
+export type MutationReadNotificationArgs = {
+  id: Scalars['ObjectId'];
 };
 
 
-export type MutationSendMessageArgs = {
-  roomId: Scalars['ID'];
-  content: Scalars['String'];
-};
-
-
-export type MutationDeleteMessageArgs = {
-  messageId: Scalars['ID'];
-};
-
-
-export type MutationEditMessageArgs = {
-  messageId: Scalars['ID'];
-  content: Scalars['String'];
+export type MutationCreateInvitationLinkArgs = {
+  roomId: Scalars['ObjectId'];
 };
 
 
 export type MutationInviteMembersArgs = {
-  roomId: Scalars['ID'];
-  members: Array<Scalars['ID']>;
+  roomId: Scalars['ObjectId'];
+  members: Array<Scalars['ObjectId']>;
 };
 
 
@@ -151,75 +206,19 @@ export type MutationAcceptInvitationArgs = {
   token: Scalars['String'];
 };
 
+export type InvitationLinkResult = {
+  __typename?: 'InvitationLinkResult';
+  link: Scalars['String'];
+};
 
-export type MutationCreateInvitationLinkArgs = {
+export type Invitation = {
+  __typename?: 'Invitation';
+  id: Scalars['ID'];
+  createdAt: Scalars['DateTime'];
+  invitedBy: Scalars['ID'];
+  userId: Scalars['ID'];
   roomId: Scalars['ID'];
-};
-
-
-export type MutationReadNotificationArgs = {
-  id: Scalars['ID'];
-};
-
-export type Notification = {
-  __typename?: 'Notification';
-  id: Scalars['ID'];
-  sender: Member;
-  receiver: Scalars['ID'];
-  seen: Scalars['Boolean'];
-  type: Notification_Types;
-  payload?: Maybe<Scalars['JSONObject']>;
-  createdAt: Scalars['String'];
-};
-
-export enum Notification_Types {
-  Invitation = 'INVITATION',
-  Mention = 'MENTION'
-}
-
-export type Query = {
-  __typename?: 'Query';
-  me: Me;
-  listUsers: Array<Member>;
-  getUser: User;
-  listCurrentUserRooms: Array<Maybe<Room>>;
-  listRooms: Array<Room>;
-  getRoom: Room;
-  getNotifications: Array<Maybe<Notification>>;
-  getInvitationInfo: InvitationDetails;
-  getMessages?: Maybe<Messages>;
-};
-
-
-export type QueryGetUserArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type QueryGetRoomArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type QueryGetInvitationInfoArgs = {
-  token: Scalars['String'];
-};
-
-
-export type QueryGetMessagesArgs = {
-  roomId: Scalars['ID'];
-  offset: Scalars['Int'];
-  limit: Scalars['Int'];
-};
-
-export type Room = {
-  __typename?: 'Room';
-  id: Scalars['ID'];
-  name: Scalars['String'];
-  members: Array<Member>;
-  messages: Array<Message>;
-  createdAt: Scalars['String'];
-  owner: Scalars['ID'];
+  isPublic: Scalars['Boolean'];
 };
 
 export type Subscription = {
@@ -232,27 +231,17 @@ export type Subscription = {
 
 
 export type SubscriptionOnNewMessageArgs = {
-  roomId: Scalars['ID'];
+  roomId: Scalars['ObjectId'];
 };
 
 
 export type SubscriptionOnDeleteMessageArgs = {
-  roomId: Scalars['ID'];
+  roomId: Scalars['ObjectId'];
 };
 
 
 export type SubscriptionOnUpdateMessageArgs = {
-  roomId: Scalars['ID'];
-};
-
-
-export type User = {
-  __typename?: 'User';
-  id: Scalars['ID'];
-  name: Scalars['String'];
-  username: Scalars['String'];
-  rooms: Array<Room>;
-  createdAt: Scalars['String'];
+  roomId: Scalars['ObjectId'];
 };
 
 export type GetInvitationInfoQueryVariables = {
@@ -276,8 +265,8 @@ export type GetInvitationInfoQuery = (
 );
 
 export type InviteMembersMutationVariables = {
-  roomId: Scalars['ID'];
-  members: Array<Scalars['ID']>;
+  roomId: Scalars['ObjectId'];
+  members: Array<Scalars['ObjectId']>;
 };
 
 
@@ -290,7 +279,7 @@ export type InviteMembersMutation = (
 );
 
 export type CreateInvitationLinkMutationVariables = {
-  roomId: Scalars['ID'];
+  roomId: Scalars['ObjectId'];
 };
 
 
@@ -318,7 +307,7 @@ export type RoomMemberFragment = (
 );
 
 export type GetRoomQueryVariables = {
-  roomId: Scalars['ID'];
+  roomId: Scalars['ObjectId'];
   limit: Scalars['Int'];
   offset: Scalars['Int'];
 };
@@ -333,7 +322,7 @@ export type GetRoomQuery = (
       { __typename?: 'Member' }
       & RoomMemberFragment
     )> }
-  ), messages?: Maybe<(
+  ), messages: (
     { __typename?: 'Messages' }
     & Pick<Messages, 'totalDocs' | 'totalPages'>
     & { messages: Array<(
@@ -344,21 +333,21 @@ export type GetRoomQuery = (
         & Pick<Member, 'id' | 'name' | 'username' | 'avatarUrl'>
       ) }
     )> }
-  )> }
+  ) }
 );
 
 export type RemoveMemberMutationVariables = {
-  roomId: Scalars['ID'];
-  memberId: Scalars['ID'];
+  roomId: Scalars['ObjectId'];
+  memberId: Scalars['ObjectId'];
 };
 
 
 export type RemoveMemberMutation = (
   { __typename?: 'Mutation' }
-  & { removedMember: (
+  & { removedMember?: Maybe<(
     { __typename?: 'Member' }
     & RoomMemberFragment
-  ) }
+  )> }
 );
 
 export type CreateRoomMutationVariables = {
@@ -375,7 +364,7 @@ export type CreateRoomMutation = (
 );
 
 export type DeleteRoomMutationVariables = {
-  roomId: Scalars['ID'];
+  roomId: Scalars['ObjectId'];
 };
 
 
@@ -406,7 +395,7 @@ export type SubscriptionMessagePartsFragment = (
 );
 
 export type SendMessageMutationVariables = {
-  roomId: Scalars['ID'];
+  roomId: Scalars['ObjectId'];
   content: Scalars['String'];
 };
 
@@ -424,7 +413,7 @@ export type SendMessageMutation = (
 );
 
 export type DeleteMessageMutationVariables = {
-  messageId: Scalars['ID'];
+  messageId: Scalars['ObjectId'];
 };
 
 
@@ -437,7 +426,7 @@ export type DeleteMessageMutation = (
 );
 
 export type EditMessageMutationVariables = {
-  messageId: Scalars['ID'];
+  messageId: Scalars['ObjectId'];
   content: Scalars['String'];
 };
 
@@ -451,7 +440,7 @@ export type EditMessageMutation = (
 );
 
 export type OnNewMessageSubscriptionVariables = {
-  roomId: Scalars['ID'];
+  roomId: Scalars['ObjectId'];
 };
 
 
@@ -464,7 +453,7 @@ export type OnNewMessageSubscription = (
 );
 
 export type OnDeleteMessageSubscriptionVariables = {
-  roomId: Scalars['ID'];
+  roomId: Scalars['ObjectId'];
 };
 
 
@@ -477,7 +466,7 @@ export type OnDeleteMessageSubscription = (
 );
 
 export type OnUpdateMessageSubscriptionVariables = {
-  roomId: Scalars['ID'];
+  roomId: Scalars['ObjectId'];
 };
 
 
@@ -529,10 +518,10 @@ export type ListCurrentUserRoomsQueryVariables = {};
 
 export type ListCurrentUserRoomsQuery = (
   { __typename?: 'Query' }
-  & { currentUserRooms: Array<Maybe<(
+  & { currentUserRooms: Array<(
     { __typename?: 'Room' }
     & Pick<Room, 'id' | 'name' | 'createdAt' | 'owner'>
-  )>> }
+  )> }
 );
 
 export type GetNotificationsQueryVariables = {};
@@ -540,14 +529,14 @@ export type GetNotificationsQueryVariables = {};
 
 export type GetNotificationsQuery = (
   { __typename?: 'Query' }
-  & { notifications: Array<Maybe<(
+  & { notifications: Array<(
     { __typename?: 'Notification' }
     & NotificationDataFragment
-  )>> }
+  )> }
 );
 
 export type ReadNotificationMutationVariables = {
-  id: Scalars['ID'];
+  id: Scalars['ObjectId'];
 };
 
 
@@ -672,7 +661,7 @@ export type GetInvitationInfoQueryHookResult = ReturnType<typeof useGetInvitatio
 export type GetInvitationInfoLazyQueryHookResult = ReturnType<typeof useGetInvitationInfoLazyQuery>;
 export type GetInvitationInfoQueryResult = ApolloReactCommon.QueryResult<GetInvitationInfoQuery, GetInvitationInfoQueryVariables>;
 export const InviteMembersDocument = gql`
-    mutation inviteMembers($roomId: ID!, $members: [ID!]!) {
+    mutation inviteMembers($roomId: ObjectId!, $members: [ObjectId!]!) {
   invitations: inviteMembers(roomId: $roomId, members: $members) {
     id
     roomId
@@ -710,7 +699,7 @@ export type InviteMembersMutationHookResult = ReturnType<typeof useInviteMembers
 export type InviteMembersMutationResult = ApolloReactCommon.MutationResult<InviteMembersMutation>;
 export type InviteMembersMutationOptions = ApolloReactCommon.BaseMutationOptions<InviteMembersMutation, InviteMembersMutationVariables>;
 export const CreateInvitationLinkDocument = gql`
-    mutation createInvitationLink($roomId: ID!) {
+    mutation createInvitationLink($roomId: ObjectId!) {
   invitation: createInvitationLink(roomId: $roomId) {
     link
   }
@@ -772,7 +761,7 @@ export type AcceptInvitationMutationHookResult = ReturnType<typeof useAcceptInvi
 export type AcceptInvitationMutationResult = ApolloReactCommon.MutationResult<AcceptInvitationMutation>;
 export type AcceptInvitationMutationOptions = ApolloReactCommon.BaseMutationOptions<AcceptInvitationMutation, AcceptInvitationMutationVariables>;
 export const GetRoomDocument = gql`
-    query getRoom($roomId: ID!, $limit: Int!, $offset: Int!) {
+    query getRoom($roomId: ObjectId!, $limit: Int!, $offset: Int!) {
   room: getRoom(id: $roomId) {
     id
     name
@@ -830,7 +819,7 @@ export type GetRoomQueryHookResult = ReturnType<typeof useGetRoomQuery>;
 export type GetRoomLazyQueryHookResult = ReturnType<typeof useGetRoomLazyQuery>;
 export type GetRoomQueryResult = ApolloReactCommon.QueryResult<GetRoomQuery, GetRoomQueryVariables>;
 export const RemoveMemberDocument = gql`
-    mutation removeMember($roomId: ID!, $memberId: ID!) {
+    mutation removeMember($roomId: ObjectId!, $memberId: ObjectId!) {
   removedMember: removeMemberFromRoom(roomId: $roomId, memberId: $memberId) {
     ...RoomMember
   }
@@ -898,7 +887,7 @@ export type CreateRoomMutationHookResult = ReturnType<typeof useCreateRoomMutati
 export type CreateRoomMutationResult = ApolloReactCommon.MutationResult<CreateRoomMutation>;
 export type CreateRoomMutationOptions = ApolloReactCommon.BaseMutationOptions<CreateRoomMutation, CreateRoomMutationVariables>;
 export const DeleteRoomDocument = gql`
-    mutation deleteRoom($roomId: ID!) {
+    mutation deleteRoom($roomId: ObjectId!) {
   deletedRoom: deleteRoom(roomId: $roomId) {
     id
     name
@@ -933,7 +922,7 @@ export type DeleteRoomMutationHookResult = ReturnType<typeof useDeleteRoomMutati
 export type DeleteRoomMutationResult = ApolloReactCommon.MutationResult<DeleteRoomMutation>;
 export type DeleteRoomMutationOptions = ApolloReactCommon.BaseMutationOptions<DeleteRoomMutation, DeleteRoomMutationVariables>;
 export const SendMessageDocument = gql`
-    mutation sendMessage($roomId: ID!, $content: String!) {
+    mutation sendMessage($roomId: ObjectId!, $content: String!) {
   sendMessage(roomId: $roomId, content: $content) {
     id
     roomId
@@ -976,7 +965,7 @@ export type SendMessageMutationHookResult = ReturnType<typeof useSendMessageMuta
 export type SendMessageMutationResult = ApolloReactCommon.MutationResult<SendMessageMutation>;
 export type SendMessageMutationOptions = ApolloReactCommon.BaseMutationOptions<SendMessageMutation, SendMessageMutationVariables>;
 export const DeleteMessageDocument = gql`
-    mutation deleteMessage($messageId: ID!) {
+    mutation deleteMessage($messageId: ObjectId!) {
   deletedMessage: deleteMessage(messageId: $messageId) {
     ...MessageParts
   }
@@ -1008,7 +997,7 @@ export type DeleteMessageMutationHookResult = ReturnType<typeof useDeleteMessage
 export type DeleteMessageMutationResult = ApolloReactCommon.MutationResult<DeleteMessageMutation>;
 export type DeleteMessageMutationOptions = ApolloReactCommon.BaseMutationOptions<DeleteMessageMutation, DeleteMessageMutationVariables>;
 export const EditMessageDocument = gql`
-    mutation editMessage($messageId: ID!, $content: String!) {
+    mutation editMessage($messageId: ObjectId!, $content: String!) {
   editedMessage: editMessage(messageId: $messageId, content: $content) {
     ...MessageParts
   }
@@ -1041,7 +1030,7 @@ export type EditMessageMutationHookResult = ReturnType<typeof useEditMessageMuta
 export type EditMessageMutationResult = ApolloReactCommon.MutationResult<EditMessageMutation>;
 export type EditMessageMutationOptions = ApolloReactCommon.BaseMutationOptions<EditMessageMutation, EditMessageMutationVariables>;
 export const OnNewMessageDocument = gql`
-    subscription onNewMessage($roomId: ID!) {
+    subscription onNewMessage($roomId: ObjectId!) {
   onNewMessage(roomId: $roomId) {
     ...SubscriptionMessageParts
   }
@@ -1070,7 +1059,7 @@ export function useOnNewMessageSubscription(baseOptions?: ApolloReactHooks.Subsc
 export type OnNewMessageSubscriptionHookResult = ReturnType<typeof useOnNewMessageSubscription>;
 export type OnNewMessageSubscriptionResult = ApolloReactCommon.SubscriptionResult<OnNewMessageSubscription>;
 export const OnDeleteMessageDocument = gql`
-    subscription onDeleteMessage($roomId: ID!) {
+    subscription onDeleteMessage($roomId: ObjectId!) {
   onDeleteMessage(roomId: $roomId) {
     ...SubscriptionMessageParts
   }
@@ -1099,7 +1088,7 @@ export function useOnDeleteMessageSubscription(baseOptions?: ApolloReactHooks.Su
 export type OnDeleteMessageSubscriptionHookResult = ReturnType<typeof useOnDeleteMessageSubscription>;
 export type OnDeleteMessageSubscriptionResult = ApolloReactCommon.SubscriptionResult<OnDeleteMessageSubscription>;
 export const OnUpdateMessageDocument = gql`
-    subscription onUpdateMessage($roomId: ID!) {
+    subscription onUpdateMessage($roomId: ObjectId!) {
   onUpdateMessage(roomId: $roomId) {
     ...SubscriptionMessageParts
   }
@@ -1273,7 +1262,7 @@ export type GetNotificationsQueryHookResult = ReturnType<typeof useGetNotificati
 export type GetNotificationsLazyQueryHookResult = ReturnType<typeof useGetNotificationsLazyQuery>;
 export type GetNotificationsQueryResult = ApolloReactCommon.QueryResult<GetNotificationsQuery, GetNotificationsQueryVariables>;
 export const ReadNotificationDocument = gql`
-    mutation readNotification($id: ID!) {
+    mutation readNotification($id: ObjectId!) {
   readNotification(id: $id) {
     ...NotificationData
   }
