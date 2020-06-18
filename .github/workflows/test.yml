@@ -20,6 +20,16 @@ jobs:
         with:
           node-version: "12.x"
 
+      - name: Cache node modules
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-cache-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-cache-
+
       - name: npm install, build and test
         run: |
           npm install
@@ -27,8 +37,8 @@ jobs:
 
       - name: Test Server
         run: npm run test:server
-      
+
       - name: Test Client
         run: npm run test:client
-
-      
+        env:
+          SKIP_PREFLIGHT_CHECK: true
