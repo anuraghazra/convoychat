@@ -1,9 +1,8 @@
 import "./__mocks__/matchMedia";
 
 import React, { useState } from "react";
-import MessageInput, {
-  useMessageInput,
-} from "components/MessageInput/MessageInput";
+import MessageInput from "components/MessageInput/MessageInput";
+import useMessageInput from "components/MessageInput/useMessageInput";
 import { renderWithStyledTheme } from "./testUtils";
 import { fireEvent, act, cleanup } from "@testing-library/react";
 
@@ -34,9 +33,9 @@ describe("MessageInput", () => {
             autoFocus
             value={value}
             handleChange={handleChange}
+            handleSubmit={handleEdit}
             name="message"
             onCancel={handleCancel}
-            onSubmit={handleEdit}
             onEmojiClick={handleEmojiClick}
             mentionSuggestions={[]}
           />

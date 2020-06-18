@@ -74,7 +74,9 @@ const MessageInput: React.FC<IMessageInput> = ({
 
   const getRef: any = (e: any) => {
     textareaRef.current = e;
-    innerRef.current = e;
+    if (innerRef) {
+      innerRef.current = e;
+    }
   };
 
   return (

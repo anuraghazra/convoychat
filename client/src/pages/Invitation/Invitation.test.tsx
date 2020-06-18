@@ -11,6 +11,7 @@ import {
   CurrentUserDocument,
   GetInvitationInfoDocument,
   AcceptInvitationDocument,
+  ListCurrentUserRoomsDocument,
 } from "graphql/generated/graphql";
 
 import Invitation from "./Invitation";
@@ -18,6 +19,21 @@ import NotificationsWithPortal from "../../NotificationWithPortal";
 
 const FAKE_TOKEN = "1ace01d808072fc4905f1796203f8ffa";
 const mocks = [
+  {
+    request: {
+      query: ListCurrentUserRoomsDocument,
+    },
+    result: {
+      data: {
+        currentUserRooms: {
+          id: "5edb4fc4572d741f64c9a57d",
+          name: "fake room",
+          createdAt: Date.now(),
+          owner: "5edb4fc4572d741f64c9a57d",
+        },
+      },
+    },
+  },
   {
     request: {
       query: AcceptInvitationDocument,

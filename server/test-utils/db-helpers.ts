@@ -2,10 +2,20 @@ import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import UserModel from '../entities/User';
 import { fakeUser, fakeUser2 } from './fake-user';
+import { MongoMemoryServer } from 'mongodb-memory-server-core';
+import isCI from 'is-ci';
+
 dotenv.config();
 
+const mongod = new MongoMemoryServer();
+
 export const connect = async () => {
-  const uri = process.env.TEST_DB_URI
+  let uri = process.env.TEST_DB_URI;
+
+  if (isCI) {
+    uri = await mongod.getConnectionString();
+  }
+
   const mongooseOpts = {
     useNewUrlParser: true,
     useUnifiedTopology: true,
@@ -18,6 +28,9 @@ export const connect = async () => {
 export const closeDatabase = async () => {
   await mongoose.connection.dropDatabase()
   await mongoose.connection.close();
+  if (isCI) {
+    mongod.stop()
+  }
 }
 
 export const clearDatabase = async () => {
