@@ -8,6 +8,7 @@ import { fakeUser, fakeUser2 } from "../../test-utils/fake-user";
 import { Maybe } from "graphql/jsutils/Maybe";
 import NotificationModel, { NOTIFICATION_TYPE } from "../../entities/Notification";
 
+jest.setTimeout(10000);
 const ROOM_NAME = "Test Room";
 
 const getRoomInfo = async () => {
