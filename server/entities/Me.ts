@@ -24,6 +24,9 @@ export class Me {
 
   @Field(type => [Room])
   public rooms!: Ref<Room>[];
+  
+  @Field()
+  public color!: string;
 }
 
 export default Me;
