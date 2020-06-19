@@ -97,7 +97,9 @@ const Message: React.FC<IMessage> = ({
       <Flex direction="column">
         <Flex gap="medium" align="center" nowrap>
           <Avatar size={35} src={author?.avatarUrl} />
-          <p className="textcolor--primary">{author?.name}</p>
+          <p className="textcolor--primary" style={{ color: author?.color }}>
+            {author?.name}
+          </p>
           <span className="message__date">messaged {timeAgo(date)}</span>
           {isAuthor && (
             <Flex

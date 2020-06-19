@@ -33,6 +33,7 @@ export default gql`
           name
           username
           avatarUrl
+          color
         }
       }
     }

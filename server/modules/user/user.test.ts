@@ -30,6 +30,14 @@ const queries = {
         }
       }
     }
+  `,
+  setColor: `
+    mutation setColor($color: String!) {
+      setColor(color: $color) {
+        name
+        color
+      }
+    }
   `
 }
 
@@ -77,6 +85,31 @@ describe("UserResolver", () => {
           name: fakeUser.name,
           username: fakeUser.username,
           rooms: []
+        }
+      }
+    })
+  })
+
+  it("should change user's color", async () => {
+    const OK_COLOR = '#ff5896';
+    const BAD_COLOR = '#000000';
+    let user = await gCall({
+      source: queries.setColor,
+      variableValues: { color: BAD_COLOR }
+    });
+
+    expect(user.errors[0].message).toBe('Argument Validation Error')
+
+    user = await gCall({
+      source: queries.setColor,
+      variableValues: { color: OK_COLOR }
+    });
+
+    expect(user).toMatchObject({
+      data: {
+        setColor: {
+          name: fakeUser.name,
+          color: OK_COLOR,
         }
       }
     })

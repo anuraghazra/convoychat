@@ -23,6 +23,9 @@ export class Member {
 
   @Field(type => [ID])
   public rooms!: Ref<Room>[];
+  
+  @Field()
+  public color!: string;
 }
 
 export default Member;

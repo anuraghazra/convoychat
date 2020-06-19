@@ -38,6 +38,10 @@ export class User {
   @arrayProp({ ref: 'room' })
   public rooms!: Ref<Room>[];
 
+  @Field()
+  @Property({ default: '#64FF8F' })
+  public color!: string;
+
   @Property({ required: true, unique: true })
   public email!: string;
 

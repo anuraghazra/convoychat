@@ -24,6 +24,7 @@ const typeDefs = gql`
       name
       username
       avatarUrl
+      color
     }
   }
 
@@ -39,6 +40,7 @@ const typeDefs = gql`
         name
         username
         avatarUrl
+        color
       }
     }
   }

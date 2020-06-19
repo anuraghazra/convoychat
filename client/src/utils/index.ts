@@ -28,7 +28,7 @@ const timeAgo = (time: string): string | number => {
   const MS_PER_YEAR = MS_PER_DAY * 365;
 
   let current: any = new Date();
-  let previous: any = new Date(Number(time));
+  let previous: any = new Date(time);
   let elapsed = current - previous
 
   if (elapsed < MS_PER_MINUTE) {

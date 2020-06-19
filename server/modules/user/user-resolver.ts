@@ -2,11 +2,12 @@ import "reflect-metadata";
 import { ObjectID } from 'mongodb'
 import { Context } from "../context.type";
 import { ApolloError } from "apollo-server-express";
-import { Resolver, Query, Ctx, Arg, Authorized, Mutation } from 'type-graphql';
+import { Resolver, Query, Ctx, Arg, Authorized, Mutation, Args } from 'type-graphql';
 
 import Member from "../../entities/Member";
 import UserModel, { User } from "../../entities/User";
 import Me from "../../entities/Me";
+import { setColorArgs } from "./user.inputs";
 
 @Resolver(of => User)
 class UserResolver {
@@ -30,11 +31,30 @@ class UserResolver {
   @Authorized()
   @Query(() => User)
   async getUser(
-    @Arg("id", { nullable: false }) id?: ObjectID
+    @Arg("id", { nullable: false }) id: ObjectID
   ): Promise<User> {
     try {
       let user = await UserModel.findOne({ _id: id }).populate("rooms");
       if (!user) throw new ApolloError(`User not found with id ${id}`);
+      return user;
+    } catch (err) {
+      throw new ApolloError(err);
+    }
+  }
+
+  @Authorized()
+  @Mutation(returns => Member)
+  async setColor(
+    @Args() { color }: setColorArgs,
+    @Ctx() context: Context
+  ) {
+    try {
+      let user = await UserModel.findOneAndUpdate(
+        { _id: context.currentUser.id },
+        { color: color },
+        { new: true }
+      )
+      if (!user) throw new ApolloError(`User not found with id`);
       return user;
     } catch (err) {
       throw new ApolloError(err);
