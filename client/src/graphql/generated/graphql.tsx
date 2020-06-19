@@ -60,6 +60,7 @@ export type Me = {
   email: Scalars['String'];
   avatarUrl: Scalars['String'];
   rooms: Array<Room>;
+  color: Scalars['String'];
 };
 
 
@@ -82,6 +83,7 @@ export type Member = {
   username: Scalars['String'];
   avatarUrl: Scalars['String'];
   rooms: Array<Scalars['ID']>;
+  color: Scalars['String'];
 };
 
 export type Message = {
@@ -101,6 +103,7 @@ export type User = {
   name: Scalars['String'];
   username: Scalars['String'];
   rooms: Array<Room>;
+  color: Scalars['String'];
 };
 
 export type Messages = {
@@ -139,6 +142,7 @@ export type InvitationDetails = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  setColor: Member;
   logout: Scalars['Boolean'];
   sendMessage: Message;
   deleteMessage: Message;
@@ -150,6 +154,11 @@ export type Mutation = {
   createInvitationLink: InvitationLinkResult;
   inviteMembers: Array<Invitation>;
   acceptInvitation: Scalars['Boolean'];
+};
+
+
+export type MutationSetColorArgs = {
+  color: Scalars['String'];
 };
 
 
@@ -330,7 +339,7 @@ export type GetRoomQuery = (
       & Pick<Message, 'id' | 'roomId' | 'content' | 'createdAt' | 'mentions'>
       & { author: (
         { __typename?: 'Member' }
-        & Pick<Member, 'id' | 'name' | 'username' | 'avatarUrl'>
+        & Pick<Member, 'id' | 'name' | 'username' | 'avatarUrl' | 'color'>
       ) }
     )> }
   ) }
@@ -390,7 +399,7 @@ export type SubscriptionMessagePartsFragment = (
   & Pick<Message, 'id' | 'content' | 'roomId' | 'createdAt' | 'mentions'>
   & { author: (
     { __typename?: 'Member' }
-    & Pick<Member, 'id' | 'name' | 'username' | 'avatarUrl'>
+    & Pick<Member, 'id' | 'name' | 'username' | 'avatarUrl' | 'color'>
   ) }
 );
 
@@ -407,7 +416,7 @@ export type SendMessageMutation = (
     & Pick<Message, 'id' | 'roomId' | 'content' | 'createdAt' | 'mentions'>
     & { author: (
       { __typename?: 'Member' }
-      & Pick<Member, 'id' | 'name' | 'username' | 'avatarUrl'>
+      & Pick<Member, 'id' | 'name' | 'username' | 'avatarUrl' | 'color'>
     ) }
   ) }
 );
@@ -494,7 +503,7 @@ export type CurrentUserQuery = (
   { __typename?: 'Query' }
   & { me: (
     { __typename?: 'Me' }
-    & Pick<Me, 'id' | 'name' | 'email' | 'username' | 'avatarUrl'>
+    & Pick<Me, 'id' | 'name' | 'email' | 'username' | 'avatarUrl' | 'color'>
     & { rooms: Array<(
       { __typename?: 'Room' }
       & Pick<Room, 'id' | 'name' | 'owner'>
@@ -509,7 +518,7 @@ export type ListUsersQuery = (
   { __typename?: 'Query' }
   & { users: Array<(
     { __typename?: 'Member' }
-    & Pick<Member, 'id' | 'name' | 'avatarUrl' | 'username' | 'rooms' | 'createdAt'>
+    & Pick<Member, 'id' | 'name' | 'avatarUrl' | 'username' | 'color' | 'rooms' | 'createdAt'>
   )> }
 );
 
@@ -601,6 +610,7 @@ export const SubscriptionMessagePartsFragmentDoc = gql`
     name
     username
     avatarUrl
+    color
   }
 }
     `;
@@ -785,6 +795,7 @@ export const GetRoomDocument = gql`
         name
         username
         avatarUrl
+        color
       }
     }
   }
@@ -934,6 +945,7 @@ export const SendMessageDocument = gql`
       name
       username
       avatarUrl
+      color
     }
   }
 }
@@ -1124,6 +1136,7 @@ export const CurrentUserDocument = gql`
     email
     username
     avatarUrl
+    color
     rooms {
       id
       name
@@ -1164,6 +1177,7 @@ export const ListUsersDocument = gql`
     name
     avatarUrl
     username
+    color
     rooms
     createdAt
   }

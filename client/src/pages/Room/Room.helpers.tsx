@@ -22,8 +22,9 @@ const sendMessageOptimisticResponse = (
       roomId,
       content: content,
       mentions: [],
-      createdAt: `${Date.now()}`,
+      createdAt: Date.now(),
       author: {
+        color: user.color,
         id: user.id,
         name: user.name,
         username: user.username,

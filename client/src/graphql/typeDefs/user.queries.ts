@@ -21,6 +21,7 @@ export default gql`
       email
       username
       avatarUrl
+      color
       rooms {
         id
         name
@@ -35,6 +36,7 @@ export default gql`
       name
       avatarUrl
       username
+      color
       rooms
       createdAt
     }
