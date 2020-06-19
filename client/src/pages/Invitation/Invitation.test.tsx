@@ -73,6 +73,7 @@ const mocks = [
     result: {
       data: {
         me: {
+          color: "#ffffff",
           id: "5ed7bf9ea4df011004898efb",
           name: "Test user",
           email: "testuser@gmail.com",
