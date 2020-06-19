@@ -3,7 +3,7 @@ import { MdAdd } from "react-icons/md";
 import { useHistory } from "react-router-dom";
 import { useListCurrentUserRoomsQuery } from "graphql/generated/graphql";
 
-import { Flex, Spacer, Loading, IconButton } from "@convoy-ui";
+import { Flex, Spacer, Loading, IconButton, Tooltip } from "@convoy-ui";
 import { useModalContext } from "contexts/ModalContext";
 
 import RoomLink from "components/RoomLink";
@@ -32,10 +32,12 @@ const RoomsList: React.FC = () => {
 
       <Flex align="center" justify="space-between">
         <h3>Your Rooms</h3>
-        <IconButton
-          onClick={() => dispatch({ type: "OPEN", modal: "CreateRoom" })}
-          icon={<MdAdd />}
-        />
+        <Tooltip placement="top" message={<span>Create new room</span>}>
+          <IconButton
+            onClick={() => dispatch({ type: "OPEN", modal: "CreateRoom" })}
+            icon={<MdAdd />}
+          />
+        </Tooltip>
       </Flex>
       <Spacer gap="large" />
 

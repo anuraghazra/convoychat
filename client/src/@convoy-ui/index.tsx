@@ -7,3 +7,4 @@ export * from "./Input";
 export * from "./Loading";
 export * from "./Spacer";
 export * from "./Toast";
+export * from "./Tooltip";
