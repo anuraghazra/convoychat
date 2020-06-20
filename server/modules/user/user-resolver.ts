@@ -7,7 +7,7 @@ import { Resolver, Query, Ctx, Arg, Authorized, Mutation, Args } from 'type-grap
 import Member from "../../entities/Member";
 import UserModel, { User } from "../../entities/User";
 import Me from "../../entities/Me";
-import { setColorArgs } from "./user.inputs";
+import { setColorArgs, setUserLinksArgs } from "./user.inputs";
 
 @Resolver(of => User)
 class UserResolver {
@@ -55,6 +55,31 @@ class UserResolver {
         { new: true }
       )
       if (!user) throw new ApolloError(`User not found with id`);
+      return user;
+    } catch (err) {
+      throw new ApolloError(err);
+    }
+  }
+
+  @Authorized()
+  @Mutation(returns => Member)
+  async setUserLinks(
+    @Args() links: setUserLinksArgs,
+    @Ctx() context: Context
+  ) {
+    try {
+      let foundUser = await UserModel.findOne({ _id: context.currentUser.id })
+      if (!foundUser) throw new ApolloError(`User not found with id`);
+      
+      const linksToBeUpdated = { ...foundUser.toObject().links, ...links }
+
+      let user = await UserModel.findOneAndUpdate(
+        { _id: context.currentUser.id },
+        {
+          $set: { links: linksToBeUpdated }
+        },
+        { new: true }
+      )
       return user;
     } catch (err) {
       throw new ApolloError(err);

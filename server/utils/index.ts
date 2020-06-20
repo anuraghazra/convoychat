@@ -21,8 +21,15 @@ const getColorLuminance = (color: string) => {
 
 const isColorTooDark = (color: string) => getColorLuminance(color) < 40;
 
+const youtubeChannelRegEx = /(https?:\/\/)?(www\.)?youtu((\.be)|(be\..{2,5}))\/((user)|(channel))\/?([a-zA-Z0-9\-_]{1,})/
+const githubUsernameRegex = /https\:\/\/github\.com\/[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/;
+const twitterUsernameRegex = /https\:\/\/twitter\.com\/[a-zA-Z0-9_]{1,15}$/;
+
 export {
   generateUsername,
   getColorLuminance,
   isColorTooDark,
+  youtubeChannelRegEx,
+  githubUsernameRegex,
+  twitterUsernameRegex,
 };
