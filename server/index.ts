@@ -78,7 +78,7 @@ async function bootstrap() {
       MessageSubscriptions,
       NotificationsSubscriptions
     ],
-    emitSchemaFile: path.resolve(__dirname, "./graphql/schema.gql"),
+    emitSchemaFile: "./server/graphql/schema.gql",
     globalMiddlewares: [TypegooseMiddleware],
     scalarsMap: [{ type: ObjectID, scalar: ObjectIdScalar }],
     authChecker: useAuth,
