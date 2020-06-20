@@ -2,6 +2,7 @@ import UserModel from "../../entities/User";
 import { gCall } from "../../test-utils/gcall";
 import { fakeUser, fakeUser2 } from "../../test-utils/fake-user";
 import * as dbHelper from '../../test-utils/db-helpers';
+jest.setTimeout(500000);
 
 const queries = {
   me: `
@@ -9,6 +10,9 @@ const queries = {
       me {
         name
         username
+        links {
+          github
+        }
       }
     }
   `,
@@ -17,6 +21,9 @@ const queries = {
       listUsers {
         name
         username
+        links {
+          github
+        }
       }
     }
   `,
@@ -25,6 +32,9 @@ const queries = {
       getUser(id: $id) {
         name
         username
+        links {
+          github
+        }
         rooms {
           name
         }
@@ -38,13 +48,29 @@ const queries = {
         color
       }
     }
+  `,
+  setUserLinks: `
+    mutation setUserLinks($github: String, $twitter: String, $website: String, $youtube: String) {
+      setUserLinks(github: $github, twitter: $twitter, website: $website, youtube: $youtube) {
+        links {
+          github
+          youtube
+          twitter
+          website
+        }
+      }
+    }
   `
 }
 
-afterEach(async () => await dbHelper.clearDatabase());
-afterAll(async () => await dbHelper.closeDatabase());
-beforeAll(async () => await dbHelper.connect())
-beforeEach(async () => await dbHelper.populateUsers());
+afterAll(async () => {
+  await dbHelper.clearDatabase()
+  await dbHelper.closeDatabase();
+});
+beforeAll(async () => {
+  await dbHelper.connect()
+  await dbHelper.populateUsers()
+})
 
 describe("UserResolver", () => {
   it("Me", async () => {
@@ -55,6 +81,7 @@ describe("UserResolver", () => {
         me: {
           name: fakeUser.name,
           username: fakeUser.username,
+          links: null
         }
       }
     })
@@ -66,7 +93,13 @@ describe("UserResolver", () => {
     expect(users).toMatchObject({
       data: {
         listUsers: [
-          { name: fakeUser2.name, username: fakeUser2.username }
+          {
+            name: fakeUser2.name,
+            username: fakeUser2.username,
+            links: {
+              github: null
+            }
+          }
         ]
       }
     })
@@ -84,7 +117,10 @@ describe("UserResolver", () => {
         getUser: {
           name: fakeUser.name,
           username: fakeUser.username,
-          rooms: []
+          rooms: [],
+          links: {
+            github: null
+          }
         }
       }
     })
@@ -110,6 +146,34 @@ describe("UserResolver", () => {
         setColor: {
           name: fakeUser.name,
           color: OK_COLOR,
+        }
+      }
+    })
+  })
+
+  it("should change user's links", async () => {
+    let user = await gCall({
+      source: queries.setUserLinks,
+      variableValues: { github: 'anuraghazra', website: 'invalid' }
+    });
+
+    expect(user.errors[0].message).toBe('Argument Validation Error')
+
+    const variableLinks = {
+      github: 'https://github.com/anuraghazra',
+      website: 'https://anuraghazra.github.io',
+      twitter: 'https://twitter.com/anuraghazru',
+      youtube: 'https://www.youtube.com/channel/UC-lUcTS8xLRRMZe4cv3oM3g',
+    }
+    user = await gCall({
+      source: queries.setUserLinks,
+      variableValues: variableLinks
+    });
+
+    expect(user).toMatchObject({
+      data: {
+        setUserLinks: {
+          links: variableLinks
         }
       }
     })
