@@ -18,9 +18,6 @@ export class Room {
   _id: ObjectID;
 
   @Field()
-  createdAt: Date
-
-  @Field()
   @prop({ required: true })
   public name!: String;
 

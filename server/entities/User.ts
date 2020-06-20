@@ -41,6 +41,7 @@ export class User {
   @Field(type => ObjectID, { name: "id" })
   _id: ObjectID;
 
+  @Field()
   updatedAt!: Date;
 
   @Field()
@@ -50,7 +51,7 @@ export class User {
   @Property({ required: true })
   public name!: string;
 
-  @Field()
+  @Field({ nullable: true })
   @Property({ required: true, trim: true, minlength: 2, maxlength: 100, unique: true })
   public username!: string;
 
@@ -62,7 +63,7 @@ export class User {
   @Property({ default: '#64FF8F' })
   public color!: string;
 
-  @Field(type => UserLinks, { nullable: true })
+  @Field(type => UserLinks)
   @Property({ type: UserLinks, default: {} })
   public links!: UserLinks;
 

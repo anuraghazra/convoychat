@@ -11,7 +11,7 @@ export class Me {
   @Field({ name: "id" })
   _id: ObjectID;
 
-  @Field()
+  @Field({ nullable: true })
   public name!: string;
 
   @Field()

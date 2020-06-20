@@ -57,10 +57,6 @@ export class Invitation {
 
   @prop({ required: true })
   public token!: string;
-
-  @Field()
-  @prop({ default: false })
-  public isPublic?: boolean;
 }
 const InvitationModel = getModelForClass(Invitation);
 

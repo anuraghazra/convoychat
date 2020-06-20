@@ -12,7 +12,6 @@ type Invitation {
   createdAt: DateTime!
   id: ID!
   invitedBy: ID!
-  isPublic: Boolean!
   roomId: ID!
   userId: ID!
 }
@@ -40,7 +39,7 @@ type Me {
   email: String!
   id: ObjectId!
   links: UserLinks
-  name: String!
+  name: String
   rooms: [Room!]!
   username: String!
 }
@@ -119,7 +118,6 @@ type Query {
 }
 
 type Room {
-  createdAt: DateTime!
   id: ObjectId!
   members: [Member!]!
   messages: [Message!]!
@@ -138,10 +136,11 @@ type User {
   color: String!
   createdAt: DateTime!
   id: ObjectId!
-  links: UserLinks
+  links: UserLinks!
   name: String!
   rooms: [Room!]!
-  username: String!
+  updatedAt: DateTime!
+  username: String
 }
 
 type UserLinks {
