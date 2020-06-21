@@ -84,7 +84,7 @@ type Mutation {
   removeMemberFromRoom(memberId: ObjectId!, roomId: ObjectId!): Member
   sendMessage(content: String!, roomId: ObjectId!): Message!
   setColor(color: String!): Member!
-  setUserLinks(github: String, twitter: String, website: String, youtube: String): Member!
+  setUserLinks(github: String, instagram: String, twitter: String, website: String): Member!
 }
 
 type Notification {
@@ -146,7 +146,7 @@ type User {
 
 type UserLinks {
   github: String
+  instagram: String
   twitter: String
   website: String
-  youtube: String
 }

@@ -9,7 +9,7 @@ import {
 } from "class-validator";
 import {
   isColorTooDark,
-  youtubeChannelRegEx,
+  instagramUsernameRegex,
   githubUsernameRegex,
   twitterUsernameRegex,
 } from '../../utils'
@@ -48,9 +48,9 @@ export class setUserLinksArgs {
   public twitter?: string
 
   @Field({ nullable: true })
-  @Matches(youtubeChannelRegEx, { message: "Invalid Youtube channel/user Link" })
+  @Matches(instagramUsernameRegex, { message: "Invalid Instagram Link" })
   @Length(5, 150)
-  public youtube?: string
+  public instagram?: string
 
   @Field({ nullable: true })
   @Length(5, 100)

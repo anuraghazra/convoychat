@@ -50,11 +50,11 @@ const queries = {
     }
   `,
   setUserLinks: `
-    mutation setUserLinks($github: String, $twitter: String, $website: String, $youtube: String) {
-      setUserLinks(github: $github, twitter: $twitter, website: $website, youtube: $youtube) {
+    mutation setUserLinks($github: String, $twitter: String, $website: String, $instagram: String) {
+      setUserLinks(github: $github, twitter: $twitter, website: $website, instagram: $instagram) {
         links {
           github
-          youtube
+          instagram
           twitter
           website
         }
@@ -163,7 +163,7 @@ describe("UserResolver", () => {
       github: 'https://github.com/anuraghazra',
       website: 'https://anuraghazra.github.io',
       twitter: 'https://twitter.com/anuraghazru',
-      youtube: 'https://www.youtube.com/channel/UC-lUcTS8xLRRMZe4cv3oM3g',
+      instagram: 'https://www.instagram.com/anurag_hazra/',
     }
     user = await gCall({
       source: queries.setUserLinks,
