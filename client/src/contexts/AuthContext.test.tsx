@@ -16,6 +16,7 @@ const mocks = [
     result: {
       data: {
         me: {
+          links: null,
           color: "#ffffff",
           id: "5ed7bf9ea4df011004898efb",
           name: "Test user",

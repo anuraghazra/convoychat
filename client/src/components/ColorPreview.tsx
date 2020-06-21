@@ -1,0 +1,86 @@
+import React from "react";
+import styled from "styled-components";
+import { ChromePicker, CirclePicker } from "react-color";
+import { FaPalette } from "react-icons/fa";
+
+import { Flex, Dropdown } from "@convoy-ui";
+
+const colors = [
+  "#EB4C5F",
+  "#4C9FEB",
+  "#4CEBA8",
+  "#B8EB4C",
+  "#F09CFE",
+  "#EB984C",
+  "#7F4CEB",
+  "#EB694C",
+  "#FF9D9D",
+  "#8AFFDC",
+];
+
+const StyledColorPreview = styled(Flex)`
+  .color-picker__block {
+    display: block;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    border-radius: ${p => p.theme.radius.small}px;
+    height: 100%;
+    padding: 15px;
+    flex: 1;
+  }
+
+  .dropdown__container {
+    flex: 1;
+  }
+  .message__item {
+    padding: 0;
+  }
+`;
+const ColorPreview: React.FC<{
+  color: string;
+  handleColorChange: (color: any) => void;
+  preview: React.ReactNode;
+}> = ({ color, handleColorChange, preview }) => {
+  return (
+    <StyledColorPreview
+      gap="huge"
+      align="center"
+      justify="space-between"
+      nowrap
+    >
+      <Flex
+        gap="xlarge"
+        align="center"
+        justify="space-between"
+        nowrap
+        style={{ flex: 1 }}
+      >
+        <Dropdown>
+          <Dropdown.Toggle>
+            <div
+              className="color-picker__block"
+              style={{ backgroundColor: color }}
+            >
+              <FaPalette />
+            </div>
+          </Dropdown.Toggle>
+          <Dropdown.Content>
+            <ChromePicker color={color} onChange={handleColorChange} />
+          </Dropdown.Content>
+        </Dropdown>
+        <CirclePicker
+          width={"150px"}
+          circleSize={20}
+          circleSpacing={10}
+          color={color}
+          colors={colors}
+          onChange={handleColorChange}
+        />
+      </Flex>
+      <div>{preview}</div>
+    </StyledColorPreview>
+  );
+};
+
+export default ColorPreview;

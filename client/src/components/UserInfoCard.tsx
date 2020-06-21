@@ -3,6 +3,7 @@ import styled, { css } from "styled-components";
 
 import { AiFillSetting } from "react-icons/ai";
 import { Flex, Avatar, Tooltip, IconButton } from "@convoy-ui";
+import { useModalContext } from "contexts/ModalContext";
 
 const StyledUserInfoCard = styled.section<{ isMember?: boolean }>`
   padding: 10px 0;
@@ -34,6 +35,8 @@ const UserInfoCard: React.FC<IUserInfoCard> = ({
   className,
   isMember,
 }) => {
+  const { dispatch } = useModalContext();
+
   return (
     <StyledUserInfoCard isMember={isMember} className={className}>
       <Flex
@@ -51,7 +54,10 @@ const UserInfoCard: React.FC<IUserInfoCard> = ({
 
         {!isMember && (
           <Tooltip placement="right" message={<span>Settings</span>}>
-            <IconButton icon={<AiFillSetting size={20} />} />
+            <IconButton
+              icon={<AiFillSetting size={20} />}
+              onClick={() => dispatch({ type: "OPEN", modal: "UserSettings" })}
+            />
           </Tooltip>
         )}
       </Flex>

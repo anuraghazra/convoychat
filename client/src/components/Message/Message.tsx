@@ -25,8 +25,8 @@ import useMessageInput from "components/MessageInput/useMessageInput";
 interface IMessage {
   id: string;
   content: string;
-  author: Member;
-  date: string;
+  author: Partial<Pick<Member, "avatarUrl" | "color" | "name">>;
+  date?: string;
   isAuthor?: boolean;
 }
 
@@ -155,6 +155,10 @@ const Message: React.FC<IMessage> = ({
       </Flex>
     </StyledMessage>
   );
+};
+
+Message.defaultProps = {
+  date: new Date().toString(),
 };
 
 export default Message;

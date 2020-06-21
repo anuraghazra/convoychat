@@ -88,7 +88,7 @@ export const Dropdown: React.FC<DropdownProps> & StaticComponents = ({
   ]);
 
   return (
-    <div {...props}>
+    <div className="dropdown__container" {...props}>
       <DropdownContext.Provider value={value}>
         <div ref={id} className={`dropdown`} style={{ position: "relative" }}>
           {children}
