@@ -1,32 +1,33 @@
 import React, { useContext, useReducer } from "react";
 
-type ModalTypes = "InviteMembers" | "CreateRoom";
-type ModalValues = "isInviteMembersModalOpen" | "isCreateRoomModalOpen";
-type AuthActions =
+enum ModalStateEnum {
+  CreateRoom = "isCreateRoomModalOpen",
+  InviteMembers = "isInviteMembersModalOpen",
+  UserSettings = "isUserSettingsModalOpen",
+}
+type ModalTypes = keyof typeof ModalStateEnum;
+type ModalValues = typeof ModalStateEnum[keyof typeof ModalStateEnum];
+
+type OptionalRecord<K extends keyof any, T> = {
+  [P in K]?: T;
+};
+interface IModalState extends OptionalRecord<ModalValues, boolean> {}
+
+type ModalActions =
   | { type: "CLOSE"; modal: ModalTypes }
   | { type: "OPEN"; modal: ModalTypes };
 
-interface IModalState {
-  isCreateRoomModalOpen?: boolean;
-  isInviteMembersModalOpen?: boolean;
-}
-
-const modalStateNameMap: Record<ModalTypes, ModalValues> = {
-  InviteMembers: "isInviteMembersModalOpen",
-  CreateRoom: "isCreateRoomModalOpen",
-};
-
-const modalReducer = (state: IModalState, action: AuthActions) => {
+const modalReducer = (state: IModalState, action: ModalActions) => {
   switch (action.type) {
     case "CLOSE":
       return {
         ...state,
-        [modalStateNameMap[action.modal]]: false,
+        [ModalStateEnum[action.modal]]: false,
       };
     case "OPEN":
       return {
         ...state,
-        [modalStateNameMap[action.modal]]: true,
+        [ModalStateEnum[action.modal]]: true,
       };
 
     default:
@@ -35,7 +36,7 @@ const modalReducer = (state: IModalState, action: AuthActions) => {
 };
 
 interface IModalContext {
-  dispatch: React.Dispatch<AuthActions>;
+  dispatch: React.Dispatch<ModalActions>;
   state: IModalState;
 }
 const ModalContext = React.createContext<IModalContext>({
