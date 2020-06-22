@@ -11,6 +11,7 @@ import { ModalProvider } from "contexts/ModalContext";
 import AuthRoute from "components/AuthRoute";
 import HorizontalShade from "components/HorizontalShade";
 import CreateRoom from "pages/Modals/CreateRoom";
+import UserSettings from "pages/Modals/UserSettings/UserSettings";
 
 function App() {
   // chrome address bar css height fix!
@@ -35,6 +36,7 @@ function App() {
           <HorizontalShade />
           <ModalProvider>
             <CreateRoom />
+            <UserSettings />
 
             <Switch>
               <Route path="/login" exact component={Login} />

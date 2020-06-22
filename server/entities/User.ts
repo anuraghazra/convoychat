@@ -22,7 +22,7 @@ export class UserLinks {
 
   @Field({ nullable: true })
   @Property({ minlength: 5, maxlength: 100 })
-  public youtube?: string
+  public instagram?: string
 
   @Field({ nullable: true })
   @Property({ minlength: 5, maxlength: 100 })

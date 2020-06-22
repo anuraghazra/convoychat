@@ -22,6 +22,12 @@ export default gql`
       username
       avatarUrl
       color
+      links {
+        github
+        twitter
+        instagram
+        website
+      }
       rooms {
         id
         name
@@ -39,6 +45,12 @@ export default gql`
       color
       rooms
       createdAt
+      links {
+        github
+        twitter
+        instagram
+        website
+      }
     }
   }
 
@@ -60,6 +72,53 @@ export default gql`
   mutation readNotification($id: ObjectId!) {
     readNotification(id: $id) {
       ...NotificationData
+    }
+  }
+
+  mutation setUserColor($color: String!) {
+    setColor(color: $color) {
+      id
+      color
+    }
+  }
+
+  mutation setUserLinks($github: String, $twitter: String, $instagram: String, $website: String) {
+    setUserLinks(github: $github, twitter: $twitter, instagram: $instagram, website: $website) {
+      id
+      links {
+        github
+        twitter
+        instagram
+        website
+      }
+    }
+  }
+
+
+  mutation setUserSettings(
+    $color: String!,
+    $github: String,
+    $twitter: String,
+    $instagram: String,
+    $website: String  
+  ) {
+    setColor(color: $color) {
+      id
+      color
+    }
+    setUserLinks(
+      github: $github, 
+      twitter: $twitter, 
+      instagram: $instagram, 
+      website: $website
+    ) {
+      id
+      links {
+        github
+        twitter
+        instagram
+        website
+      }
     }
   }
 

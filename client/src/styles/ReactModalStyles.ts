@@ -1,8 +1,14 @@
 import { css } from 'styled-components';
 
 const ReactModalStyles = css`
+  .user-settings__modal {
+    width: 600px !important;
+    @media (${p => p.theme.media.tablet}) {
+      width: 100% !important;
+    }
+  }
   .ModalContent {
-    top: 40%;
+    top: 50%;
     left: 50%;
     right: auto;
     bottom: auto;
@@ -10,6 +16,9 @@ const ReactModalStyles = css`
     transform: translate(-50%, -50%);
 
     width: 500px;
+    max-height: 100vh;
+    overflow-y: scroll;
+    overflow-x: hidden;
     position: absolute;
     border-radius: 5px;
     padding: 30px 30px;

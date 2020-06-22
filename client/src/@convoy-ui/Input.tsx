@@ -57,6 +57,10 @@ export const InputStyles = css`
   &::placeholder {
     color: ${p => p.theme.colors.gray};
   }
+
+  @media (${p => p.theme.media.tablet}) {
+    padding: 15px;
+  }
 `;
 
 const StyledInput = styled.input`
