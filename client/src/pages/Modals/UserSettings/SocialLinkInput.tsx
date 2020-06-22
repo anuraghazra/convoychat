@@ -16,6 +16,11 @@ const StyledSocialLinkInput = styled(Flex)`
     background-color: ${p => p.theme.colors.dark2};
     color: ${p => p.theme.colors.white};
     border: none;
+
+    @media (${p => p.theme.media.tablet}) {
+      margin-top: 15px;
+      padding: 15px;
+    }
   }
 
   form {
@@ -30,12 +35,19 @@ export const ICON_MAP: Record<ILinkTypes, any> = {
   instagram: FaInstagram,
   website: FaGlobe,
 };
-const SocialLinkInput: React.FC<{ handleSubmit: (e: any) => void }> = ({
-  handleSubmit,
-}) => {
-  const { register, errors, handleSubmit: onSubmit } = useForm<{
-    link: string;
-  }>();
+
+type onSubmitArgs = { type: string; value: string };
+interface ISocialLInkInput {
+  onSubmit: ({ type, value }: onSubmitArgs) => void;
+}
+const SocialLinkInput: React.FC<ISocialLInkInput> = ({ onSubmit }) => {
+  // prettier-ignore
+  const { 
+    errors,
+    register,
+    handleSubmit
+  } = useForm<{ link: string }>();
+
   const [currentType, setCurrentType] = useState<ILinkTypes>("github");
 
   // Build the regex
@@ -44,22 +56,23 @@ const SocialLinkInput: React.FC<{ handleSubmit: (e: any) => void }> = ({
       currentType === "website" ? "[^:/?#]*" : currentType
     })(?:\\:([0-9]+))?)([\\/]{0,1}[^?#]*)(\\?[^#]*|)(#.*|)$`
   );
+
   return (
     <StyledSocialLinkInput align="center" gap="medium" nowrap>
       <form
-        onSubmit={onSubmit(e => {
-          handleSubmit({ type: currentType, value: e.link });
+        onSubmit={handleSubmit(e => {
+          onSubmit({ type: currentType, value: e.link });
         })}
       >
         <Input
           name="link"
           errors={errors}
+          icon={ICON_MAP[currentType]}
+          placeholder={`Your ${currentType} link`}
           inputRef={register({
             required: true,
             pattern: { value: urlRegex, message: "Invalid URL" },
           })}
-          placeholder={`Your ${currentType} link`}
-          icon={ICON_MAP[currentType]}
           label={
             <>
               <span>Add social media links</span>
@@ -71,7 +84,9 @@ const SocialLinkInput: React.FC<{ handleSubmit: (e: any) => void }> = ({
 
       <select
         className="custom-select"
-        onChange={(e: any) => setCurrentType(e.target.value)}
+        onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+          setCurrentType(e.target.value as ILinkTypes)
+        }
       >
         <option value="github">Github</option>
         <option value="twitter">Twitter</option>

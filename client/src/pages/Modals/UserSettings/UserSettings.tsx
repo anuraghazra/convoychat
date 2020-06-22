@@ -1,8 +1,8 @@
 /// <reference types="styled-components/cssprop" />
 import React, { useState, useEffect } from "react";
-import styled, { css } from "styled-components/macro";
-import { FaTimes, FaSave } from "react-icons/fa";
 import Modal from "react-modal";
+import styled from "styled-components/macro";
+import { FaTimes, FaSave } from "react-icons/fa";
 
 import Message from "components/Message/Message";
 import { useModalContext } from "contexts/ModalContext";
@@ -16,6 +16,22 @@ import { Button, ButtonGroup, Spacer } from "@convoy-ui";
 import ColorPreview from "components/ColorPreview";
 import SocialLinkInput, { ILinkTypes } from "./SocialLinkInput";
 import SocialLink from "./SocialLink";
+
+const UserSettingsStyles = styled.div`
+  @media (${p => p.theme.media.tablet}) {
+    width: 100% !important;
+  }
+
+  .social-links__grid {
+    display: grid;
+    grid-gap: 10px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+
+    @media (${p => p.theme.media.tablet}) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+`;
 
 const UserSettings: React.FC = () => {
   const { user } = useAuthContext();
@@ -38,7 +54,7 @@ const UserSettings: React.FC = () => {
       console.log(err);
     },
     onCompleted() {
-      // closeModal();
+      closeModal();
     },
   });
 
@@ -67,8 +83,7 @@ const UserSettings: React.FC = () => {
       closeTimeoutMS={300}
       onRequestClose={closeModal}
       contentLabel="User Settings"
-      className="ModalContent"
-      style={{ content: { width: 600 } }}
+      className="ModalContent user-settings__modal"
       overlayClassName="ModalOverlay"
     >
       <h2>User Settings</h2>
@@ -77,7 +92,7 @@ const UserSettings: React.FC = () => {
       </small>
       <Spacer gap="xlarge" />
 
-      <div>
+      <UserSettingsStyles>
         <p style={{ fontSize: 14 }}>Add your personal color</p>
 
         <ColorPreview
@@ -94,16 +109,10 @@ const UserSettings: React.FC = () => {
         />
         <Spacer gap="huge" />
 
-        <SocialLinkInput handleSubmit={handleSocialLinks} />
+        <SocialLinkInput onSubmit={handleSocialLinks} />
 
         <Spacer gap="xlarge" />
-        <section
-          css={css`
-            display: grid;
-            grid-gap: 10px;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-          `}
-        >
+        <section className="social-links__grid">
           {Object.keys(socialLinks).map((type: ILinkTypes) => {
             return socialLinks[type] ? (
               <SocialLink
@@ -130,7 +139,7 @@ const UserSettings: React.FC = () => {
             Save Changes
           </Button>
         </ButtonGroup>
-      </div>
+      </UserSettingsStyles>
     </Modal>
   );
 };

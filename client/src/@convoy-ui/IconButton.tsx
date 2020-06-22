@@ -27,7 +27,11 @@ interface IIconButton {
   onClick?: (event: React.MouseEvent<HTMLDivElement>) => void;
 }
 export const IconButton: React.FC<IIconButton> = ({ icon, onClick }) => {
-  return <StyledIconButton onClick={onClick}>{icon}</StyledIconButton>;
+  return (
+    <StyledIconButton className="icon__button" onClick={onClick}>
+      {icon}
+    </StyledIconButton>
+  );
 };
 
 export default IconButton;

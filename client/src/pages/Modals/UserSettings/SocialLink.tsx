@@ -1,7 +1,11 @@
 import React from "react";
+import DOMPurify from "dompurify";
+import { sanitizeUrl } from "@braintree/sanitize-url";
 import styled, { CSSProp, css } from "styled-components";
 import { FaTimes } from "react-icons/fa";
-import { Flex } from "@convoy-ui";
+
+import { parseURL } from "utils";
+import { Flex, IconButton } from "@convoy-ui";
 import { ILinkTypes, ICON_MAP } from "./SocialLinkInput";
 
 const SocialLinkStyles: Record<ILinkTypes, CSSProp> = {
@@ -20,12 +24,14 @@ const SocialLinkStyles: Record<ILinkTypes, CSSProp> = {
     color: ${p => p.theme.colors.dark3};
   `,
 };
+
 const StyledSocialLink = styled(Flex)<{ type: ILinkTypes }>`
   padding: ${p => p.theme.space.medium}px;
   border-radius: ${p => p.theme.radius.small}px;
   height: 40px;
 
   a {
+    width: 100%;
     color: inherit;
     white-space: nowrap;
     overflow: hidden;
@@ -33,39 +39,40 @@ const StyledSocialLink = styled(Flex)<{ type: ILinkTypes }>`
     font-size: 14px;
   }
 
+  .sociallink__icon {
+    &,
+    & > svg {
+      width: 18px;
+      height: 18px;
+    }
+  }
+  .icon__button {
+    &:hover {
+      color: inherit;
+    }
+    margin-left: auto;
+  }
+
   ${p => SocialLinkStyles[p.type]}
 `;
 
-function getLocation(href: string) {
-  var match = href.match(
-    /^(https?\:)\/\/(([^:\/?#]*)(?:\:([0-9]+))?)([\/]{0,1}[^?#]*)(\?[^#]*|)(#.*|)$/
-  );
-  return (
-    match && {
-      href: href,
-      protocol: match[1],
-      host: match[2],
-      hostname: match[3],
-      port: match[4],
-      pathname: match[5],
-      search: match[6],
-      hash: match[7],
-    }
-  );
-}
-
-const SocialLink: React.FC<{
+interface ISocialLink {
   url: string;
   type: ILinkTypes;
   onDelete: () => void;
-}> = ({ url, type, onDelete }) => {
-  const username = getLocation(url);
+}
+const SocialLink: React.FC<ISocialLink> = ({ url, type, onDelete }) => {
+  let { pathname = url } = parseURL(url) || {};
+
+  if (type === "website") pathname = url;
 
   return (
     <StyledSocialLink align="center" gap="large" nowrap type={type}>
-      {ICON_MAP[type]()}
-      <a href={url}>{username?.pathname?.replace("/", "") || url}</a>
-      <FaTimes onClick={onDelete} />
+      <div className="sociallink__icon">{ICON_MAP[type]()}</div>
+      <a href={sanitizeUrl(url)}>
+        {DOMPurify.sanitize(pathname?.replace(/^\//, ""))}
+      </a>
+      <IconButton icon={<FaTimes />} onClick={onDelete} />
     </StyledSocialLink>
   );
 };

@@ -18,7 +18,7 @@ const colors = [
   "#8AFFDC",
 ];
 
-const StyledColorPreview = styled(Flex)`
+const StyledColorPreview = styled.div`
   .color-picker__block {
     display: block;
     align-items: center;
@@ -30,6 +30,14 @@ const StyledColorPreview = styled(Flex)`
     flex: 1;
   }
 
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: 20px;
+
+  @media (${p => p.theme.media.tablet}) {
+    grid-template-columns: 1fr;
+  }
+
   .dropdown__container {
     flex: 1;
   }
@@ -37,18 +45,19 @@ const StyledColorPreview = styled(Flex)`
     padding: 0;
   }
 `;
-const ColorPreview: React.FC<{
+
+interface IColorPreview {
   color: string;
-  handleColorChange: (color: any) => void;
   preview: React.ReactNode;
-}> = ({ color, handleColorChange, preview }) => {
+  handleColorChange: (color: any) => void;
+}
+const ColorPreview: React.FC<IColorPreview> = ({
+  color,
+  preview,
+  handleColorChange,
+}) => {
   return (
-    <StyledColorPreview
-      gap="huge"
-      align="center"
-      justify="space-between"
-      nowrap
-    >
+    <StyledColorPreview className="color-preview__grid">
       <Flex
         gap="xlarge"
         align="center"
