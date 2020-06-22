@@ -1,2 +1,9 @@
 branch: "master"
 schema: "server/graphql/schema.gql"
+
+notifications:
+  discord: "https://discord.com/api/webhooks/724606396972400700/Jx6-4bD1a5xoh0zSbpi6DLttSeSF-qqOqkf4P3J7S0N4M6vxAmslAQEvyREM9Un9xDIz"
+
+others:
+  diff:
+    failOnBreaking: false
