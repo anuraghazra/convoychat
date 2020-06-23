@@ -43,8 +43,8 @@ const MessageList = React.forwardRef<HTMLElement, IMessageList>(
               key={message.id}
               date={message.createdAt}
               content={message.content}
-              author={message.author as Member}
-              isAuthor={message.author.id === user.id}
+              author={message?.author as Member}
+              isAuthor={message?.author?.id === user.id}
             />
           );
         })}
