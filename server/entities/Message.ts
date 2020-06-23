@@ -35,7 +35,7 @@ export class Message {
   @prop({ ref: 'room', required: true })
   public roomId!: Ref<Room>
 
-  @Field(type => Member)
+  @Field(type => Member, { nullable: true })
   @prop({ ref: 'user', required: true })
   public author!: Ref<User>
 

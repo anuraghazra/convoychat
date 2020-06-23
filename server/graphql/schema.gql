@@ -57,7 +57,7 @@ type Member {
 }
 
 type Message {
-  author: Member!
+  author: Member
   content: String!
   createdAt: DateTime
   id: ID!
@@ -138,6 +138,7 @@ type User {
   color: String!
   createdAt: DateTime!
   id: ObjectId!
+  isBot: Boolean
   links: UserLinks
   name: String!
   rooms: [Room!]!

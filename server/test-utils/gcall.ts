@@ -2,8 +2,7 @@ import { graphql, GraphQLSchema } from "graphql";
 import { Maybe } from "graphql/jsutils/Maybe";
 import { createSchema } from "../modules/create-schema";
 import { fakeUser } from "./fake-user";
-import { User } from "../entities/User";
-import { PubSub } from "apollo-server-express";
+import { pubsub } from "../index";
 
 interface Options {
   source: string;
@@ -41,7 +40,7 @@ export const createFakeContext = (currentUser?: any) => {
       user: user
     },
     res: {} as any,
-    pubsub: new PubSub(),
+    pubsub: pubsub,
   }
 }
 

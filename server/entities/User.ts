@@ -3,10 +3,12 @@ import { Room } from './Room';
 import { ObjectID } from 'mongodb'
 import { Field, ObjectType } from 'type-graphql';
 import { prop as Property, Ref, arrayProp, getModelForClass, modelOptions } from '@typegoose/typegoose';
+import { v4 } from 'uuid';
 
 enum Providers {
   GOOGLE = 'google',
   GITHUB = 'github',
+  CONVOYBOT = 'convoybot'
 }
 
 @ObjectType()
@@ -66,14 +68,18 @@ export class User {
   @Property({ type: UserLinks, default: {} })
   public links!: UserLinks;
 
+  @Field({ nullable: true })
+  @Property({ default: false })
+  public isBot!: boolean;
+
   @Property({ required: true, unique: true })
   public email!: string;
 
   @Property({ enum: Providers })
   public provider!: string;
 
-  @Property({ required: true, unique: true })
-  public socialId!: string;
+  @Property({ unique: true, default: v4 })
+  public socialId?: string;
 
   @Property({ required: true })
   public avatarUrl!: string;

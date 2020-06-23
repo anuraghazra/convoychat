@@ -22,6 +22,7 @@ import { PubSub, ApolloServer, ApolloError } from "apollo-server-express";
 import { createRateLimitDirective } from "graphql-rate-limit";
 
 import authRoute from "./routes/auth";
+import githubWebhook from "./webhooks/github-hook";
 import useAuth from "./utils/auth-checker";
 
 import { ObjectID } from "mongodb";
@@ -41,7 +42,7 @@ const rateLimitDirective = createRateLimitDirective({
   identifyContext: ctx => ctx.id,
 });
 
-const pubsub = new PubSub();
+export const pubsub = new PubSub();
 const app = express();
 app.use(cookieParser());
 app.use(
@@ -64,8 +65,9 @@ app.use(sessionMiddleware);
 app.use(passportMiddleware);
 app.use(passportSessionMiddleware);
 
-
+app.use(express.json({ limit: '10mb' }))
 app.use("/auth", authRoute);
+app.use("/hooks", githubWebhook);
 
 async function bootstrap() {
   const schema = await buildSchema({
@@ -155,7 +157,7 @@ async function bootstrap() {
     });
   }
 
-  httpServer.listen({ port: 4000 }, () => {
+  httpServer.listen({ port: process.env.PORT || 4000 }, () => {
     mongoose.connect(
       (process.env.DB_URL as string),
       { useUnifiedTopology: true, useNewUrlParser: true },
@@ -164,7 +166,7 @@ async function bootstrap() {
         console.log("Connected to Database");
       }
     );
-    console.log(`http://localhost:4000`);
+    console.log(`http://localhost:${process.env.PORT}`);
   });
 }
 
