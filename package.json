@@ -12,9 +12,11 @@
     "test:server": "jest --runInBand --detectOpenHandles",
     "test:client": "cd client && npm run test",
     "develop": "concurrently \"npm run dev:tsc\" \"npm run dev:server\" \"npm run dev:client\"",
-    "start": "tsc && node dist/server/index",
+    "start": "npm run prod:server",
     "codegen": "cd client && npm run codegen",
-    "prettier": "prettier --write **/*.{ts,js,css,html}"
+    "prettier": "prettier --write **/*.{ts,js,css,html}",
+    "heroku-prebuild": "concurrently \"npm run prod:tsc\" \"cd client && npm install\"",
+    "heroku-postbuild": "cd client && npm run build"
   },
   "author": "Anurag Hazra",
   "license": "MIT",
@@ -71,5 +73,8 @@
     "ts-node": "^8.10.2",
     "ts-node-dev": "^1.0.0-pre.48",
     "typescript": "^3.9.5"
+  },
+  "engines": {
+    "node": "12.x"
   }
 }
