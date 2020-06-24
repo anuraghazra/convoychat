@@ -51,6 +51,10 @@ app.use(helmet()); // security headers
 app.use(mongoSanitize()); // sanitization against NoSQL Injection Attacks
 app.use(xss()); // sanitize data
 
+if (process.env.NODE_ENV === 'production') {
+  app.set('trust proxy', 1)
+}
+
 const sessionMiddleware = cookieSession({
   secure: process.env.NODE_ENV === "production" ? true : false,
   name: "session",
