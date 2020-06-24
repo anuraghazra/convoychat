@@ -1,7 +1,6 @@
 import passport from "passport";
 import mongoose from "mongoose";
 import Auth0Strategy from "passport-auth0";
-import MockStrategy from "passport-mock-strategy";
 import UserModel, { User } from "./entities/User";
 import { generateUsername } from "./utils";
 import UpsertUser from './utils/upsert-user'
@@ -50,6 +49,8 @@ const strategy = new Auth0Strategy(
 
 // mocking the authentication for development purposes
 if (process.env.NODE_ENV === "development") {
+  const MockStrategy = require("passport-mock-strategy")
+
   passport.use(
     new MockStrategy(
       { name: "mock", user: ({ emails: [{ value: process.env.MOCK_EMAIL, type: 'gmail' }] } as any) },
