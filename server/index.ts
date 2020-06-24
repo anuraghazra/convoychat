@@ -145,7 +145,7 @@ async function bootstrap() {
   app.use("/", expressStaticGzip("client/build", {}));
   if (process.env.NODE_ENV === "production") {
     app.get("/*", function (req, res) {
-      res.sendFile(path.join(__dirname, "../client/build/index.html"), function (
+      res.sendFile(path.join(__dirname, "../../client/build/index.html"), function (
         err
       ) {
         if (err) {
