@@ -155,7 +155,8 @@ async function bootstrap() {
     });
   }
 
-  httpServer.listen({ port: 4000 }, () => {
+  const port = process.env.PORT || 4000;
+  httpServer.listen({ port: port }, () => {
     mongoose.connect(
       (process.env.DB_URL as string),
       { useUnifiedTopology: true, useNewUrlParser: true },
@@ -164,7 +165,7 @@ async function bootstrap() {
         console.log("Connected to Database");
       }
     );
-    console.log(`http://localhost:4000`);
+    console.log(`http://localhost:${port}`);
   });
 }
 
