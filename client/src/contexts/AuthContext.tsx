@@ -79,8 +79,9 @@ const AuthProvider: React.FC = ({ children }) => {
       dispatch({ type: "AUTH_SUCCESS", payload: data.me });
       // if we are in login screen redirect to dashboard
       // else redirect to the path we were on
-      let pathName = history.location.pathname;
-      history.push(pathName === "/login" ? "/" : pathName);
+      const pathName = history.location.pathname;
+      const search = history.location.search;
+      history.push(pathName === "/login" ? "/" : pathName + search);
     },
     onError() {
       toast.error("Authentication Error");
