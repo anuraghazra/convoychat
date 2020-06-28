@@ -20,25 +20,44 @@ import MessageModel, { Message } from "../../entities/Message";
 
 import CONSTANTS from "../../constants";
 import { Messages } from "./message-types";
+import { b64decode, b64encode } from '../../utils';
 import parseMentions from "../../utils/mention-parser";
 import sendNotification from "../../utils/sendNotification";
 import { NOTIFICATION_TYPE } from "../../entities/Notification";
 import { sendMessageArgs, editMessageArgs, getMessagesArgs } from "./message-inputs";
 
-
 @Resolver(of => Message)
 class MessageResolver {
   @Authorized()
   @Query(() => Messages)
-  async getMessages(@Args() { limit, offset, roomId }: getMessagesArgs) {
-    let messages = await MessageModel.find({ roomId: roomId })
-      .sort({ createdAt: -1 })
-      .populate("author");
+  async getMessages(@Args() { limit, after, before, roomId }: getMessagesArgs) {
+
+    const afterQuery = after && { $gt: new ObjectID(b64decode(after)) }
+    const beforeQuery = before && { $lt: new ObjectID(b64decode(before)) }
+    const criteria = (afterQuery || beforeQuery) ? {
+      _id: { ...afterQuery, ...beforeQuery }
+    } : {};
+
+    let messages = await MessageModel.find({ roomId: roomId, ...criteria })
+      .limit(limit + 1)
+      .sort({ "createdAt": afterQuery ? 0 : -1 })
+      .populate("author")
+      .lean();
+
+    const hasNext = messages.length > limit - 1;
+    if (hasNext) {
+      messages = messages.slice(0, messages.length - 1);
+    }
+    const edges = messages.map(edge => ({
+      cursor: b64encode(edge._id.toHexString()),
+      node: edge,
+    }));
 
     return {
-      totalDocs: messages.length,
-      totalPages: Math.floor(messages.length / limit),
-      messages: messages.slice(offset, limit + offset).reverse(),
+      pageInfo: {
+        hasNext: hasNext,
+      },
+      edges: edges.reverse(),
     };
   }
 
