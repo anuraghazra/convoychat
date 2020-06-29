@@ -85,6 +85,7 @@ type Mutation {
   sendMessage(content: String!, roomId: ObjectId!): Message!
   setColor(color: String!): Member!
   setUserLinks(github: String, instagram: String, twitter: String, website: String): Member!
+  uploadImage(file: Upload!): UploadImageOutput!
 }
 
 type Notification {
@@ -132,6 +133,14 @@ type Subscription {
   onNewMessage(roomId: ObjectId!): Message!
   onNewNotification: Notification!
   onUpdateMessage(roomId: ObjectId!): Message!
+}
+
+"""The `Upload` scalar type represents a file upload."""
+scalar Upload
+
+type UploadImageOutput {
+  public_id: String!
+  url: String!
 }
 
 type User {
