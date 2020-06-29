@@ -52,7 +52,7 @@ app.use(mongoSanitize()); // sanitization against NoSQL Injection Attacks
 app.use(xss()); // sanitize data
 
 const sessionMiddleware = cookieSession({
-  secure: process.env.NODE_ENV === "production" ? true : false,
+  secure: process.env.NODE_ENV === "production",
   name: "session",
   keys: [(process.env.SESSION_SECRECT as any)],
   maxAge: 24 * 60 * 60 * 1000, // session will expire after 24 hours
