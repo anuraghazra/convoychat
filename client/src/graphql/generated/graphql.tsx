@@ -15,42 +15,35 @@ export type Scalars = {
   DateTime: any;
   /** The `JSONObject` scalar type represents JSON objects as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf). */
   JSONObject: any;
-};
-
-export type Query = {
-  __typename?: 'Query';
-  me: Me;
-  listUsers: Array<Member>;
-  getUser: User;
-  getMessages: Messages;
-  listRooms: Array<Room>;
-  listCurrentUserRooms: Array<Room>;
-  getRoom: Room;
-  getNotifications: Array<Notification>;
-  getInvitationInfo: InvitationDetails;
+  /** The `Upload` scalar type represents a file upload. */
+  Upload: any;
 };
 
 
-export type QueryGetUserArgs = {
-  id: Scalars['ObjectId'];
+export type Invitation = {
+  __typename?: 'Invitation';
+  id: Scalars['ID'];
+  createdAt: Scalars['DateTime'];
+  invitedBy: Scalars['ID'];
+  userId: Scalars['ID'];
+  roomId: Scalars['ID'];
+  isPublic: Scalars['Boolean'];
 };
 
-
-export type QueryGetMessagesArgs = {
-  roomId: Scalars['ObjectId'];
-  limit: Scalars['Int'];
-  offset: Scalars['Int'];
+export type InvitationDetails = {
+  __typename?: 'InvitationDetails';
+  id: Scalars['ID'];
+  room?: Maybe<Room>;
+  invitedBy: Member;
+  isPublic: Scalars['Boolean'];
+  createdAt: Scalars['DateTime'];
 };
 
-
-export type QueryGetRoomArgs = {
-  id: Scalars['ObjectId'];
+export type InvitationLinkResult = {
+  __typename?: 'InvitationLinkResult';
+  link: Scalars['String'];
 };
 
-
-export type QueryGetInvitationInfoArgs = {
-  token: Scalars['String'];
-};
 
 export type Me = {
   __typename?: 'Me';
@@ -64,18 +57,6 @@ export type Me = {
   links?: Maybe<UserLinks>;
 };
 
-
-export type Room = {
-  __typename?: 'Room';
-  id: Scalars['ObjectId'];
-  createdAt: Scalars['DateTime'];
-  name: Scalars['String'];
-  members: Array<Member>;
-  messages: Array<Message>;
-  owner: Scalars['ObjectId'];
-};
-
-
 export type Member = {
   __typename?: 'Member';
   id: Scalars['ID'];
@@ -88,14 +69,6 @@ export type Member = {
   color: Scalars['String'];
 };
 
-export type UserLinks = {
-  __typename?: 'UserLinks';
-  github?: Maybe<Scalars['String']>;
-  twitter?: Maybe<Scalars['String']>;
-  instagram?: Maybe<Scalars['String']>;
-  website?: Maybe<Scalars['String']>;
-};
-
 export type Message = {
   __typename?: 'Message';
   id: Scalars['ID'];
@@ -106,17 +79,6 @@ export type Message = {
   mentions: Array<Scalars['ID']>;
 };
 
-export type User = {
-  __typename?: 'User';
-  id: Scalars['ObjectId'];
-  createdAt: Scalars['DateTime'];
-  name: Scalars['String'];
-  username: Scalars['String'];
-  rooms: Array<Room>;
-  color: Scalars['String'];
-  links?: Maybe<UserLinks>;
-};
-
 export type Messages = {
   __typename?: 'Messages';
   totalDocs?: Maybe<Scalars['Int']>;
@@ -124,48 +86,22 @@ export type Messages = {
   messages: Array<Message>;
 };
 
-export type Notification = {
-  __typename?: 'Notification';
-  id: Scalars['ID'];
-  createdAt: Scalars['DateTime'];
-  sender: Member;
-  receiver: Scalars['ID'];
-  seen: Scalars['Boolean'];
-  type: Notification_Type;
-  payload: Scalars['JSONObject'];
-};
-
-/** Notification types enums */
-export enum Notification_Type {
-  Invitation = 'INVITATION',
-  Mention = 'MENTION'
-}
-
-
-export type InvitationDetails = {
-  __typename?: 'InvitationDetails';
-  id: Scalars['ID'];
-  room?: Maybe<Room>;
-  invitedBy: Member;
-  isPublic: Scalars['Boolean'];
-  createdAt: Scalars['DateTime'];
-};
-
 export type Mutation = {
   __typename?: 'Mutation';
   setColor: Member;
   setUserLinks: Member;
   logout: Scalars['Boolean'];
-  sendMessage: Message;
-  deleteMessage: Message;
-  editMessage: Message;
   createRoom: Room;
   deleteRoom?: Maybe<Room>;
   removeMemberFromRoom?: Maybe<Member>;
-  readNotification: Notification;
+  uploadImage: UploadImageOutput;
+  sendMessage: Message;
+  deleteMessage: Message;
+  editMessage: Message;
   createInvitationLink: InvitationLinkResult;
   inviteMembers: Array<Invitation>;
   acceptInvitation: Scalars['Boolean'];
+  readNotification: Notification;
 };
 
 
@@ -179,6 +115,27 @@ export type MutationSetUserLinksArgs = {
   twitter?: Maybe<Scalars['String']>;
   instagram?: Maybe<Scalars['String']>;
   website?: Maybe<Scalars['String']>;
+};
+
+
+export type MutationCreateRoomArgs = {
+  name: Scalars['String'];
+};
+
+
+export type MutationDeleteRoomArgs = {
+  roomId: Scalars['ObjectId'];
+};
+
+
+export type MutationRemoveMemberFromRoomArgs = {
+  roomId: Scalars['ObjectId'];
+  memberId: Scalars['ObjectId'];
+};
+
+
+export type MutationUploadImageArgs = {
+  file: Scalars['Upload'];
 };
 
 
@@ -199,27 +156,6 @@ export type MutationEditMessageArgs = {
 };
 
 
-export type MutationCreateRoomArgs = {
-  name: Scalars['String'];
-};
-
-
-export type MutationDeleteRoomArgs = {
-  roomId: Scalars['ObjectId'];
-};
-
-
-export type MutationRemoveMemberFromRoomArgs = {
-  roomId: Scalars['ObjectId'];
-  memberId: Scalars['ObjectId'];
-};
-
-
-export type MutationReadNotificationArgs = {
-  id: Scalars['ObjectId'];
-};
-
-
 export type MutationCreateInvitationLinkArgs = {
   roomId: Scalars['ObjectId'];
 };
@@ -235,19 +171,72 @@ export type MutationAcceptInvitationArgs = {
   token: Scalars['String'];
 };
 
-export type InvitationLinkResult = {
-  __typename?: 'InvitationLinkResult';
-  link: Scalars['String'];
+
+export type MutationReadNotificationArgs = {
+  id: Scalars['ObjectId'];
 };
 
-export type Invitation = {
-  __typename?: 'Invitation';
+export type Notification = {
+  __typename?: 'Notification';
   id: Scalars['ID'];
   createdAt: Scalars['DateTime'];
-  invitedBy: Scalars['ID'];
-  userId: Scalars['ID'];
-  roomId: Scalars['ID'];
-  isPublic: Scalars['Boolean'];
+  sender: Member;
+  receiver: Scalars['ID'];
+  seen: Scalars['Boolean'];
+  type: Notification_Type;
+  payload: Scalars['JSONObject'];
+};
+
+/** Notification types enums */
+export enum Notification_Type {
+  Invitation = 'INVITATION',
+  Mention = 'MENTION'
+}
+
+
+export type Query = {
+  __typename?: 'Query';
+  me: Me;
+  listUsers: Array<Member>;
+  getUser: User;
+  listRooms: Array<Room>;
+  listCurrentUserRooms: Array<Room>;
+  getRoom: Room;
+  getMessages: Messages;
+  getInvitationInfo: InvitationDetails;
+  getNotifications: Array<Notification>;
+};
+
+
+export type QueryGetUserArgs = {
+  id: Scalars['ObjectId'];
+};
+
+
+export type QueryGetRoomArgs = {
+  id: Scalars['ObjectId'];
+};
+
+
+export type QueryGetMessagesArgs = {
+  roomId: Scalars['ObjectId'];
+  limit: Scalars['Int'];
+  offset: Scalars['Int'];
+};
+
+
+export type QueryGetInvitationInfoArgs = {
+  token: Scalars['String'];
+};
+
+export type Room = {
+  __typename?: 'Room';
+  id: Scalars['ObjectId'];
+  createdAt: Scalars['DateTime'];
+  name: Scalars['String'];
+  members: Array<Member>;
+  messages: Array<Message>;
+  owner: Scalars['ObjectId'];
 };
 
 export type Subscription = {
@@ -271,6 +260,32 @@ export type SubscriptionOnDeleteMessageArgs = {
 
 export type SubscriptionOnUpdateMessageArgs = {
   roomId: Scalars['ObjectId'];
+};
+
+
+export type UploadImageOutput = {
+  __typename?: 'UploadImageOutput';
+  url: Scalars['String'];
+  public_id: Scalars['String'];
+};
+
+export type User = {
+  __typename?: 'User';
+  id: Scalars['ObjectId'];
+  createdAt: Scalars['DateTime'];
+  name: Scalars['String'];
+  username: Scalars['String'];
+  rooms: Array<Room>;
+  color: Scalars['String'];
+  links?: Maybe<UserLinks>;
+};
+
+export type UserLinks = {
+  __typename?: 'UserLinks';
+  github?: Maybe<Scalars['String']>;
+  twitter?: Maybe<Scalars['String']>;
+  instagram?: Maybe<Scalars['String']>;
+  website?: Maybe<Scalars['String']>;
 };
 
 export type GetInvitationInfoQueryVariables = {
@@ -465,6 +480,19 @@ export type EditMessageMutation = (
   & { editedMessage: (
     { __typename?: 'Message' }
     & MessagePartsFragment
+  ) }
+);
+
+export type UploadImageMutationVariables = {
+  file: Scalars['Upload'];
+};
+
+
+export type UploadImageMutation = (
+  { __typename?: 'Mutation' }
+  & { uploadImage: (
+    { __typename?: 'UploadImageOutput' }
+    & Pick<UploadImageOutput, 'url' | 'public_id'>
   ) }
 );
 
@@ -1125,6 +1153,39 @@ export function useEditMessageMutation(baseOptions?: ApolloReactHooks.MutationHo
 export type EditMessageMutationHookResult = ReturnType<typeof useEditMessageMutation>;
 export type EditMessageMutationResult = ApolloReactCommon.MutationResult<EditMessageMutation>;
 export type EditMessageMutationOptions = ApolloReactCommon.BaseMutationOptions<EditMessageMutation, EditMessageMutationVariables>;
+export const UploadImageDocument = gql`
+    mutation UploadImage($file: Upload!) {
+  uploadImage(file: $file) {
+    url
+    public_id
+  }
+}
+    `;
+export type UploadImageMutationFn = ApolloReactCommon.MutationFunction<UploadImageMutation, UploadImageMutationVariables>;
+
+/**
+ * __useUploadImageMutation__
+ *
+ * To run a mutation, you first call `useUploadImageMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUploadImageMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [uploadImageMutation, { data, loading, error }] = useUploadImageMutation({
+ *   variables: {
+ *      file: // value for 'file'
+ *   },
+ * });
+ */
+export function useUploadImageMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<UploadImageMutation, UploadImageMutationVariables>) {
+        return ApolloReactHooks.useMutation<UploadImageMutation, UploadImageMutationVariables>(UploadImageDocument, baseOptions);
+      }
+export type UploadImageMutationHookResult = ReturnType<typeof useUploadImageMutation>;
+export type UploadImageMutationResult = ApolloReactCommon.MutationResult<UploadImageMutation>;
+export type UploadImageMutationOptions = ApolloReactCommon.BaseMutationOptions<UploadImageMutation, UploadImageMutationVariables>;
 export const OnNewMessageDocument = gql`
     subscription onNewMessage($roomId: ObjectId!) {
   onNewMessage(roomId: $roomId) {

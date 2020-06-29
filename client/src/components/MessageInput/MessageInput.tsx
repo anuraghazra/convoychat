@@ -1,7 +1,8 @@
-import React, { useEffect, useRef } from "react";
-import { FaSmile, FaPaperPlane } from "react-icons/fa";
+import React, { useEffect, useRef, useCallback } from "react";
+import { FaSmile, FaPaperPlane, FaImage } from "react-icons/fa";
 import { Picker } from "emoji-mart";
 import "emoji-mart/css/emoji-mart.css";
+import { useDropzone } from "react-dropzone";
 
 import {
   SendButton,
@@ -9,11 +10,14 @@ import {
   defaultMentionStyles,
 } from "./MessageInput.style";
 
+import {
+  RoomMemberFragment,
+  useUploadImageMutation,
+} from "graphql/generated/graphql";
+
 import { textareaAutoResize } from "utils";
 import { Flex, Dropdown, IconButton } from "@convoy-ui";
-import { RoomMemberFragment } from "graphql/generated/graphql";
 import { MentionsInput, Mention, OnChangeHandlerFunc } from "react-mentions";
-import { useAuthContext } from "contexts/AuthContext";
 
 const mql = window.matchMedia(`(min-width: 800px)`);
 
@@ -25,6 +29,7 @@ interface IMessageInput {
   mentionSuggestions: RoomMemberFragment[];
   handleSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
   innerRef?: React.MutableRefObject<HTMLTextAreaElement | undefined>;
+  setValue: (value: React.SetStateAction<string>) => void;
   [x: string]: any;
 }
 
@@ -36,6 +41,7 @@ const MessageInput: React.FC<IMessageInput> = ({
   handleChange,
   onEmojiClick,
   mentionSuggestions,
+  setValue,
   ...props
 }) => {
   const isMobile = !mql.matches;
@@ -79,9 +85,44 @@ const MessageInput: React.FC<IMessageInput> = ({
     }
   };
 
+  // Image uploading
+
+  const [
+    uploadImage,
+    { loading: uploadImageInProgress, data: uploadImageResponse },
+  ] = useUploadImageMutation({
+    onCompleted(data) {
+      setValue(value + `\n![Alt Text](${data.uploadImage.url})`);
+    },
+  });
+
+  const handleOnDrop = useCallback(
+    acceptedFiles => {
+      console.log(acceptedFiles);
+      uploadImage({
+        variables: {
+          file: acceptedFiles[0],
+        },
+      });
+    },
+    [uploadImage]
+  );
+
+  const { getRootProps, getInputProps, open, acceptedFiles } = useDropzone({
+    onDrop: handleOnDrop,
+    multiple: false,
+    noClick: true,
+    noKeyboard: true,
+  });
+
   return (
     <MessageInputWrapper className="message__input">
       <Flex gap="large" align="center" justify="space-between" nowrap>
+        <IconButton icon={<FaImage />} onClick={open} />
+        <div {...getRootProps({ className: "dropzone" })}>
+          <input {...getInputProps()} />
+        </div>
+
         <form ref={formRef} onSubmit={handleSubmit}>
           <MentionsInput
             data-testid="messageInput"
