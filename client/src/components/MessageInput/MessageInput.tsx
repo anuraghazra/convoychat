@@ -29,7 +29,7 @@ interface IMessageInput {
   mentionSuggestions: RoomMemberFragment[];
   handleSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
   innerRef?: React.MutableRefObject<HTMLTextAreaElement | undefined>;
-  setValue: (value: React.SetStateAction<string>) => void;
+  setValue?: (value: React.SetStateAction<string>) => void;
   [x: string]: any;
 }
 
@@ -55,7 +55,6 @@ const MessageInput: React.FC<IMessageInput> = ({
   };
 
   const handleKeydown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    textareaAutoResize(textareaRef?.current);
     if (event.key === "Escape") {
       onCancel && onCancel();
     }
@@ -65,9 +64,16 @@ const MessageInput: React.FC<IMessageInput> = ({
     }
   };
 
+  const getRef: any = (e: any) => {
+    textareaRef.current = e;
+    if (innerRef) {
+      innerRef.current = e;
+    }
+  };
+
   useEffect(() => {
     textareaAutoResize(textareaRef?.current);
-  }, []);
+  }, [value]);
 
   useEffect(() => {
     suggestionsData.current = mentionSuggestions?.map(curr => {
@@ -78,27 +84,18 @@ const MessageInput: React.FC<IMessageInput> = ({
     });
   }, [mentionSuggestions]);
 
-  const getRef: any = (e: any) => {
-    textareaRef.current = e;
-    if (innerRef) {
-      innerRef.current = e;
-    }
-  };
-
   // Image uploading
-
   const [
     uploadImage,
-    { loading: uploadImageInProgress, data: uploadImageResponse },
+    { loading: uploadImageInProgress },
   ] = useUploadImageMutation({
     onCompleted(data) {
-      setValue(value + `\n![Alt Text](${data.uploadImage.url})`);
+      setValue && setValue(value + `\n\n![Alt Text](${data.uploadImage.url})`);
     },
   });
 
   const handleOnDrop = useCallback(
     acceptedFiles => {
-      console.log(acceptedFiles);
       uploadImage({
         variables: {
           file: acceptedFiles[0],
@@ -108,7 +105,7 @@ const MessageInput: React.FC<IMessageInput> = ({
     [uploadImage]
   );
 
-  const { getRootProps, getInputProps, open, acceptedFiles } = useDropzone({
+  const { getRootProps, getInputProps, open, isDragActive } = useDropzone({
     onDrop: handleOnDrop,
     multiple: false,
     noClick: true,
@@ -118,33 +115,42 @@ const MessageInput: React.FC<IMessageInput> = ({
   return (
     <MessageInputWrapper className="message__input">
       <Flex gap="large" align="center" justify="space-between" nowrap>
-        <IconButton icon={<FaImage />} onClick={open} />
-        <div {...getRootProps({ className: "dropzone" })}>
-          <input {...getInputProps()} />
-        </div>
+        <IconButton
+          data-testid="upload-button"
+          isLoading={uploadImageInProgress}
+          icon={<FaImage />}
+          onClick={open}
+        />
 
-        <form ref={formRef} onSubmit={handleSubmit}>
-          <MentionsInput
-            data-testid="messageInput"
-            name={"message"}
-            inputRef={getRef}
-            autoComplete={"off"}
-            placeholder="Write something"
-            value={value}
-            onChange={handleChange}
-            onKeyDown={handleKeydown}
-            style={defaultMentionStyles}
-            allowSuggestionsAboveCursor={true}
-            {...props}
-          >
-            <Mention
-              trigger="@"
-              data={suggestionsData?.current || []}
-              displayTransform={id =>
-                `@${suggestionsData.current.find(i => i.id === id).display} `
-              }
-            />
-          </MentionsInput>
+        <form
+          ref={formRef}
+          onSubmit={handleSubmit}
+          className={isDragActive ? "active-animation" : ""}
+        >
+          <div {...getRootProps({ className: "dropzone" })}>
+            <MentionsInput
+              data-testid="messageInput"
+              name={"message"}
+              inputRef={getRef}
+              autoComplete={"off"}
+              placeholder="Write something"
+              value={value}
+              onChange={handleChange}
+              onKeyDown={handleKeydown}
+              style={defaultMentionStyles}
+              allowSuggestionsAboveCursor={true}
+              {...props}
+            >
+              <Mention
+                trigger="@"
+                data={suggestionsData?.current || []}
+                displayTransform={id =>
+                  `@${suggestionsData.current.find(i => i.id === id).display} `
+                }
+              />
+            </MentionsInput>
+            <input {...getInputProps()} />
+          </div>
         </form>
         {isMobile && (
           <SendButton

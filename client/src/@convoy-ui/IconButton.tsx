@@ -1,13 +1,19 @@
 import React from "react";
 import styled from "styled-components";
+import { FaSpinner } from "react-icons/fa";
 
-const StyledIconButton = styled.div`
+const StyledIconButton = styled.button`
   width: 30px;
+  min-width: 30px;
   height: 30px;
   line-height: 35px;
   text-align: center;
   cursor: pointer;
   transition: 0.2s;
+  font-size: 1em;
+  color: ${p => p.theme.colors.white};
+  border: none;
+  background: none;
 
   &:hover {
     color: ${p => p.theme.colors.primary};
@@ -24,12 +30,23 @@ const StyledIconButton = styled.div`
 
 interface IIconButton {
   icon: React.ReactNode;
-  onClick?: (event: React.MouseEvent<HTMLDivElement>) => void;
+  isLoading?: boolean;
+  disabled?: boolean;
+  onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
 }
-export const IconButton: React.FC<IIconButton> = ({ icon, onClick }) => {
+export const IconButton: React.FC<IIconButton> = ({
+  icon,
+  isLoading,
+  onClick,
+  disabled,
+}) => {
   return (
-    <StyledIconButton className="icon__button" onClick={onClick}>
-      {icon}
+    <StyledIconButton
+      disabled={disabled || isLoading}
+      className="icon__button"
+      onClick={onClick}
+    >
+      {isLoading ? <FaSpinner className="spin" /> : icon}
     </StyledIconButton>
   );
 };

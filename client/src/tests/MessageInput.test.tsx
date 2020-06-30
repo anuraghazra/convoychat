@@ -5,6 +5,37 @@ import MessageInput from "components/MessageInput/MessageInput";
 import useMessageInput from "components/MessageInput/useMessageInput";
 import { renderWithStyledTheme } from "./testUtils";
 import { fireEvent, act, cleanup } from "@testing-library/react";
+import {
+  CurrentUserDocument,
+  UploadImageDocument,
+} from "graphql/generated/graphql";
+import { MockedProvider } from "@apollo/react-testing";
+
+import { data_mocks } from "pages/Invitation/invitation.test";
+
+const mocks = [
+  {
+    request: {
+      query: UploadImageDocument,
+    },
+    result: {
+      data: {
+        uploadImage: {
+          url: "https://uploaded.com/img",
+          public_id: "123",
+        },
+      },
+    },
+  },
+  {
+    request: {
+      query: CurrentUserDocument,
+    },
+    result: {
+      data: { me: data_mocks.me },
+    },
+  },
+];
 
 beforeEach(cleanup);
 
@@ -24,23 +55,25 @@ describe("MessageInput", () => {
     };
 
     return (
-      <div>
-        <button data-testid="toggleEdit" onClick={() => setIsEditing(true)}>
-          Edit
-        </button>
-        {isEditing && (
-          <MessageInput
-            autoFocus
-            value={value}
-            handleChange={handleChange}
-            handleSubmit={handleEdit}
-            name="message"
-            onCancel={handleCancel}
-            onEmojiClick={handleEmojiClick}
-            mentionSuggestions={[]}
-          />
-        )}
-      </div>
+      <MockedProvider mocks={mocks} addTypename={false}>
+        <div>
+          <button data-testid="toggleEdit" onClick={() => setIsEditing(true)}>
+            Edit
+          </button>
+          {isEditing && (
+            <MessageInput
+              autoFocus
+              value={value}
+              handleChange={handleChange}
+              handleSubmit={handleEdit}
+              name="message"
+              onCancel={handleCancel}
+              onEmojiClick={handleEmojiClick}
+              mentionSuggestions={[]}
+            />
+          )}
+        </div>
+      </MockedProvider>
     );
   };
 
