@@ -2,12 +2,13 @@ import "reflect-metadata";
 import { ObjectID } from 'mongodb'
 import { Context } from "../context.type";
 import { ApolloError } from "apollo-server-express";
-import { Resolver, Query, Ctx, Arg, Authorized, Mutation, Args } from 'type-graphql';
+import { Resolver, Query, Ctx, Arg, Authorized, Mutation, Args, UseMiddleware } from 'type-graphql';
 
 import UserModel from "../../entities/User";
 import RoomModel, { Room } from "../../entities/Room";
 import { createRoomArgs, removeMembersArgs } from "./room-inputs";
 import Member from "../../entities/Member";
+import RateLimit from "../rate-limiter-middleware";
 
 @Resolver(of => Room)
 class RoomResolver {
@@ -73,6 +74,7 @@ class RoomResolver {
   }
 
   @Authorized()
+  @UseMiddleware(RateLimit({ limit: 20 }))
   @Mutation(() => Room)
   async createRoom(
     @Args() { name }: createRoomArgs,
@@ -128,6 +130,7 @@ class RoomResolver {
   }
 
   @Authorized()
+  @UseMiddleware(RateLimit())
   @Mutation(() => Member, { nullable: true })
   async removeMemberFromRoom(
     @Args() { roomId, memberId }: removeMembersArgs,
