@@ -16,7 +16,7 @@ import {
 } from "graphql/generated/graphql";
 
 import { textareaAutoResize } from "utils";
-import { Flex, Dropdown, IconButton } from "@convoy-ui";
+import { Flex, Dropdown, IconButton, toast } from "@convoy-ui";
 import { MentionsInput, Mention, OnChangeHandlerFunc } from "react-mentions";
 
 const mql = window.matchMedia(`(min-width: 800px)`);
@@ -32,6 +32,7 @@ interface IMessageInput {
   setValue?: (value: React.SetStateAction<string>) => void;
   [x: string]: any;
 }
+type ISuggestionsData = { display: any; id: string }[] | undefined;
 
 const MessageInput: React.FC<IMessageInput> = ({
   value,
@@ -47,7 +48,7 @@ const MessageInput: React.FC<IMessageInput> = ({
   const isMobile = !mql.matches;
   const formRef = useRef<HTMLFormElement>();
   const textareaRef = useRef<HTMLTextAreaElement>();
-  const suggestionsData = useRef<{ display: any; id: string }[] | undefined>();
+  const suggestionsData = useRef<ISuggestionsData>();
 
   const imparativeSubmit = (event: any) => {
     event.preventDefault();
@@ -90,7 +91,14 @@ const MessageInput: React.FC<IMessageInput> = ({
     { loading: uploadImageInProgress },
   ] = useUploadImageMutation({
     onCompleted(data) {
-      setValue && setValue(value + `\n\n![Alt Text](${data.uploadImage.url})`);
+      const replacedPlaceholder = value.replace(
+        "![Uplading image...](...please wait)",
+        `![Alt Text](${data.uploadImage.url})`
+      );
+      setValue && setValue(replacedPlaceholder);
+    },
+    onError(err) {
+      toast.error("Something went wrong uploading image.");
     },
   });
 
@@ -107,6 +115,10 @@ const MessageInput: React.FC<IMessageInput> = ({
 
   const { getRootProps, getInputProps, open, isDragActive } = useDropzone({
     onDrop: handleOnDrop,
+    onDropAccepted: () => {
+      setValue && setValue(value + `\n\n![Uplading image...](...please wait)`);
+    },
+    accept: "image/jpeg, image/png",
     multiple: false,
     noClick: true,
     noKeyboard: true,
@@ -149,7 +161,7 @@ const MessageInput: React.FC<IMessageInput> = ({
                 }
               />
             </MentionsInput>
-            <input {...getInputProps()} />
+            <input {...getInputProps()} data-testid="dropzone" />
           </div>
         </form>
         {isMobile && (
