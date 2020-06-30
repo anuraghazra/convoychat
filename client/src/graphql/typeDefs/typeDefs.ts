@@ -57,6 +57,13 @@ const typeDefs = gql`
     }
   }
 
+  mutation UploadImage($file: Upload!) {
+    uploadImage(file: $file) {
+      url
+      public_id
+    }
+  }
+
   subscription onNewMessage($roomId: ObjectId!) {
     onNewMessage(roomId: $roomId) {
       ...SubscriptionMessageParts

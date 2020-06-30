@@ -51,8 +51,8 @@ const scrollToBottom = (elm: HTMLElement) => {
 
 const textareaAutoResize = (element: HTMLTextAreaElement) => {
   if (!element) return;
-  element.style.height = "1px";
-  element.style.height = element.scrollHeight + "px";
+  element.style.height = 'auto';
+  element.style.height = (element.scrollHeight) + 'px';
 }
 
 const copyToClipboard = (str: string) => {

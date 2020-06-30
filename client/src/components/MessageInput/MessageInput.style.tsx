@@ -19,6 +19,7 @@ export const MessageInputWrapper = styled.div`
   form {
     width: 100%;
     border-radius: ${p => p.theme.radius.small}px;
+    word-break: break-word;
   }
 
   .form--input__wrapper {

@@ -43,6 +43,7 @@ const Message: React.FC<IMessage> = ({
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const {
     value,
+    setValue,
     textareaRef,
     handleChange,
     handleEmojiClick,
@@ -125,6 +126,7 @@ const Message: React.FC<IMessage> = ({
           {isEditing ? (
             <MessageInput
               value={value}
+              setValue={setValue}
               innerRef={textareaRef}
               onCancel={handleCancel}
               handleSubmit={handleEdit}
