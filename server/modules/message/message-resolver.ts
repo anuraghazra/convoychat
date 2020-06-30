@@ -33,7 +33,7 @@ class MessageResolver {
   @Authorized()
   @Query(() => Messages)
   async getMessages(@Args() { limit, offset, roomId }: getMessagesArgs) {
-    let messages = await MessageModel.find({ roomId: roomId })
+    const messages = await MessageModel.find({ roomId: roomId })
       .sort({ createdAt: -1 })
       .populate("author");
 
@@ -53,7 +53,7 @@ class MessageResolver {
     @PubSub() pubsub: PubSubEngine
   ) {
     try {
-      let room = await RoomModel.findOne({
+      const room = await RoomModel.findOne({
         _id: roomId,
         members: { $in: [context.currentUser.id] },
       }).populate("members");
@@ -70,7 +70,7 @@ class MessageResolver {
       // check if mentioned users are member of the room
       const mentioned_users = mentions
         .map(m => {
-          let found = room?.members.find((i: Member) => i.username === m);
+          const found = room?.members.find((i: Member) => i.username === m);
           if (found) {
             return (found as any)._id;
           }
@@ -82,7 +82,7 @@ class MessageResolver {
           return `${userId}` !== `${context.currentUser.id}`;
         });
 
-      let message = new MessageModel({
+      const message = new MessageModel({
         content: content,
         roomId: roomId,
         author: context.currentUser.id,
@@ -91,7 +91,7 @@ class MessageResolver {
       message.populate("author").execPopulate();
 
       // filter out the current User id to prevent self notification sending
-      let mentionNotifications = message.mentions.map(async id => {
+      const mentionNotifications = message.mentions.map(async id => {
         return sendNotification({
           context: context,
           sender: context.currentUser.id,
@@ -109,7 +109,7 @@ class MessageResolver {
       await Promise.all(mentionNotifications);
 
       (message as any).$roomId = roomId;
-      let savedMessage = await message.save();
+      const savedMessage = await message.save();
       pubsub.publish(CONSTANTS.NEW_MESSAGE, savedMessage.toObject());
 
       return savedMessage;
@@ -127,7 +127,7 @@ class MessageResolver {
     @PubSub() pubsub: PubSubEngine
   ) {
     try {
-      let message = await MessageModel.findOneAndDelete({
+      const message = await MessageModel.findOneAndDelete({
         _id: messageId,
         author: context.currentUser.id,
       });
@@ -152,7 +152,7 @@ class MessageResolver {
     @PubSub() pubsub: PubSubEngine
   ) {
     try {
-      let message = await MessageModel.findOneAndUpdate(
+      const message = await MessageModel.findOneAndUpdate(
         {
           _id: messageId,
           author: context.currentUser.id,

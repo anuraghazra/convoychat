@@ -63,16 +63,16 @@ const queries = {
       }
     }
   `
-}
+};
 
 afterAll(async () => {
-  await dbHelper.clearDatabase()
-  await dbHelper.closeDatabase()
+  await dbHelper.clearDatabase();
+  await dbHelper.closeDatabase();
 });
 beforeAll(async () => {
   await dbHelper.connect();
   await dbHelper.populateUsers();
-})
+});
 // afterEach(async () => await dbHelper.clearDatabase());
 // beforeEach(async () => await dbHelper.populate());
 
@@ -93,9 +93,9 @@ describe("RoomResolver", () => {
           owner: fakeUser.id,
         }
       }
-    })
+    });
 
-    const dbRoom = await RoomModel.findOne({ name: ROOM_NAME })
+    const dbRoom = await RoomModel.findOne({ name: ROOM_NAME });
     expect(dbRoom).toBeDefined();
   });
 
@@ -113,11 +113,11 @@ describe("RoomResolver", () => {
           members: [{ username: fakeUser.username }]
         }]
       }
-    })
+    });
 
-    let allRooms = await RoomModel.find({});
+    const allRooms = await RoomModel.find({});
     expect(allRooms.length).toEqual(1);
-  })
+  });
 
 
   it("ListCurrentUserRooms", async () => {
@@ -132,14 +132,14 @@ describe("RoomResolver", () => {
           owner: fakeUser.id,
         }]
       }
-    })
+    });
 
-    let allRooms = await RoomModel.find({});
+    const allRooms = await RoomModel.find({});
     expect(allRooms.length).toEqual(1);
-  })
+  });
 
   it("getRoom", async () => {
-    const testRoom = await RoomModel.findOne({ name: ROOM_NAME })
+    const testRoom = await RoomModel.findOne({ name: ROOM_NAME });
     const roomResult = await gCall({
       source: queries.getRoom,
       variableValues: { id: testRoom._id }
@@ -152,13 +152,13 @@ describe("RoomResolver", () => {
           owner: fakeUser.id,
         }
       }
-    })
-  })
+    });
+  });
 
   it("removeMemberFromRoom", async () => {
     // Prepare (add member first)
-    const testRoom = await RoomModel.findOne({ name: ROOM_NAME })
-    const testUser = await UserModel.findOne({ email: fakeUser2.email })
+    const testRoom = await RoomModel.findOne({ name: ROOM_NAME });
+    const testUser = await UserModel.findOne({ email: fakeUser2.email });
     const roomId = testRoom.id;
     const memberId = testUser.id;
     // add user to the room
@@ -193,7 +193,7 @@ describe("RoomResolver", () => {
           id: memberId,
         }
       }
-    })
+    });
 
     // Test SELF REMOVE
     const room2 = await gCall({
@@ -204,7 +204,7 @@ describe("RoomResolver", () => {
       }
     });
 
-    expect(room2.errors[0].message).toEqual('Error: You cannot not remove yourself from room')
+    expect(room2.errors[0].message).toEqual("Error: You cannot not remove yourself from room");
 
     // Test Invalid RoomID REMOVE
     const room3 = await gCall({
@@ -215,12 +215,12 @@ describe("RoomResolver", () => {
       }
     });
 
-    expect(room3.errors[0].message).toEqual('Error: Could not remove member from room')
-  })
+    expect(room3.errors[0].message).toEqual("Error: Could not remove member from room");
+  });
 
 
   it("deleteRoom", async () => {
-    const testRoom = await RoomModel.findOne({ name: ROOM_NAME })
+    const testRoom = await RoomModel.findOne({ name: ROOM_NAME });
     const roomResult = await gCall({
       source: queries.deleteRoom,
       variableValues: { roomId: testRoom._id }
@@ -233,10 +233,10 @@ describe("RoomResolver", () => {
           owner: fakeUser.id,
         }
       }
-    })
+    });
 
     const dbRoom = await RoomModel.findOne({ name: ROOM_NAME });
-    expect(dbRoom).toBeNull()
-  })
+    expect(dbRoom).toBeNull();
+  });
 
-}) 
+}); 

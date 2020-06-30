@@ -1,5 +1,5 @@
-import { MiddlewareFn } from 'type-graphql';
-import { getGraphQLRateLimiter } from 'graphql-rate-limit';
+import { MiddlewareFn } from "type-graphql";
+import { getGraphQLRateLimiter } from "graphql-rate-limit";
 
 
 const limiter = getGraphQLRateLimiter({
@@ -8,9 +8,9 @@ const limiter = getGraphQLRateLimiter({
 });
 
 
-interface IRateLimit { limit?: number, window?: string };
+interface IRateLimit { limit?: number, window?: string }
 
-const RateLimit = ({ limit = 50, window = '25min' }: IRateLimit = {}): MiddlewareFn<any> => {
+const RateLimit = ({ limit = 50, window = "25min" }: IRateLimit = {}): MiddlewareFn<any> => {
   return async ({ root: parent, args, context, info }, next) => {
     const error = await limiter({
       parent,
@@ -22,10 +22,10 @@ const RateLimit = ({ limit = 50, window = '25min' }: IRateLimit = {}): Middlewar
       window: window
     });
 
-    if (error) throw new Error(error)
+    if (error) throw new Error(error);
 
     return next();
   };
-}
+};
 
 export default RateLimit;

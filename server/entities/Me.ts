@@ -1,7 +1,7 @@
 import "reflect-metadata";
-import { Room } from './Room';
-import { ObjectID } from 'mongodb'
-import { Field, ObjectType, ID } from 'type-graphql';
+import { Room } from "./Room";
+import { ObjectID } from "mongodb";
+import { Field, ObjectType } from "type-graphql";
 import { UserLinks } from "./User";
 
 type Ref<T> = T | ObjectID;
@@ -23,13 +23,13 @@ export class Me {
   @Field()
   public avatarUrl!: string;
 
-  @Field(type => [Room])
+  @Field(() => [Room])
   public rooms!: Ref<Room>[];
 
   @Field()
   public color!: string;
 
-  @Field(type => UserLinks, { nullable: true })
+  @Field(() => UserLinks, { nullable: true })
   public links?: UserLinks;
 }
 

@@ -1,6 +1,6 @@
 import "reflect-metadata";
-import dotenv from 'dotenv';
-import path from 'path'
+import dotenv from "dotenv";
+import path from "path";
 import http from "http";
 import express from "express";
 import passport from "passport";
@@ -14,7 +14,7 @@ import mongoSanitize from "express-mongo-sanitize";
 import xss from "xss-clean";
 import helmet from "helmet";
 
-dotenv.config()
+dotenv.config();
 import "./passport-config";
 
 import { buildContext, createOnConnect } from "graphql-passport";
@@ -46,9 +46,7 @@ const rateLimitDirective = createRateLimitDirective({
 const pubsub = new PubSub();
 const app = express();
 app.use(cookieParser());
-app.use(
-  cors({ credentials: true })
-);
+app.use(cors({ credentials: true }));
 app.use(helmet()); // security headers
 app.use(mongoSanitize()); // sanitization against NoSQL Injection Attacks
 app.use(xss()); // sanitize data
@@ -56,7 +54,7 @@ app.use(xss()); // sanitize data
 const sessionMiddleware = cookieSession({
   secure: process.env.NODE_ENV === "production",
   name: "session",
-  keys: [(process.env.SESSION_SECRECT as any)],
+  keys: [process.env.SESSION_SECRECT as any],
   maxAge: 24 * 60 * 60 * 1000, // session will expire after 24 hours
 });
 const passportMiddleware = passport.initialize();
@@ -66,14 +64,13 @@ app.use(sessionMiddleware);
 app.use(passportMiddleware);
 app.use(passportSessionMiddleware);
 
-
 app.use("/auth", authRoute);
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
-})
+});
 
 async function bootstrap() {
   const schema = await buildSchema({
@@ -85,14 +82,14 @@ async function bootstrap() {
       InvitationResolver,
       NotificationResolver,
       MessageSubscriptions,
-      NotificationsSubscriptions
+      NotificationsSubscriptions,
     ],
     emitSchemaFile: "./server/graphql/schema.gql",
     globalMiddlewares: [TypegooseMiddleware],
     scalarsMap: [{ type: ObjectID, scalar: ObjectIdScalar }],
     authChecker: useAuth,
     pubSub: pubsub,
-  })
+  });
 
   const server = new ApolloServer({
     schema: schema,
@@ -102,11 +99,11 @@ async function bootstrap() {
     subscriptions: {
       path: "/subscriptions",
       // https://github.com/jkettmann/graphql-passport#usage-with-subscriptions
-      onConnect: (createOnConnect([
+      onConnect: createOnConnect([
         sessionMiddleware,
         passportMiddleware,
         passportSessionMiddleware,
-      ]) as any),
+      ]) as any,
     },
     context: ({ req, res, connection }) => {
       let context = connection && connection.context;
@@ -159,27 +156,28 @@ async function bootstrap() {
   app.use("/", expressStaticGzip("client/build", {}));
   if (process.env.NODE_ENV === "production") {
     app.get("/*", function (req, res) {
-      res.sendFile(path.join(__dirname, "../client/build/index.html"), function (
-        err
-      ) {
-        if (err) {
-          res.status(500).send(err);
+      res.sendFile(
+        path.join(__dirname, "../client/build/index.html"),
+        function (err) {
+          if (err) {
+            res.status(500).send(err);
+          }
         }
-      });
+      );
     });
   }
 
   httpServer.listen({ port: 4000 }, () => {
     mongoose.connect(
-      (process.env.DB_URL as string),
+      process.env.DB_URL as string,
       { useUnifiedTopology: true, useNewUrlParser: true },
       err => {
         if (err) throw err;
         console.log("Connected to Database");
       }
     );
-    console.log(`http://localhost:4000`);
+    console.log("http://localhost:4000");
   });
 }
 
-bootstrap()
+bootstrap();

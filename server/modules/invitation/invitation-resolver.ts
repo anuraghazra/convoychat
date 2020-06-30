@@ -1,10 +1,10 @@
 import "reflect-metadata";
-import crypto from 'crypto'
-import { ObjectID } from 'mongodb'
+import crypto from "crypto";
+import { ObjectID } from "mongodb";
 import { Context } from "../context.type";
 import { Ref } from "@typegoose/typegoose";
 import { ApolloError } from "apollo-server-express";
-import { Resolver, Ctx, Arg, Authorized, Mutation, Query, Field, ArgsType, Args, UseMiddleware } from 'type-graphql';
+import { Resolver, Ctx, Arg, Authorized, Mutation, Query, Field, ArgsType, Args, UseMiddleware } from "type-graphql";
 
 import UserModel, { User } from "../../entities/User";
 import RoomModel from "../../entities/Room";
@@ -29,7 +29,7 @@ class InvitationResolver {
   @Authorized()
   @Query(() => InvitationDetails)
   async getInvitationInfo(
-    @Arg('token', { nullable: false }) token: string,
+    @Arg("token", { nullable: false }) token: string,
     @Ctx() context: Context
   ) {
     const invite = await InvitationModel.findOne({
@@ -54,7 +54,7 @@ class InvitationResolver {
   @Authorized()
   @Mutation(() => InvitationLinkResult)
   async createInvitationLink(
-    @Arg('roomId', { nullable: false }) roomId: ObjectID,
+    @Arg("roomId", { nullable: false }) roomId: ObjectID,
     @Ctx() context: Context
   ) {
     const existingInvitation = await InvitationModel.findOne({
@@ -74,8 +74,8 @@ class InvitationResolver {
       };
     }
 
-    let validRoom = await RoomModel.findOne({ _id: roomId });
-    if (!validRoom) throw new Error('Not a valid room')
+    const validRoom = await RoomModel.findOne({ _id: roomId });
+    if (!validRoom) throw new Error("Not a valid room");
 
     // TODO: add expiry time in invitation token
     const token = crypto.randomBytes(16).toString("hex");
@@ -100,7 +100,7 @@ class InvitationResolver {
   ) {
     try {
       // check if user is a memeber of the specified room
-      let user = await UserModel.findOne({
+      const user = await UserModel.findOne({
         _id: context.currentUser.id,
         rooms: { $in: [roomId] },
       });
@@ -114,7 +114,7 @@ class InvitationResolver {
       // create invitations
       const invitations = members.map(memberId => {
         token = crypto.randomBytes(16).toString("hex");
-        let invite = new InvitationModel({
+        const invite = new InvitationModel({
           roomId: roomId,
           userId: memberId,
           invitedBy: context.currentUser.id,
@@ -151,15 +151,15 @@ class InvitationResolver {
 
       return savedInvites;
     } catch (err) {
-      console.log(err)
-      throw new ApolloError(err)
+      console.log(err);
+      throw new ApolloError(err);
     }
   }
 
   @Authorized()
   @Mutation(() => Boolean)
   async acceptInvitation(
-    @Arg('token', { nullable: false }) token: string,
+    @Arg("token", { nullable: false }) token: string,
     @Ctx() context: Context
   ) {
     // find invitation with token & userId

@@ -12,14 +12,14 @@ jest.setTimeout(500000);
 const ROOM_NAME = "Test Room";
 
 const getRoomInfo = async () => {
-  let res = await RoomModel.findOne({ name: ROOM_NAME });
+  const res = await RoomModel.findOne({ name: ROOM_NAME });
   return {
     ROOM_ID: res.id,
     ROOM_NAME: res.name,
     ROOM_OWNER: res.owner,
     ROOM_MEMBERS: res.members,
-  }
-}
+  };
+};
 
 const queries = {
   sendMessage: `
@@ -74,7 +74,7 @@ const queries = {
       }
     }
   `,
-}
+};
 
 
 const initialize = async () => {
@@ -89,7 +89,7 @@ const initialize = async () => {
     `,
     variableValues: { name: ROOM_NAME }
   });
-}
+};
 
 
 afterAll(async () => {
@@ -99,28 +99,28 @@ afterAll(async () => {
 beforeAll(async () => {
   await dbHelper.connect();
   await dbHelper.populateUsers();
-  await initialize()
-})
+  await initialize();
+});
 
 
 describe("MessageResolver", () => {
   const messageContent = `Hello @${fakeUser2.username} @notauser`;
 
   it("SendMessage should throw error if not a member", async () => {
-    let { ROOM_ID } = await getRoomInfo();
+    const { ROOM_ID } = await getRoomInfo();
 
-    let currentUser = await UserModel.findOne({ email: fakeUser2.email })
+    const currentUser = await UserModel.findOne({ email: fakeUser2.email });
     const messageResult = await gCall({
       currentUser: currentUser,
       source: queries.sendMessage,
       variableValues: { roomId: ROOM_ID, content: "Hello world" }
     });
 
-    expect(messageResult.errors[0].message).toEqual('Error: Room not found or you are not a member of this room')
+    expect(messageResult.errors[0].message).toEqual("Error: Room not found or you are not a member of this room");
   });
 
   it("should send message", async () => {
-    let { ROOM_ID } = await getRoomInfo();
+    const { ROOM_ID } = await getRoomInfo();
 
     const messageResult = await gCall({
       source: queries.sendMessage,
@@ -136,16 +136,16 @@ describe("MessageResolver", () => {
           name: fakeUser.name
         }
       })
-    )
+    );
 
-    const dbRoom = await RoomModel.findOne({ _id: ROOM_ID })
-    const dbMessage = await MessageModel.findOne({ roomId: ROOM_ID })
+    const dbRoom = await RoomModel.findOne({ _id: ROOM_ID });
+    const dbMessage = await MessageModel.findOne({ roomId: ROOM_ID });
     expect(dbRoom).toBeDefined();
     expect(dbMessage).toBeDefined();
   });
 
   it("should send message and parse mentions", async () => {
-    let { ROOM_ID } = await getRoomInfo();
+    const { ROOM_ID } = await getRoomInfo();
 
     // PREPARE: ADD USER TO ROOM FIRST
     const fakeUserId = await UserModel.findOne({ username: fakeUser2.username });
@@ -177,10 +177,10 @@ describe("MessageResolver", () => {
           name: fakeUser.name
         }
       })
-    )
+    );
 
     // ASSERT THE MENTION
-    const dbMessage = await MessageModel.findOne({ content: messageContent })
+    const dbMessage = await MessageModel.findOne({ content: messageContent });
     expect(dbMessage.mentions).toContainEqual(new ObjectID(fakeUserId.id));
 
     // ASSERT NOTIFICATION
@@ -196,8 +196,8 @@ describe("MessageResolver", () => {
     expect(payload.roomName).toEqual(_room?.name);
   });
 
-  it('should getMessages', async () => {
-    let { ROOM_ID } = await getRoomInfo();
+  it("should getMessages", async () => {
+    const { ROOM_ID } = await getRoomInfo();
 
     const messageResult = await gCall({
       source: queries.getMesages,
@@ -220,13 +220,13 @@ describe("MessageResolver", () => {
           }
         ]
       })
-    )
-  })
+    );
+  });
 
   it("should edit message", async () => {
-    let { ROOM_ID } = await getRoomInfo();
+    const { ROOM_ID } = await getRoomInfo();
 
-    let message = await MessageModel.findOne({ author: fakeUser.id });
+    const message = await MessageModel.findOne({ author: fakeUser.id });
     const messageResult = await gCall({
       source: queries.editMessage,
       variableValues: { messageId: message.id, content: "Edited message" }
@@ -240,17 +240,17 @@ describe("MessageResolver", () => {
           name: fakeUser.name
         }
       })
-    )
+    );
 
     const messageId = messageResult.data?.editMessage?.id;
     const dbMessage = await MessageModel.findOne({ _id: messageId });
     const dbRoom = await RoomModel.findOne({ messages: { $in: messageId } });
-    expect(dbMessage?.content).toEqual("Edited message")
+    expect(dbMessage?.content).toEqual("Edited message");
     expect(dbRoom?.messages).toContainEqual(new ObjectID(messageId));
   });
 
   it("should delete message", async () => {
-    let { ROOM_ID } = await getRoomInfo();
+    const { ROOM_ID } = await getRoomInfo();
 
     const messageContent = "Edited message";
     const message = await MessageModel.findOne({ author: fakeUser.id });
@@ -267,12 +267,12 @@ describe("MessageResolver", () => {
           name: fakeUser.name
         }
       })
-    )
+    );
 
     const messageId = messageResult.data?.editMessage?.id;
-    const dbMessage = await MessageModel.findOne({ _id: messageId })
-    const dbRoom = await RoomModel.findOne({ messages: { $in: messageId } })
+    const dbMessage = await MessageModel.findOne({ _id: messageId });
+    const dbRoom = await RoomModel.findOne({ messages: { $in: messageId } });
     expect(dbMessage).toBeNull();
     expect(dbRoom).toBeNull();
   });
-}) 
+}); 

@@ -12,7 +12,7 @@ const UpsertUser = async (
   { socialId, email, username, displayName, avatarUrl }: IUpsertUser,
   done: any
 ) => {
-  let userData = {
+  const userData = {
     avatarUrl: avatarUrl,
     provider: provider,
     socialId: socialId,
@@ -22,13 +22,13 @@ const UpsertUser = async (
   };
 
   try {
-    let matchedUser = await UserModel.findOne({ email: userData.email });
+    const matchedUser = await UserModel.findOne({ email: userData.email });
     if (matchedUser) {
       // console.log("matched user", matchedUser.email);
       return done(null, matchedUser);
     }
 
-    let newUser = new UserModel(userData);
+    const newUser = new UserModel(userData);
     await newUser.save();
 
     // console.log("newUser created", newUser.email);

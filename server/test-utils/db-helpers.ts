@@ -1,9 +1,9 @@
-import dotenv from 'dotenv';
-import mongoose from 'mongoose';
-import UserModel from '../entities/User';
-import { fakeUser, fakeUser2 } from './fake-user';
-import { MongoMemoryServer } from 'mongodb-memory-server-core';
-import isCI from 'is-ci';
+import dotenv from "dotenv";
+import mongoose from "mongoose";
+import UserModel from "../entities/User";
+import { fakeUser, fakeUser2 } from "./fake-user";
+import { MongoMemoryServer } from "mongodb-memory-server-core";
+import isCI from "is-ci";
 
 dotenv.config();
 
@@ -19,19 +19,19 @@ export const connect = async () => {
   const mongooseOpts = {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-  }
+  };
 
   await mongoose.connect(uri, mongooseOpts);
   return mongoose.connection;
-}
+};
 
 export const closeDatabase = async () => {
-  await mongoose.connection.dropDatabase()
+  await mongoose.connection.dropDatabase();
   await mongoose.connection.close();
   if (isCI) {
-    mongod.stop()
+    mongod.stop();
   }
-}
+};
 
 export const clearDatabase = async () => {
   const collections = mongoose.connection.collections;
@@ -40,7 +40,7 @@ export const clearDatabase = async () => {
     const collection = collections[key];
     await collection.deleteMany({});
   }
-}
+};
 
 export const populateUsers = async () => {
   // create fake users
@@ -61,5 +61,5 @@ export const populateUsers = async () => {
     avatarUrl: fakeUser.avatarUrl,
     username: fakeUser2.username,
     name: fakeUser2.name,
-  }).save()
-}
+  }).save();
+};

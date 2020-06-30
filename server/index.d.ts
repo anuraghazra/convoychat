@@ -1,6 +1,6 @@
-declare module 'xss-clean'
+declare module "xss-clean"
 
-declare var process: {
+declare let process: {
   env: {
     DB_URL: string,
     TEST_DB_URI: string,
@@ -10,10 +10,10 @@ declare var process: {
     AUTH0_DOMAIN: string,
     AUTH0_CLIENT_SECRET: string,
     MOCK_EMAIL: string,
-    NODE_ENV: 'development' | 'production',
+    NODE_ENV: "development" | "production",
     PORT?: string,
     CLOUDINARY_CLOUD_NAME: string,
     CLOUDINARY_API_KEY: string,
     CLOUDINARY_API_SECRET: string,
   }
-}
+};

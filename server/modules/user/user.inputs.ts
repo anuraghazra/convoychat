@@ -12,7 +12,7 @@ import {
   instagramUsernameRegex,
   githubUsernameRegex,
   twitterUsernameRegex,
-} from '../../utils'
+} from "../../utils";
 import { Validate } from "class-validator";
 import { ArgsType, Field } from "type-graphql";
 

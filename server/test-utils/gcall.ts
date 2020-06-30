@@ -18,7 +18,7 @@ let schema: GraphQLSchema;
 export const createFakeContext = (currentUser?: any) => {
   let user = {
     ...fakeUser,
-  }
+  };
 
   if (currentUser) {
     user = {
@@ -42,8 +42,8 @@ export const createFakeContext = (currentUser?: any) => {
     },
     res: {} as any,
     pubsub: new PubSub(),
-  }
-}
+  };
+};
 
 export const gCall = async ({ source, variableValues, currentUser }: Options) => {
   if (!schema) {

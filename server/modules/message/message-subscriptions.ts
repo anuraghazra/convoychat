@@ -1,9 +1,9 @@
-import { ObjectID } from 'mongodb'
-import CONSTANTS from '../../constants';
+import { ObjectID } from "mongodb";
+import CONSTANTS from "../../constants";
 import { Message } from "../../entities/Message";
 import { Subscription, Root, Resolver, Arg } from "type-graphql";
 
-const filterRoom = ({ payload, args }) => payload.roomId.equals(args.roomId)
+const filterRoom = ({ payload, args }) => payload.roomId.equals(args.roomId);
 
 @Resolver()
 class MessageSubscriptions {
@@ -13,9 +13,9 @@ class MessageSubscriptions {
   })
   onNewMessage(
     @Root() message: Message,
-    @Arg('roomId') roomId: ObjectID
+    @Arg("roomId") roomId: ObjectID
   ): Message {
-    return message
+    return message;
   }
 
   @Subscription(returns => Message, {
@@ -24,9 +24,9 @@ class MessageSubscriptions {
   })
   onDeleteMessage(
     @Root() message: Message,
-    @Arg('roomId') roomId: ObjectID
+    @Arg("roomId") roomId: ObjectID
   ): Message {
-    return message
+    return message;
   }
 
   @Subscription(returns => Message, {
@@ -35,9 +35,9 @@ class MessageSubscriptions {
   })
   onUpdateMessage(
     @Root() message: Message,
-    @Arg('roomId') roomId: ObjectID
+    @Arg("roomId") roomId: ObjectID
   ): Message {
-    return message
+    return message;
   }
 }
 

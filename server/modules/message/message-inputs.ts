@@ -1,6 +1,6 @@
-import { Field, ArgsType, Int } from "type-graphql"
+import { Field, ArgsType, Int } from "type-graphql";
 import { Length } from "class-validator";
-import { ObjectID } from 'mongodb';
+import { ObjectID } from "mongodb";
 
 @ArgsType()
 export class sendMessageArgs {

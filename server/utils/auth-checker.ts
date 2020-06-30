@@ -14,4 +14,4 @@ const useAuth: AuthChecker<Context> = (
   }
   return true;
 };
-export default useAuth
+export default useAuth;

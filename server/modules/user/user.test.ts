@@ -1,7 +1,7 @@
 import UserModel from "../../entities/User";
 import { gCall } from "../../test-utils/gcall";
 import { fakeUser, fakeUser2 } from "../../test-utils/fake-user";
-import * as dbHelper from '../../test-utils/db-helpers';
+import * as dbHelper from "../../test-utils/db-helpers";
 jest.setTimeout(500000);
 
 const queries = {
@@ -61,16 +61,16 @@ const queries = {
       }
     }
   `
-}
+};
 
 afterAll(async () => {
-  await dbHelper.clearDatabase()
+  await dbHelper.clearDatabase();
   await dbHelper.closeDatabase();
 });
 beforeAll(async () => {
-  await dbHelper.connect()
-  await dbHelper.populateUsers()
-})
+  await dbHelper.connect();
+  await dbHelper.populateUsers();
+});
 
 describe("UserResolver", () => {
   it("Me", async () => {
@@ -84,8 +84,8 @@ describe("UserResolver", () => {
           links: null
         }
       }
-    })
-  })
+    });
+  });
 
   it("listUsers", async () => {
     const users = await gCall({ source: queries.listUsers });
@@ -102,11 +102,11 @@ describe("UserResolver", () => {
           }
         ]
       }
-    })
-  })
+    });
+  });
 
   it("getUser", async () => {
-    const findId = await UserModel.findOne({ email: fakeUser.email })
+    const findId = await UserModel.findOne({ email: fakeUser.email });
     const user = await gCall({
       source: queries.getUser,
       variableValues: { id: findId._id }
@@ -123,18 +123,18 @@ describe("UserResolver", () => {
           }
         }
       }
-    })
-  })
+    });
+  });
 
   it("should change user's color", async () => {
-    const OK_COLOR = '#ff5896';
-    const BAD_COLOR = '#000000';
+    const OK_COLOR = "#ff5896";
+    const BAD_COLOR = "#000000";
     let user = await gCall({
       source: queries.setColor,
       variableValues: { color: BAD_COLOR }
     });
 
-    expect(user.errors[0].message).toBe('Argument Validation Error')
+    expect(user.errors[0].message).toBe("Argument Validation Error");
 
     user = await gCall({
       source: queries.setColor,
@@ -148,23 +148,23 @@ describe("UserResolver", () => {
           color: OK_COLOR,
         }
       }
-    })
-  })
+    });
+  });
 
   it("should change user's links", async () => {
     let user = await gCall({
       source: queries.setUserLinks,
-      variableValues: { github: 'anuraghazra', website: 'invalid' }
+      variableValues: { github: "anuraghazra", website: "invalid" }
     });
 
-    expect(user.errors[0].message).toBe('Argument Validation Error')
+    expect(user.errors[0].message).toBe("Argument Validation Error");
 
     const variableLinks = {
-      github: 'https://github.com/anuraghazra',
-      website: 'https://anuraghazra.github.io',
-      twitter: 'https://twitter.com/anuraghazru',
-      instagram: 'https://www.instagram.com/anurag_hazra/',
-    }
+      github: "https://github.com/anuraghazra",
+      website: "https://anuraghazra.github.io",
+      twitter: "https://twitter.com/anuraghazru",
+      instagram: "https://www.instagram.com/anurag_hazra/",
+    };
     user = await gCall({
       source: queries.setUserLinks,
       variableValues: variableLinks
@@ -176,6 +176,6 @@ describe("UserResolver", () => {
           links: variableLinks
         }
       }
-    })
-  })
-}) 
+    });
+  });
+}); 

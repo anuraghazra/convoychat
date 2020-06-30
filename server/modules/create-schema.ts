@@ -1,7 +1,7 @@
 import { buildSchema } from "type-graphql";
 import useAuth from "../utils/auth-checker";
 import { TypegooseMiddleware } from "../utils/typegoose-middleware";
-import { ObjectID } from 'mongodb'
+import { ObjectID } from "mongodb";
 
 import UserResolver from "./user/user-resolver";
 import MessageResolver from "./message/message-resolver";
@@ -26,5 +26,5 @@ export const createSchema = () => {
     globalMiddlewares: [TypegooseMiddleware],
     scalarsMap: [{ type: ObjectID, scalar: ObjectIdScalar }],
     authChecker: useAuth,
-  })
-}
+  });
+};

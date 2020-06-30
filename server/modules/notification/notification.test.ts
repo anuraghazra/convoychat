@@ -39,11 +39,11 @@ const queries = {
       }
     }
   `,
-}
+};
 
 
 const initialize = async () => {
-  let result = await gCall({
+  const result = await gCall({
     source: `
       mutation createRoom($name: String!) {
         createRoom(name: $name) {
@@ -57,7 +57,7 @@ const initialize = async () => {
   ROOM_ID = result.data.createRoom.id;
 
   const context = createFakeContext();
-  sender = await UserModel.findOne({ username: fakeUser2.username })
+  sender = await UserModel.findOne({ username: fakeUser2.username });
   await sendNotification({
     context: context as any,
     sender: new ObjectID(sender.id),
@@ -65,12 +65,12 @@ const initialize = async () => {
     type: NOTIFICATION_TYPE.MENTION,
     payload: {
       roomName: result.data.createRoom?.name,
-      message: 'Hello world',
-      messageId: '12345',
+      message: "Hello world",
+      messageId: "12345",
       roomId: result.data.createRoom?.id,
     },
   });
-}
+};
 
 
 afterAll(async () => {
@@ -81,8 +81,8 @@ afterAll(async () => {
 beforeAll(async () => {
   await dbHelper.connect();
   await dbHelper.populateUsers();
-  await initialize()
-})
+  await initialize();
+});
 // afterEach(async () => await dbHelper.clearDatabase());
 // beforeEach(async () => await dbHelper.populate());
 
@@ -106,7 +106,7 @@ describe("NotificationResolver", () => {
           sender: { name: fakeUser2.name }, type: NOTIFICATION_TYPE.MENTION
         }]
       })
-    )
+    );
   });
 
   it("Should read notification", async () => {
@@ -131,6 +131,6 @@ describe("NotificationResolver", () => {
           sender: { name: fakeUser2.name }, type: NOTIFICATION_TYPE.MENTION
         }
       })
-    )
+    );
   });
-})
+});

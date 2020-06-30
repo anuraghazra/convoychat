@@ -1,14 +1,14 @@
-import { ObjectType, Field, Int } from "type-graphql"
+import { ObjectType, Field, Int } from "type-graphql";
 import { Message } from "../../entities/Message";
 
 
 @ObjectType()
 export class Messages {
   @Field(type => Int, { nullable: true })
-  totalDocs: Number
+  totalDocs: number
 
   @Field(type => Int, { nullable: true })
-  totalPages: Number
+  totalPages: number
 
   @Field(type => [Message])
   messages: Message[]

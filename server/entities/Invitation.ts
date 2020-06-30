@@ -1,13 +1,13 @@
-import { User } from './User';
-import { Room } from './Room';
-import { ObjectID } from 'mongodb';
-import { Field, ID, ObjectType } from 'type-graphql';
-import { prop, Ref, arrayProp, getModelForClass, modelOptions, index } from '@typegoose/typegoose';
+import { User } from "./User";
+import { Room } from "./Room";
+import { ObjectID } from "mongodb";
+import { Field, ID, ObjectType } from "type-graphql";
+import { prop, Ref, arrayProp, getModelForClass, modelOptions, index } from "@typegoose/typegoose";
 
 @ObjectType()
 @modelOptions({
   options: {
-    customName: 'invitation',
+    customName: "invitation",
   },
   schemaOptions: {
     timestamps: true,
@@ -38,21 +38,21 @@ export class Invitation {
   createdAt!: Date;
 
   @Field(type => ID)
-  @prop({ ref: 'user', required: true })
+  @prop({ ref: "user", required: true })
   public invitedBy!: Ref<User>;
 
   @Field(type => ID)
-  @prop({ ref: 'user' })
+  @prop({ ref: "user" })
   public userId!: Ref<User>;
 
   @Field(type => ID)
-  @prop({ ref: 'room', required: true })
+  @prop({ ref: "room", required: true })
   public roomId!: Ref<Room>;
 
   @prop({ required: true, default: 15 })
   public maxUses!: number;
 
-  @arrayProp({ ref: 'users' })
+  @arrayProp({ ref: "users" })
   public uses!: Ref<User>[];
 
   @prop({ required: true })

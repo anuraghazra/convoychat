@@ -1,12 +1,12 @@
 import "reflect-metadata";
-import { Room } from './Room';
-import { ObjectID } from 'mongodb'
-import { Field, ObjectType } from 'type-graphql';
-import { prop as Property, Ref, arrayProp, getModelForClass, modelOptions } from '@typegoose/typegoose';
+import { Room } from "./Room";
+import { ObjectID } from "mongodb";
+import { Field, ObjectType } from "type-graphql";
+import { prop as Property, Ref, arrayProp, getModelForClass, modelOptions } from "@typegoose/typegoose";
 
 enum Providers {
-  GOOGLE = 'google',
-  GITHUB = 'github',
+  GOOGLE = "google",
+  GITHUB = "github",
 }
 
 @ObjectType()
@@ -30,7 +30,7 @@ export class UserLinks {
 }
 
 @modelOptions({
-  options: { customName: 'user', },
+  options: { customName: "user", },
   schemaOptions: {
     timestamps: true,
     collection: "users"
@@ -55,11 +55,11 @@ export class User {
   public username!: string;
 
   @Field(type => [Room])
-  @arrayProp({ ref: 'room' })
+  @arrayProp({ ref: "room" })
   public rooms!: Ref<Room>[];
 
   @Field()
-  @Property({ default: '#64FF8F' })
+  @Property({ default: "#64FF8F" })
   public color!: string;
 
   @Field(type => UserLinks, { nullable: true })

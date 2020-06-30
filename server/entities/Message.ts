@@ -1,16 +1,16 @@
-import Member from './Member';
+import Member from "./Member";
 import { User } from "./User";
-import { ObjectID } from 'mongodb';
+import { ObjectID } from "mongodb";
 import RoomModel, { Room } from "./Room";
 import { Field, ObjectType, ID } from "type-graphql";
 import { prop, Ref, getModelForClass, arrayProp, modelOptions, pre } from "@typegoose/typegoose";
 
 @ObjectType()
 @modelOptions({
-  options: { customName: 'message', },
+  options: { customName: "message", },
   schemaOptions: { timestamps: true, collection: "messages" }
 })
-@pre<Message>('save', async function (next) {
+@pre<Message>("save", async function (next) {
   try {
     await RoomModel.findOneAndUpdate(
       // TODO: FIX THIS $roomId
@@ -32,11 +32,11 @@ export class Message {
   createdAt?: Date
 
   @Field(type => ID)
-  @prop({ ref: 'room', required: true })
+  @prop({ ref: "room", required: true })
   public roomId!: Ref<Room>
 
   @Field(type => Member)
-  @prop({ ref: 'user', required: true })
+  @prop({ ref: "user", required: true })
   public author!: Ref<User>
 
   @Field()
@@ -44,7 +44,7 @@ export class Message {
   public content!: string
 
   @Field(type => [ID])
-  @arrayProp({ ref: 'user' })
+  @arrayProp({ ref: "user" })
   public mentions!: Ref<User>[]
 }
 
