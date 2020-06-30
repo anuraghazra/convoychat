@@ -1,8 +1,9 @@
 import "reflect-metadata";
 import { GraphQLUpload } from "apollo-server-express";
-import { Resolver, Arg, Mutation, Field, ObjectType } from 'type-graphql';
+import { Resolver, Arg, Mutation, Field, ObjectType, UseMiddleware } from 'type-graphql';
 import { Stream } from "stream";
 import { v2 as cloudinary } from 'cloudinary'
+import RateLimit from "../rate-limiter-middleware";
 
 @ObjectType()
 class UploadImageOutput {
@@ -22,6 +23,7 @@ interface IUpload {
 }
 @Resolver()
 class ImageResolver {
+  @UseMiddleware(RateLimit({ limit: 10 }))
   @Mutation(() => UploadImageOutput)
   async uploadImage(@Arg('file', () => GraphQLUpload) file: Promise<IUpload>): Promise<UploadImageOutput> {
     const { createReadStream } = await file;

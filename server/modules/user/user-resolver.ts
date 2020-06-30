@@ -2,12 +2,13 @@ import "reflect-metadata";
 import { ObjectID } from 'mongodb'
 import { Context } from "../context.type";
 import { ApolloError } from "apollo-server-express";
-import { Resolver, Query, Ctx, Arg, Authorized, Mutation, Args } from 'type-graphql';
+import { Resolver, Query, Ctx, Arg, Authorized, Mutation, Args, UseMiddleware } from 'type-graphql';
 
 import Member from "../../entities/Member";
 import UserModel, { User } from "../../entities/User";
 import Me from "../../entities/Me";
 import { setColorArgs, setUserLinksArgs } from "./user.inputs";
+import RateLimit from "../rate-limiter-middleware";
 
 @Resolver(of => User)
 class UserResolver {
@@ -43,6 +44,7 @@ class UserResolver {
   }
 
   @Authorized()
+  @UseMiddleware(RateLimit({ limit: 500 }))
   @Mutation(returns => Member)
   async setColor(
     @Args() { color }: setColorArgs,
@@ -62,6 +64,7 @@ class UserResolver {
   }
 
   @Authorized()
+  @UseMiddleware(RateLimit({ limit: 500 }))
   @Mutation(returns => Member)
   async setUserLinks(
     @Args() links: setUserLinksArgs,
