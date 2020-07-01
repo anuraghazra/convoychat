@@ -5,9 +5,13 @@ import theme from "../styles/theme";
 
 export function renderWithStyledTheme(
   component: React.ReactNode,
-  renderFunction: any = render
+  renderFunction: any = render,
+  options?: any
 ): RenderResult {
   return {
-    ...renderFunction(<ThemeProvider theme={theme}>{component}</ThemeProvider>),
+    ...renderFunction(
+      <ThemeProvider theme={theme}>{component}</ThemeProvider>,
+      options
+    ),
   };
 }

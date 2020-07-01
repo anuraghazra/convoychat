@@ -60,6 +60,7 @@ const SocialLinkInput: React.FC<ISocialLInkInput> = ({ onSubmit }) => {
   return (
     <StyledSocialLinkInput align="center" gap="medium" nowrap>
       <form
+        data-testid="form"
         onSubmit={handleSubmit(e => {
           onSubmit({ type: currentType, value: e.link });
         })}
@@ -83,6 +84,7 @@ const SocialLinkInput: React.FC<ISocialLInkInput> = ({ onSubmit }) => {
       </form>
 
       <select
+        data-testid="link-types"
         className="custom-select"
         onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
           setCurrentType(e.target.value as ILinkTypes)
