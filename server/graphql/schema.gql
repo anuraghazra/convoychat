@@ -65,10 +65,14 @@ type Message {
   roomId: ID!
 }
 
+type MessageEdge {
+  cursor: ID!
+  node: Message!
+}
+
 type Messages {
-  messages: [Message!]!
-  totalDocs: Int
-  totalPages: Int
+  edges: [MessageEdge!]!
+  pageInfo: pageInfo
 }
 
 type Mutation {
@@ -84,7 +88,12 @@ type Mutation {
   removeMemberFromRoom(memberId: ObjectId!, roomId: ObjectId!): Member
   sendMessage(content: String!, roomId: ObjectId!): Message!
   setColor(color: String!): Member!
-  setUserLinks(github: String, instagram: String, twitter: String, website: String): Member!
+  setUserLinks(
+    github: String
+    instagram: String
+    twitter: String
+    website: String
+  ): Member!
   uploadImage(file: Upload!): UploadImageOutput!
 }
 
@@ -98,18 +107,31 @@ type Notification {
   type: NOTIFICATION_TYPE!
 }
 
-"""Notification types enums"""
+"""
+Notification types enums
+"""
 enum NOTIFICATION_TYPE {
   INVITATION
   MENTION
 }
 
-"""Mongo object id scalar type"""
+"""
+Mongo object id scalar type
+"""
 scalar ObjectId
+
+type pageInfo {
+  hasNext: Boolean!
+}
 
 type Query {
   getInvitationInfo(token: String!): InvitationDetails!
-  getMessages(limit: Int!, offset: Int!, roomId: ObjectId!): Messages!
+  getMessages(
+    after: String
+    before: String
+    limit: Int!
+    roomId: ObjectId!
+  ): Messages!
   getNotifications: [Notification!]!
   getRoom(id: ObjectId!): Room!
   getUser(id: ObjectId!): User!
@@ -135,7 +157,9 @@ type Subscription {
   onUpdateMessage(roomId: ObjectId!): Message!
 }
 
-"""The `Upload` scalar type represents a file upload."""
+"""
+The `Upload` scalar type represents a file upload.
+"""
 scalar Upload
 
 type UploadImageOutput {

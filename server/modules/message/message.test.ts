@@ -5,7 +5,6 @@ import MessageModel from "../../entities/Message";
 import { gCall } from "../../test-utils/gcall";
 import * as dbHelper from "../../test-utils/db-helpers";
 import { fakeUser, fakeUser2 } from "../../test-utils/fake-user";
-import { Maybe } from "graphql/jsutils/Maybe";
 import NotificationModel, {
   NOTIFICATION_TYPE,
 } from "../../entities/Notification";
@@ -38,15 +37,18 @@ const queries = {
     }
   `,
   getMesages: `
-    query getMessages($limit: Int!, $offset: Int!, $roomId: ObjectId!) {
-      getMessages(limit: $limit, offset: $offset, roomId: $roomId) {
-        totalDocs
-        totalPages
-        messages {
-          content
-          roomId
-          author {
-            name
+    query getMessages($limit: Int!, $roomId: ObjectId!, $before: String) {
+      getMessages(limit: $limit, roomId: $roomId, before: $before) {
+        pageInfo {
+          hasNext
+        }
+        edges {
+          node {
+            content
+            roomId
+            author {
+              name
+            }
           }
         }
       }
@@ -204,22 +206,27 @@ describe("MessageResolver", () => {
 
     const messageResult = await gCall({
       source: queries.getMesages,
-      variableValues: { roomId: ROOM_ID, limit: 10, offset: 0 },
+      variableValues: { roomId: ROOM_ID, limit: 10 },
     });
     expect(messageResult?.data?.getMessages).toEqual(
       expect.objectContaining({
-        totalDocs: 2,
-        totalPages: 0,
-        messages: [
+        pageInfo: {
+          hasNext: false,
+        },
+        edges: [
           {
-            content: "Hello world",
-            roomId: ROOM_ID,
-            author: { name: fakeUser.name },
+            node: {
+              content: "Hello world",
+              roomId: ROOM_ID,
+              author: { name: fakeUser.name },
+            },
           },
           {
-            content: "Hello @newuser-abcd @notauser",
-            roomId: ROOM_ID,
-            author: { name: fakeUser.name },
+            node: {
+              content: "Hello @newuser-abcd @notauser",
+              roomId: ROOM_ID,
+              author: { name: fakeUser.name },
+            },
           },
         ],
       })

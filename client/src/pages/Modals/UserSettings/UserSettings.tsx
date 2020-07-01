@@ -116,6 +116,7 @@ const UserSettings: React.FC = () => {
           {Object.keys(socialLinks).map((type: ILinkTypes) => {
             return socialLinks[type] ? (
               <SocialLink
+                key={type}
                 type={type}
                 url={socialLinks[type]}
                 onDelete={() => {

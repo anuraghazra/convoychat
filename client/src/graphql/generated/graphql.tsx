@@ -79,11 +79,16 @@ export type Message = {
   mentions: Array<Scalars['ID']>;
 };
 
+export type MessageEdge = {
+  __typename?: 'MessageEdge';
+  cursor: Scalars['ID'];
+  node: Message;
+};
+
 export type Messages = {
   __typename?: 'Messages';
-  totalDocs?: Maybe<Scalars['Int']>;
-  totalPages?: Maybe<Scalars['Int']>;
-  messages: Array<Message>;
+  pageInfo?: Maybe<PageInfo>;
+  edges: Array<MessageEdge>;
 };
 
 export type Mutation = {
@@ -194,6 +199,11 @@ export enum Notification_Type {
 }
 
 
+export type PageInfo = {
+  __typename?: 'pageInfo';
+  hasNext: Scalars['Boolean'];
+};
+
 export type Query = {
   __typename?: 'Query';
   me: Me;
@@ -221,7 +231,8 @@ export type QueryGetRoomArgs = {
 export type QueryGetMessagesArgs = {
   roomId: Scalars['ObjectId'];
   limit: Scalars['Int'];
-  offset: Scalars['Int'];
+  before?: Maybe<Scalars['String']>;
+  after?: Maybe<Scalars['String']>;
 };
 
 
@@ -353,7 +364,8 @@ export type RoomMemberFragment = (
 export type GetRoomQueryVariables = {
   roomId: Scalars['ObjectId'];
   limit: Scalars['Int'];
-  offset: Scalars['Int'];
+  after?: Maybe<Scalars['String']>;
+  before?: Maybe<Scalars['String']>;
 };
 
 
@@ -368,13 +380,19 @@ export type GetRoomQuery = (
     )> }
   ), messages: (
     { __typename?: 'Messages' }
-    & Pick<Messages, 'totalDocs' | 'totalPages'>
-    & { messages: Array<(
-      { __typename?: 'Message' }
-      & Pick<Message, 'id' | 'roomId' | 'content' | 'createdAt' | 'mentions'>
-      & { author: (
-        { __typename?: 'Member' }
-        & Pick<Member, 'id' | 'name' | 'username' | 'avatarUrl' | 'color'>
+    & { pageInfo?: Maybe<(
+      { __typename?: 'pageInfo' }
+      & Pick<PageInfo, 'hasNext'>
+    )>, edges: Array<(
+      { __typename?: 'MessageEdge' }
+      & Pick<MessageEdge, 'cursor'>
+      & { node: (
+        { __typename?: 'Message' }
+        & Pick<Message, 'id' | 'roomId' | 'content' | 'createdAt' | 'mentions'>
+        & { author: (
+          { __typename?: 'Member' }
+          & Pick<Member, 'id' | 'name' | 'username' | 'avatarUrl' | 'color'>
+        ) }
       ) }
     )> }
   ) }
@@ -883,7 +901,7 @@ export type AcceptInvitationMutationHookResult = ReturnType<typeof useAcceptInvi
 export type AcceptInvitationMutationResult = ApolloReactCommon.MutationResult<AcceptInvitationMutation>;
 export type AcceptInvitationMutationOptions = ApolloReactCommon.BaseMutationOptions<AcceptInvitationMutation, AcceptInvitationMutationVariables>;
 export const GetRoomDocument = gql`
-    query getRoom($roomId: ObjectId!, $limit: Int!, $offset: Int!) {
+    query getRoom($roomId: ObjectId!, $limit: Int!, $after: String, $before: String) {
   room: getRoom(id: $roomId) {
     id
     name
@@ -893,21 +911,25 @@ export const GetRoomDocument = gql`
       ...RoomMember
     }
   }
-  messages: getMessages(roomId: $roomId, limit: $limit, offset: $offset) {
-    totalDocs
-    totalPages
-    messages {
-      id
-      roomId
-      content
-      createdAt
-      mentions
-      author {
+  messages: getMessages(roomId: $roomId, limit: $limit, after: $after, before: $before) {
+    pageInfo {
+      hasNext
+    }
+    edges {
+      cursor
+      node {
         id
-        name
-        username
-        avatarUrl
-        color
+        roomId
+        content
+        createdAt
+        mentions
+        author {
+          id
+          name
+          username
+          avatarUrl
+          color
+        }
       }
     }
   }
@@ -928,7 +950,8 @@ export const GetRoomDocument = gql`
  *   variables: {
  *      roomId: // value for 'roomId'
  *      limit: // value for 'limit'
- *      offset: // value for 'offset'
+ *      after: // value for 'after'
+ *      before: // value for 'before'
  *   },
  * });
  */

@@ -9,7 +9,12 @@ export default gql`
     createdAt
   }
 
-  query getRoom($roomId: ObjectId!, $limit: Int!, $offset: Int!) {
+  query getRoom(
+    $roomId: ObjectId!
+    $limit: Int!
+    $after: String
+    $before: String
+  ) {
     room: getRoom(id: $roomId) {
       id
       name
@@ -19,21 +24,30 @@ export default gql`
         ...RoomMember
       }
     }
-    messages: getMessages(roomId: $roomId, limit: $limit, offset: $offset) {
-      totalDocs
-      totalPages
-      messages {
-        id
-        roomId
-        content
-        createdAt
-        mentions
-        author {
+    messages: getMessages(
+      roomId: $roomId
+      limit: $limit
+      after: $after
+      before: $before
+    ) {
+      pageInfo {
+        hasNext
+      }
+      edges {
+        cursor
+        node {
           id
-          name
-          username
-          avatarUrl
-          color
+          roomId
+          content
+          createdAt
+          mentions
+          author {
+            id
+            name
+            username
+            avatarUrl
+            color
+          }
         }
       }
     }

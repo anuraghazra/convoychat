@@ -1,33 +1,33 @@
-import React, { useEffect, useRef, useState, useCallback } from "react";
-import {
-  useGetRoomQuery,
-  Message as IMessage,
-  useSendMessageMutation,
-} from "graphql/generated/graphql";
-
-import Sidebar from "react-sidebar";
-import styled from "styled-components";
-import update from "immutability-helper";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
+import update from "immutability-helper";
+import styled from "styled-components";
+import Sidebar from "react-sidebar";
 
-import RoomHeader from "./RoomHeader";
-import MessageList from "components/Message/MessageList";
-import MessageInput from "components/MessageInput/MessageInput";
 import useMessageInput from "components/MessageInput/useMessageInput";
-import { DashboardBody } from "pages/Dashboard/Dashboard.style";
-import subscribeToMessages from "./subscribeToMessages";
-
-import { Flex } from "@convoy-ui";
-import { scrollToBottom } from "utils";
-import { MAX_MESSAGES } from "../../constants";
-import { useAuthContext } from "contexts/AuthContext";
+import useResponsiveSidebar from "hooks/useResponsiveSidebar";
 
 import {
   updateCacheAfterSendMessage,
   sendMessageOptimisticResponse,
 } from "./Room.helpers";
+import {
+  MessageEdge,
+  useGetRoomQuery,
+  useSendMessageMutation,
+} from "graphql/generated/graphql";
+import { Flex } from "@convoy-ui";
+import { scrollToBottom } from "utils";
+import { MAX_MESSAGES } from "../../constants";
+import { useAuthContext } from "contexts/AuthContext";
+
+import RoomHeader from "./RoomHeader";
 import RightSidebar from "./RightSidebar";
-import useResponsiveSidebar from "hooks/useResponsiveSidebar";
+import subscribeToMessages from "./subscribeToMessages";
+import MessageList from "components/Message/MessageList";
+import MessageInput from "components/MessageInput/MessageInput";
+import BidirectionalScroller from "components/BidirectionalScroller";
+import { DashboardBody } from "pages/Dashboard/Dashboard.style";
 
 const MessagesWrapper = styled(Flex)`
   width: 100%;
@@ -48,8 +48,8 @@ const sidebarStyles = {
 const Room: React.FC = () => {
   const { user } = useAuthContext();
   const { roomId } = useParams();
+  const bodyRef = useRef<HTMLElement>();
 
-  const bodyRef = useRef<HTMLElement | null>();
   const { isDocked, isOpen, setIsOpen } = useResponsiveSidebar();
   const {
     value,
@@ -76,7 +76,6 @@ const Room: React.FC = () => {
     },
     variables: {
       roomId: roomId,
-      offset: 0,
       limit: MAX_MESSAGES,
     },
   });
@@ -111,50 +110,35 @@ const Room: React.FC = () => {
   useEffect(() => {
     subscribeToMessages(
       subscribeToMore,
-      { roomId, limit: MAX_MESSAGES, offset: 0 },
+      { roomId, limit: MAX_MESSAGES },
       user,
       bodyRef
     );
   }, []);
 
-  const fetchMoreMessages = () => {
+  const fetchPreviousMessages = async () => {
     setIsFetchingMore(true);
-    fetchMore({
+    await fetchMore({
       variables: {
         limit: MAX_MESSAGES,
-        offset: roomData?.messages?.messages?.length,
+        before: roomData?.messages?.edges[0].cursor,
       },
       updateQuery: (prev, { fetchMoreResult }) => {
         if (!fetchMoreResult) return prev;
         const updatedData = update(prev, {
           messages: {
-            messages: {
-              $unshift: fetchMoreResult.messages?.messages,
+            pageInfo: { $set: fetchMoreResult.messages?.pageInfo },
+            edges: {
+              $unshift: fetchMoreResult.messages?.edges,
             },
           },
         });
 
-        // scroll jumping fix
-        const lastMessage: any = bodyRef.current.getElementsByClassName(
-          "message__item"
-        )[0];
-        const bounds = lastMessage.getBoundingClientRect();
-        bodyRef.current.scrollTop = bounds.top - 60;
-
+        setIsFetchingMore(false);
         return updatedData;
       },
     });
   };
-
-  const handleScroll = useCallback(
-    (e: any) => {
-      e.persist();
-      if (bodyRef.current.scrollTop === 0) {
-        fetchMoreMessages();
-      }
-    },
-    [roomData?.messages?.messages?.length]
-  );
 
   return (
     <>
@@ -182,12 +166,19 @@ const Room: React.FC = () => {
             <MessagesWrapper nowrap direction="column">
               <RoomHeader name={roomData?.room?.name} />
 
-              <MessageList
-                ref={bodyRef as any}
-                onScroll={handleScroll}
-                isFetchingMore={fetchRoomLoading}
-                messages={roomData?.messages?.messages as IMessage[]}
-              />
+              <BidirectionalScroller
+                innerRef={bodyRef}
+                topLoading={isFetchingMore}
+                onReachTop={restoreScroll => {
+                  if (roomData?.messages?.pageInfo?.hasNext) {
+                    fetchPreviousMessages().then(restoreScroll);
+                  }
+                }}
+              >
+                <MessageList
+                  messages={roomData?.messages?.edges as MessageEdge[]}
+                />
+              </BidirectionalScroller>
 
               <MessageInput
                 value={value}

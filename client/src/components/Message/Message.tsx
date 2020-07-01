@@ -4,7 +4,7 @@ import MarkdownView from "react-showdown";
 import { useParams } from "react-router-dom";
 import { useApolloClient } from "@apollo/react-hooks";
 
-import { FaTrash, FaPen, FaSpinner } from "react-icons/fa";
+import { FaTrash, FaPen, FaSpinner, FaLink } from "react-icons/fa";
 import {
   Member,
   GetRoomQuery,
@@ -28,6 +28,7 @@ interface IMessage {
   author: Partial<Pick<Member, "avatarUrl" | "color" | "name">>;
   date?: string;
   isAuthor?: boolean;
+  isHighlighted?: boolean;
 }
 
 const Message: React.FC<IMessage> = ({
@@ -36,6 +37,7 @@ const Message: React.FC<IMessage> = ({
   date,
   author,
   isAuthor,
+  isHighlighted,
 }) => {
   const client = useApolloClient();
   const roomData = useRef<GetRoomQuery>();
@@ -78,6 +80,7 @@ const Message: React.FC<IMessage> = ({
       },
     });
   };
+
   const handleCancel = () => {
     setIsEditing(false);
   };
@@ -86,7 +89,7 @@ const Message: React.FC<IMessage> = ({
     try {
       roomData.current = client.readQuery<GetRoomQuery>({
         query: GetRoomDocument,
-        variables: { roomId: roomId, limit: MAX_MESSAGES, offset: 0 },
+        variables: { roomId: roomId, limit: MAX_MESSAGES },
       });
     } catch (err) {
       console.log(err);
@@ -94,7 +97,7 @@ const Message: React.FC<IMessage> = ({
   }, [roomId]);
 
   return (
-    <StyledMessage className="message__item">
+    <StyledMessage isHighlighted={isHighlighted} className="message__item">
       <Flex direction="column">
         <Flex gap="medium" align="center" nowrap>
           <Avatar size={35} src={author?.avatarUrl} />

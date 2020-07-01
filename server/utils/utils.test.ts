@@ -9,6 +9,8 @@ import { createFakeContext } from "../test-utils/gcall";
 import NotificationModel, { NOTIFICATION_TYPE } from "../entities/Notification";
 import { generateUsername } from ".";
 
+jest.setTimeout(500000);
+
 afterAll(async () => {
   await dbHelper.clearDatabase();
   await dbHelper.closeDatabase();

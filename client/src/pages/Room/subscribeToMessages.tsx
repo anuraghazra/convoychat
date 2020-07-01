@@ -30,7 +30,17 @@ const subscribeToMessages = (
       }, 50);
 
       return update(prev, {
-        messages: { messages: { $push: [newMessage] } },
+        messages: {
+          edges: {
+            $push: [
+              {
+                __typename: "MessageEdge",
+                node: newMessage,
+                cursor: newMessage.id,
+              },
+            ],
+          },
+        },
       });
     },
   });
@@ -48,7 +58,7 @@ const subscribeToMessages = (
 
       return update(prev, {
         messages: {
-          messages: m => m.filter(m => m.id !== deletedMessage.id),
+          edges: e => e.filter(edge => edge.node.id !== deletedMessage.id),
         },
       });
     },
