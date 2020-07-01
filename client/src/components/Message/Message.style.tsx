@@ -57,6 +57,17 @@ const StyledMessage = styled.section<{ isHighlighted?: boolean }>`
         color: ${p => p.theme.colors.primary};
       }
     }
+
+    img {
+      max-width: 100%;
+      height: auto;
+      border-radius: ${p => p.theme.radius.small}px;
+    }
+    @media (${p => p.theme.media.tablet}) {
+      img {
+        max-width: 100%;
+      }
+    }
   }
 `;
 

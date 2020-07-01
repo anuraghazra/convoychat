@@ -4,7 +4,7 @@ import { ObjectID } from 'mongodb'
 import { Context } from "../context.type";
 import { Ref } from "@typegoose/typegoose";
 import { ApolloError } from "apollo-server-express";
-import { Resolver, Ctx, Arg, Authorized, Mutation, Query, Field, ArgsType, Args } from 'type-graphql';
+import { Resolver, Ctx, Arg, Authorized, Mutation, Query, Field, ArgsType, Args, UseMiddleware } from 'type-graphql';
 
 import UserModel, { User } from "../../entities/User";
 import RoomModel from "../../entities/Room";
@@ -12,6 +12,7 @@ import sendNotification from "../../utils/sendNotification";
 import { NOTIFICATION_TYPE } from "../../entities/Notification";
 import InvitationModel, { Invitation } from "../../entities/Invitation";
 import { InvitationLinkResult, InvitationDetails } from "./invitation-types";
+import RateLimit from "../rate-limiter-middleware";
 
 
 @ArgsType()
@@ -91,6 +92,7 @@ class InvitationResolver {
   }
 
   @Authorized()
+  @UseMiddleware(RateLimit({ limit: 15 }))
   @Mutation(() => [Invitation])
   async inviteMembers(
     @Args() { roomId, members }: inviteMembersArgs,

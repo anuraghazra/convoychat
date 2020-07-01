@@ -28,13 +28,15 @@ import { ObjectID } from "mongodb";
 import { buildSchema } from "type-graphql";
 import { ObjectIdScalar } from "./utils/objectid-scalar";
 import { TypegooseMiddleware } from "./utils/typegoose-middleware";
+import { v2 as cloudinary } from "cloudinary";
 
 import UserResolver from "./modules/user/user-resolver";
-import MessageResolver from "./modules/message/message-resolver";
 import RoomResolver from "./modules/room/room-resolver";
-import NotificationResolver from "./modules/notification/notification-resolver";
+import ImageResolver from "./modules/media/image-resolver";
+import MessageResolver from "./modules/message/message-resolver";
 import InvitationResolver from "./modules/invitation/invitation-resolver";
 import MessageSubscriptions from "./modules/message/message-subscriptions";
+import NotificationResolver from "./modules/notification/notification-resolver";
 import NotificationsSubscriptions from "./modules/notification/notification-subscriptions";
 
 const rateLimitDirective = createRateLimitDirective({
@@ -52,7 +54,7 @@ app.use(mongoSanitize()); // sanitization against NoSQL Injection Attacks
 app.use(xss()); // sanitize data
 
 const sessionMiddleware = cookieSession({
-  secure: process.env.NODE_ENV === "production" ? true : false,
+  secure: process.env.NODE_ENV === "production",
   name: "session",
   keys: [(process.env.SESSION_SECRECT as any)],
   maxAge: 24 * 60 * 60 * 1000, // session will expire after 24 hours
@@ -67,11 +69,18 @@ app.use(passportSessionMiddleware);
 
 app.use("/auth", authRoute);
 
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+})
+
 async function bootstrap() {
   const schema = await buildSchema({
     resolvers: [
       RoomResolver,
       UserResolver,
+      ImageResolver,
       MessageResolver,
       InvitationResolver,
       NotificationResolver,
@@ -117,6 +126,11 @@ async function bootstrap() {
       } catch (err) {
         throw new ApolloError(err);
       }
+    },
+    uploads: {
+      // https://github.com/jaydenseric/graphql-upload#type-processrequestoptions
+      maxFileSize: 10000000, // 10 MB
+      maxFiles: 20,
     },
     playground: {
       settings: {

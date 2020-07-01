@@ -10,7 +10,10 @@ declare var process: {
     AUTH0_DOMAIN: string,
     AUTH0_CLIENT_SECRET: string,
     MOCK_EMAIL: string,
-    NODE_ENV: 'development' | 'production';
-    PORT?: string;
+    NODE_ENV: 'development' | 'production',
+    PORT?: string,
+    CLOUDINARY_CLOUD_NAME: string,
+    CLOUDINARY_API_KEY: string,
+    CLOUDINARY_API_SECRET: string,
   }
 }

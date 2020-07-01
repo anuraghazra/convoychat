@@ -12,6 +12,7 @@ import {
   Resolver,
   Mutation,
   Authorized,
+  UseMiddleware,
 } from "type-graphql";
 
 import Member from "../../entities/Member";
@@ -25,6 +26,7 @@ import parseMentions from "../../utils/mention-parser";
 import sendNotification from "../../utils/sendNotification";
 import { NOTIFICATION_TYPE } from "../../entities/Notification";
 import { sendMessageArgs, editMessageArgs, getMessagesArgs } from "./message-inputs";
+import RateLimit from "../rate-limiter-middleware";
 
 @Resolver(of => Message)
 class MessageResolver {
@@ -62,6 +64,7 @@ class MessageResolver {
   }
 
   @Authorized()
+  @UseMiddleware(RateLimit({ limit: 1000 }))
   @Mutation(() => Message)
   async sendMessage(
     @Args() { roomId, content }: sendMessageArgs,
@@ -135,6 +138,7 @@ class MessageResolver {
   }
 
   @Authorized()
+  @UseMiddleware(RateLimit({ limit: 1000 }))
   @Mutation(() => Message)
   async deleteMessage(
     @Arg("messageId") messageId: ObjectID,
@@ -159,6 +163,7 @@ class MessageResolver {
   }
 
   @Authorized()
+  @UseMiddleware(RateLimit({ limit: 2000 }))
   @Mutation(() => Message)
   async editMessage(
     @Args() { messageId, content }: editMessageArgs,

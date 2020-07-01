@@ -182,6 +182,7 @@ const Room: React.FC = () => {
 
               <MessageInput
                 value={value}
+                setValue={setValue}
                 innerRef={textareaRef}
                 handleSubmit={onMessageSubmit}
                 handleChange={handleChange}
