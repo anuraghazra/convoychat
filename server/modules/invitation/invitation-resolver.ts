@@ -4,27 +4,37 @@ import { ObjectID } from "mongodb";
 import { Context } from "../context.type";
 import { Ref } from "@typegoose/typegoose";
 import { ApolloError } from "apollo-server-express";
-import { Resolver, Ctx, Arg, Authorized, Mutation, Query, Field, ArgsType, Args, UseMiddleware } from "type-graphql";
+import {
+  Arg,
+  Args,
+  ArgsType,
+  Authorized,
+  Ctx,
+  Field,
+  Mutation,
+  Query,
+  Resolver,
+  UseMiddleware,
+} from "type-graphql";
 
-import UserModel, { User } from "../../entities/User";
 import RoomModel from "../../entities/Room";
+import RateLimit from "../rate-limiter-middleware";
+import UserModel, { User } from "../../entities/User";
 import sendNotification from "../../utils/sendNotification";
 import { NOTIFICATION_TYPE } from "../../entities/Notification";
 import InvitationModel, { Invitation } from "../../entities/Invitation";
 import { InvitationLinkResult, InvitationDetails } from "./invitation-types";
-import RateLimit from "../rate-limiter-middleware";
-
 
 @ArgsType()
 export class inviteMembersArgs {
   @Field({ nullable: false })
-  roomId: ObjectID
+  roomId: ObjectID;
 
-  @Field(type => [ObjectID])
-  members: ObjectID[]
+  @Field(() => [ObjectID])
+  members: ObjectID[];
 }
 
-@Resolver(of => Invitation)
+@Resolver(() => Invitation)
 class InvitationResolver {
   @Authorized()
   @Query(() => InvitationDetails)
@@ -38,9 +48,11 @@ class InvitationResolver {
       .populate("roomId")
       .populate("invitedBy");
 
-    const currentUserInvite = `${context.currentUser.id}` === `${invite.userId}`;
+    const currentUserInvite =
+      `${context.currentUser.id}` === `${invite.userId}`;
     const isInviteForUser = !invite.isPublic && currentUserInvite;
-    if (!invite || !isInviteForUser) throw new ApolloError("Could not get invitation info");
+    if (!invite || !isInviteForUser)
+      throw new ApolloError("Could not get invitation info");
 
     return {
       id: invite.id,
@@ -106,7 +118,9 @@ class InvitationResolver {
       });
 
       if (!user) {
-        throw new ApolloError("You are not a member of room, Cannot invite members");
+        throw new ApolloError(
+          "You are not a member of room, Cannot invite members"
+        );
       }
 
       let token = null;

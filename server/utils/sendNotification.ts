@@ -5,7 +5,13 @@ import { Context } from "../modules/context.type";
 interface ISendNotification extends Omit<Notification, "_id" | "createdAt"> {
   context: Context;
 }
-async function sendNotification({ sender, receiver, payload, type, context }: ISendNotification) {
+async function sendNotification({
+  sender,
+  receiver,
+  payload,
+  type,
+  context,
+}: ISendNotification) {
   // SEND MENTION NOTIFICATION
   try {
     const noti = new NotificationModel({

@@ -3,12 +3,19 @@ import { User } from "./User";
 import { ObjectID } from "mongodb";
 import RoomModel, { Room } from "./Room";
 import { Field, ObjectType, ID } from "type-graphql";
-import { prop, Ref, getModelForClass, arrayProp, modelOptions, pre } from "@typegoose/typegoose";
+import {
+  prop,
+  Ref,
+  getModelForClass,
+  arrayProp,
+  modelOptions,
+  pre,
+} from "@typegoose/typegoose";
 
 @ObjectType()
 @modelOptions({
-  options: { customName: "message", },
-  schemaOptions: { timestamps: true, collection: "messages" }
+  options: { customName: "message" },
+  schemaOptions: { timestamps: true, collection: "messages" },
 })
 @pre<Message>("save", async function (next) {
   try {
@@ -29,23 +36,23 @@ export class Message {
   readonly _id: ObjectID;
 
   @Field({ nullable: true })
-  createdAt?: Date
+  createdAt?: Date;
 
   @Field(type => ID)
   @prop({ ref: "room", required: true })
-  public roomId!: Ref<Room>
+  public roomId!: Ref<Room>;
 
   @Field(type => Member)
   @prop({ ref: "user", required: true })
-  public author!: Ref<User>
+  public author!: Ref<User>;
 
   @Field()
   @prop({ required: true, maxlength: 500, minlength: 1 })
-  public content!: string
+  public content!: string;
 
   @Field(type => [ID])
   @arrayProp({ ref: "user" })
-  public mentions!: Ref<User>[]
+  public mentions!: Ref<User>[];
 }
 
 const MessageModel = getModelForClass(Message);

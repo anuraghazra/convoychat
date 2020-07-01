@@ -2,7 +2,13 @@ import "reflect-metadata";
 import { Room } from "./Room";
 import { ObjectID } from "mongodb";
 import { Field, ObjectType } from "type-graphql";
-import { prop as Property, Ref, arrayProp, getModelForClass, modelOptions } from "@typegoose/typegoose";
+import {
+  prop as Property,
+  Ref,
+  arrayProp,
+  getModelForClass,
+  modelOptions,
+} from "@typegoose/typegoose";
 
 enum Providers {
   GOOGLE = "google",
@@ -14,27 +20,27 @@ enum Providers {
 export class UserLinks {
   @Field({ nullable: true })
   @Property({ minlength: 5, maxlength: 100 })
-  public github?: string
+  public github?: string;
 
   @Field({ nullable: true })
   @Property({ minlength: 5, maxlength: 100 })
-  public twitter?: string
+  public twitter?: string;
 
   @Field({ nullable: true })
   @Property({ minlength: 5, maxlength: 100 })
-  public instagram?: string
+  public instagram?: string;
 
   @Field({ nullable: true })
   @Property({ minlength: 5, maxlength: 100 })
-  public website?: string
+  public website?: string;
 }
 
 @modelOptions({
-  options: { customName: "user", },
+  options: { customName: "user" },
   schemaOptions: {
     timestamps: true,
-    collection: "users"
-  }
+    collection: "users",
+  },
 })
 @ObjectType()
 export class User {
@@ -51,7 +57,13 @@ export class User {
   public name!: string;
 
   @Field()
-  @Property({ required: true, trim: true, minlength: 2, maxlength: 100, unique: true })
+  @Property({
+    required: true,
+    trim: true,
+    minlength: 2,
+    maxlength: 100,
+    unique: true,
+  })
   public username!: string;
 
   @Field(type => [Room])

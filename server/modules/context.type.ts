@@ -12,7 +12,8 @@ interface IContextRequest extends Request {
   logout: () => void;
 }
 
-export interface Context extends PassportContext<User, any, any, IContextRequest> {
+export interface Context
+  extends PassportContext<User, any, any, IContextRequest> {
   pubsub: PubSub;
   res: Response;
   currentUser: ICurrentUser;

@@ -6,10 +6,5 @@
   "trailingComma": "es5",
   "jsxBracketSameLine": false,
   "useTabs": false,
-  "prettier/prettier": [
-    "error",
-    {
-      "endOfLine": "auto"
-    }
-  ]
+  "endOfLine": "auto"
 }

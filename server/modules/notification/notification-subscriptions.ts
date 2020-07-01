@@ -8,11 +8,9 @@ class NotificationsSubscriptions {
     topics: CONSTANTS.NEW_NOTIFICATION,
     filter: ({ payload, args, context }) => {
       return payload.receiver.equals(context.currentUser.id);
-    }
+    },
   })
-  onNewNotification(
-    @Root() notification: Notification
-  ): Notification {
+  onNewNotification(@Root() notification: Notification): Notification {
     return notification;
   }
 }

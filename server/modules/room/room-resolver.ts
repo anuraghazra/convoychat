@@ -2,7 +2,16 @@ import "reflect-metadata";
 import { ObjectID } from "mongodb";
 import { Context } from "../context.type";
 import { ApolloError } from "apollo-server-express";
-import { Resolver, Query, Ctx, Arg, Authorized, Mutation, Args, UseMiddleware } from "type-graphql";
+import {
+  Resolver,
+  Query,
+  Ctx,
+  Arg,
+  Authorized,
+  Mutation,
+  Args,
+  UseMiddleware,
+} from "type-graphql";
 
 import UserModel from "../../entities/User";
 import RoomModel, { Room } from "../../entities/Room";
@@ -76,10 +85,7 @@ class RoomResolver {
   @Authorized()
   @UseMiddleware(RateLimit({ limit: 20 }))
   @Mutation(() => Room)
-  async createRoom(
-    @Args() { name }: createRoomArgs,
-    @Ctx() context: Context
-  ) {
+  async createRoom(@Args() { name }: createRoomArgs, @Ctx() context: Context) {
     try {
       const room = new RoomModel({
         name: name,
@@ -101,7 +107,6 @@ class RoomResolver {
       throw new ApolloError(err);
     }
   }
-
 
   @Authorized()
   @Mutation(() => Room, { nullable: true })

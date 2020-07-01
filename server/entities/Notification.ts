@@ -3,11 +3,18 @@ import { User } from "./User";
 import { ObjectID } from "mongodb";
 import { GraphQLJSONObject } from "graphql-type-json";
 import { Field, registerEnumType, ID, ObjectType } from "type-graphql";
-import { prop, Ref, getModelForClass, modelOptions, index, Severity } from "@typegoose/typegoose";
+import {
+  prop,
+  Ref,
+  getModelForClass,
+  modelOptions,
+  index,
+  Severity,
+} from "@typegoose/typegoose";
 
 export enum NOTIFICATION_TYPE {
   INVITATION = "INVITATION",
-  MENTION = "MENTION"
+  MENTION = "MENTION",
 }
 registerEnumType(NOTIFICATION_TYPE, {
   name: "NOTIFICATION_TYPE",
@@ -23,8 +30,8 @@ registerEnumType(NOTIFICATION_TYPE, {
   },
   schemaOptions: {
     timestamps: true,
-    collection: "notifications"
-  }
+    collection: "notifications",
+  },
 })
 @index(
   { createdAt: 1 },
@@ -55,7 +62,7 @@ export class Notification {
 
   @Field(type => GraphQLJSONObject)
   @prop({ default: {} })
-  public payload?: Object
+  public payload?: Object;
 }
 
 const NotificationModel = getModelForClass(Notification);

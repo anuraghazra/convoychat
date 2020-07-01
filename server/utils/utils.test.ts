@@ -18,28 +18,39 @@ beforeAll(async () => {
   await dbHelper.populateUsers();
 });
 
-
 describe("Test Utility Functions", () => {
   it("should test mention parser", () => {
-    const content = "Hello world @anuraghazra @anu @123 @jaha @hahahahahahahahahahahahahaha";
-    expect(parseMentions(content)).toEqual(["anuraghazra", "anu", "123", "jaha"]);
+    const content =
+      "Hello world @anuraghazra @anu @123 @jaha @hahahahahahahahahahahahahaha";
+    expect(parseMentions(content)).toEqual([
+      "anuraghazra",
+      "anu",
+      "123",
+      "jaha",
+    ]);
   });
 
   it("should test generateUsername", () => {
     expect(generateUsername("Anurag Hazra")).toMatch(/anuraghazra\-/);
     expect(generateUsername("ANURAGHAZRA")).toMatch(/anuraghazra\-/);
-    expect(generateUsername("anurag (*#.$(!#(*&_)))hazra")).toMatch(/anuraghazra\-/);
+    expect(generateUsername("anurag (*#.$(!#(*&_)))hazra")).toMatch(
+      /anuraghazra\-/
+    );
   });
 
   it("should test UpsertUser", async () => {
     const done = jest.fn();
-    await UpsertUser("google", {
-      socialId: "123",
-      avatarUrl: "https://google.com",
-      displayName: "Anurag Hazra",
-      email: "awesome@gmail.com",
-      username: "anuraghazra"
-    }, done);
+    await UpsertUser(
+      "google",
+      {
+        socialId: "123",
+        avatarUrl: "https://google.com",
+        displayName: "Anurag Hazra",
+        email: "awesome@gmail.com",
+        username: "anuraghazra",
+      },
+      done
+    );
 
     const newUser = await UserModel.findOne({ email: "awesome@gmail.com" });
     expect(done).toBeCalledTimes(1);
@@ -53,7 +64,7 @@ describe("Test Utility Functions", () => {
       sender: new ObjectID(fakeUser.id),
       receiver: new ObjectID(fakeUser.id),
       payload: { ok: "works" },
-      context: (createFakeContext(fakeUser) as any),
+      context: createFakeContext(fakeUser) as any,
     });
 
     const notification = noti.toObject();
@@ -61,7 +72,9 @@ describe("Test Utility Functions", () => {
     expect(notification.receiver).toEqual(new ObjectID(fakeUser.id));
     expect(notification.payload).toMatchObject({ ok: "works" });
 
-    const dbNotification = await NotificationModel.findOne({ sender: fakeUser.id });
+    const dbNotification = await NotificationModel.findOne({
+      sender: fakeUser.id,
+    });
     expect(dbNotification).toBeDefined();
   });
 });

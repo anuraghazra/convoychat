@@ -9,7 +9,7 @@ const filterRoom = ({ payload, args }) => payload.roomId.equals(args.roomId);
 class MessageSubscriptions {
   @Subscription(returns => Message, {
     topics: CONSTANTS.NEW_MESSAGE,
-    filter: filterRoom
+    filter: filterRoom,
   })
   onNewMessage(
     @Root() message: Message,
@@ -20,7 +20,7 @@ class MessageSubscriptions {
 
   @Subscription(returns => Message, {
     topics: CONSTANTS.DELETE_MESSAGE,
-    filter: filterRoom
+    filter: filterRoom,
   })
   onDeleteMessage(
     @Root() message: Message,
@@ -31,7 +31,7 @@ class MessageSubscriptions {
 
   @Subscription(returns => Message, {
     topics: CONSTANTS.UPDATE_MESSAGE,
-    filter: filterRoom
+    filter: filterRoom,
   })
   onUpdateMessage(
     @Root() message: Message,

@@ -60,7 +60,7 @@ const queries = {
         }
       }
     }
-  `
+  `,
 };
 
 afterAll(async () => {
@@ -81,9 +81,9 @@ describe("UserResolver", () => {
         me: {
           name: fakeUser.name,
           username: fakeUser.username,
-          links: null
-        }
-      }
+          links: null,
+        },
+      },
     });
   });
 
@@ -97,11 +97,11 @@ describe("UserResolver", () => {
             name: fakeUser2.name,
             username: fakeUser2.username,
             links: {
-              github: null
-            }
-          }
-        ]
-      }
+              github: null,
+            },
+          },
+        ],
+      },
     });
   });
 
@@ -109,7 +109,7 @@ describe("UserResolver", () => {
     const findId = await UserModel.findOne({ email: fakeUser.email });
     const user = await gCall({
       source: queries.getUser,
-      variableValues: { id: findId._id }
+      variableValues: { id: findId._id },
     });
 
     expect(user).toMatchObject({
@@ -119,10 +119,10 @@ describe("UserResolver", () => {
           username: fakeUser.username,
           rooms: [],
           links: {
-            github: null
-          }
-        }
-      }
+            github: null,
+          },
+        },
+      },
     });
   });
 
@@ -131,14 +131,14 @@ describe("UserResolver", () => {
     const BAD_COLOR = "#000000";
     let user = await gCall({
       source: queries.setColor,
-      variableValues: { color: BAD_COLOR }
+      variableValues: { color: BAD_COLOR },
     });
 
     expect(user.errors[0].message).toBe("Argument Validation Error");
 
     user = await gCall({
       source: queries.setColor,
-      variableValues: { color: OK_COLOR }
+      variableValues: { color: OK_COLOR },
     });
 
     expect(user).toMatchObject({
@@ -146,15 +146,15 @@ describe("UserResolver", () => {
         setColor: {
           name: fakeUser.name,
           color: OK_COLOR,
-        }
-      }
+        },
+      },
     });
   });
 
   it("should change user's links", async () => {
     let user = await gCall({
       source: queries.setUserLinks,
-      variableValues: { github: "anuraghazra", website: "invalid" }
+      variableValues: { github: "anuraghazra", website: "invalid" },
     });
 
     expect(user.errors[0].message).toBe("Argument Validation Error");
@@ -167,15 +167,15 @@ describe("UserResolver", () => {
     };
     user = await gCall({
       source: queries.setUserLinks,
-      variableValues: variableLinks
+      variableValues: variableLinks,
     });
 
     expect(user).toMatchObject({
       data: {
         setUserLinks: {
-          links: variableLinks
-        }
-      }
+          links: variableLinks,
+        },
+      },
     });
   });
-}); 
+});

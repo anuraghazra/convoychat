@@ -2,7 +2,14 @@ import { User } from "./User";
 import { Room } from "./Room";
 import { ObjectID } from "mongodb";
 import { Field, ID, ObjectType } from "type-graphql";
-import { prop, Ref, arrayProp, getModelForClass, modelOptions, index } from "@typegoose/typegoose";
+import {
+  prop,
+  Ref,
+  arrayProp,
+  getModelForClass,
+  modelOptions,
+  index,
+} from "@typegoose/typegoose";
 
 @ObjectType()
 @modelOptions({
@@ -17,8 +24,8 @@ import { prop, Ref, arrayProp, getModelForClass, modelOptions, index } from "@ty
       versionKey: false,
       transform: function (doc, ret, options) {
         delete ret.token;
-      }
-    }
+      },
+    },
   },
 })
 @index(

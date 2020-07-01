@@ -24,9 +24,12 @@ import { Messages } from "./message-types";
 import parseMentions from "../../utils/mention-parser";
 import sendNotification from "../../utils/sendNotification";
 import { NOTIFICATION_TYPE } from "../../entities/Notification";
-import { sendMessageArgs, editMessageArgs, getMessagesArgs } from "./message-inputs";
+import {
+  sendMessageArgs,
+  editMessageArgs,
+  getMessagesArgs,
+} from "./message-inputs";
 import RateLimit from "../rate-limiter-middleware";
-
 
 @Resolver(of => Message)
 class MessageResolver {

@@ -3,22 +3,28 @@ import { ObjectID } from "mongodb";
 import { User } from "../entities/User";
 import { Message } from "../entities/Message";
 import { Field, ObjectType } from "type-graphql";
-import { prop, Ref, getModelForClass, arrayProp, modelOptions } from "@typegoose/typegoose";
+import {
+  prop,
+  Ref,
+  getModelForClass,
+  arrayProp,
+  modelOptions,
+} from "@typegoose/typegoose";
 
 @ObjectType()
 @modelOptions({
-  options: { customName: "room", },
+  options: { customName: "room" },
   schemaOptions: {
     timestamps: true,
-    collection: "rooms"
-  }
+    collection: "rooms",
+  },
 })
 export class Room {
   @Field(type => ObjectID, { name: "id" })
   _id: ObjectID;
 
   @Field()
-  createdAt: Date
+  createdAt: Date;
 
   @Field()
   @prop({ required: true })

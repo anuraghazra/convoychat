@@ -5,21 +5,21 @@ import { ObjectID } from "mongodb";
 @ArgsType()
 export class sendMessageArgs {
   @Field({ nullable: false })
-  roomId: ObjectID
+  roomId: ObjectID;
 
   @Field({ nullable: false })
   @Length(2, 500)
-  content: string
+  content: string;
 }
 
 @ArgsType()
 export class editMessageArgs {
   @Field({ nullable: false })
-  messageId: ObjectID
+  messageId: ObjectID;
 
   @Field({ nullable: false })
   @Length(2, 500)
-  content: string
+  content: string;
 }
 
 @ArgsType()
