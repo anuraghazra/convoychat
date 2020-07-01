@@ -199,47 +199,6 @@ export enum Notification_Type {
 }
 
 
-export type Query = {
-  __typename?: 'Query';
-  me: Me;
-  listUsers: Array<Member>;
-  getUser: User;
-  listRooms: Array<Room>;
-  listCurrentUserRooms: Array<Room>;
-  getRoom: Room;
-  getMessages: Messages;
-  getInvitationInfo: InvitationDetails;
-  getNotifications: Array<Notification>;
-};
-
-
-export type QueryGetUserArgs = {
-  id: Scalars['ObjectId'];
-};
-
-
-export type QueryGetRoomArgs = {
-  id: Scalars['ObjectId'];
-};
-
-export type Notification = {
-  __typename?: 'Notification';
-  id: Scalars['ID'];
-  createdAt: Scalars['DateTime'];
-  sender: Member;
-  receiver: Scalars['ID'];
-  seen: Scalars['Boolean'];
-  type: Notification_Type;
-  payload: Scalars['JSONObject'];
-};
-
-/** Notification types enums */
-export enum Notification_Type {
-  Invitation = 'INVITATION',
-  Mention = 'MENTION'
-}
-
-
 export type PageInfo = {
   __typename?: 'pageInfo';
   hasNext: Scalars['Boolean'];
@@ -250,16 +209,21 @@ export type Query = {
   me: Me;
   listUsers: Array<Member>;
   getUser: User;
-  getMessages: Messages;
   listRooms: Array<Room>;
   listCurrentUserRooms: Array<Room>;
   getRoom: Room;
-  getNotifications: Array<Notification>;
+  getMessages: Messages;
   getInvitationInfo: InvitationDetails;
+  getNotifications: Array<Notification>;
 };
 
 
 export type QueryGetUserArgs = {
+  id: Scalars['ObjectId'];
+};
+
+
+export type QueryGetRoomArgs = {
   id: Scalars['ObjectId'];
 };
 
@@ -269,11 +233,6 @@ export type QueryGetMessagesArgs = {
   limit: Scalars['Int'];
   before?: Maybe<Scalars['String']>;
   after?: Maybe<Scalars['String']>;
-};
-
-
-export type QueryGetRoomArgs = {
-  id: Scalars['ObjectId'];
 };
 
 
@@ -313,6 +272,7 @@ export type SubscriptionOnDeleteMessageArgs = {
 export type SubscriptionOnUpdateMessageArgs = {
   roomId: Scalars['ObjectId'];
 };
+
 
 export type UploadImageOutput = {
   __typename?: 'UploadImageOutput';
