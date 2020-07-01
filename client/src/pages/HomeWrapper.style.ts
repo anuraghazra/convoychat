@@ -1,7 +1,7 @@
 import styled, { css } from "styled-components/macro";
 
 const tiltedBox = css`
-  content: '';
+  content: "";
   position: absolute;
   top: 15px;
   left: -15px;
@@ -11,7 +11,7 @@ const tiltedBox = css`
   background-color: ${p => p.theme.colors.primary};
   border-radius: ${p => p.theme.radius.small}px;
   z-index: -1;
-`
+`;
 
 const HomeWrapper = styled.div`
   position: relative;
@@ -21,8 +21,9 @@ const HomeWrapper = styled.div`
   overflow: hidden;
   padding: ${p => p.theme.space.xlarge}px;
 
-  &:before, &:after {
-    content: '';
+  &:before,
+  &:after {
+    content: "";
     position: absolute;
     transform: rotate(-15deg);
     background-color: ${p => p.theme.colors.dark1};
@@ -44,7 +45,7 @@ const HomeWrapper = styled.div`
     opacity: 0.5;
     z-index: -1;
   }
-  
+
   .wrapper_card {
     position: relative;
     text-align: center;
@@ -52,11 +53,11 @@ const HomeWrapper = styled.div`
     width: 100%;
     max-width: 500px;
     margin-top: ${p => p.theme.space.huge}px;
-    
+
     padding: ${p => p.theme.space.huge}px;
     border-radius: ${p => p.theme.radius.small}px;
     background-color: ${p => p.theme.colors.dark1};
-    
+
     &:before {
       ${tiltedBox}
     }

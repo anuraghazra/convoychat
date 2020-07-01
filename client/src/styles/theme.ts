@@ -52,8 +52,8 @@ declare module "styled-components" {
 const colors = {
   primary: "#64FF8F",
   red: "#EB4C5F",
-  redDark: '#410008',
-  greenDark: '#004108',
+  redDark: "#410008",
+  greenDark: "#004108",
   dark1: "#161A2D",
   dark2: "#0D1022",
   dark3: "#090C1B",
@@ -71,7 +71,7 @@ const size = {
 
 const theme: DefaultTheme = {
   variants: {
-    ...colorVariants
+    ...colorVariants,
   },
   font: {
     primary: "Product Sans Regular",

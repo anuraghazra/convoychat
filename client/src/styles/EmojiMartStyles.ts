@@ -1,4 +1,4 @@
-import { css } from 'styled-components';
+import { css } from "styled-components";
 
 const EmojiMartStyles = css`
   /*
@@ -42,9 +42,8 @@ const EmojiMartStyles = css`
   .emoji-mart-dark .emoji-mart-anchor:hover,
   .emoji-mart-dark .emoji-mart-anchor:focus,
   .emoji-mart-dark .emoji-mart-anchor-selected {
-    color:  ${p => p.theme.colors.white};
+    color: ${p => p.theme.colors.white};
   }
+`;
 
-`
-
-export default EmojiMartStyles
+export default EmojiMartStyles;
