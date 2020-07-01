@@ -16,6 +16,7 @@
     "codegen": "cd client && npm run codegen",
     "lint": "eslint ./server/**",
     "lint:fix": "eslint ./server/** --fix",
+    "pretty-quick": "pretty-quick --staged && lint-staged",
     "prettier": "prettier --write **/*.{ts,js,css,html}"
   },
   "author": "Anurag Hazra",
@@ -72,14 +73,25 @@
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-prettier": "^3.1.4",
     "eslint-plugin-security": "^1.4.0",
+    "husky": "^4.2.5",
     "jest": "^26.0.1",
+    "lint-staged": "^10.2.11",
     "mongodb-memory-server-core": "^6.6.1",
     "nodemon": "^2.0.4",
     "passport-mock-strategy": "^2.0.0",
     "prettier": "^2.0.5",
+    "pretty-quick": "^2.0.1",
     "ts-jest": "^26.1.0",
     "ts-node": "^8.10.2",
     "ts-node-dev": "^1.0.0-pre.48",
     "typescript": "^3.9.5"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run pretty-quick"
+    }
+  },
+  "lint-staged": {
+    "*.{ts,js}": "eslint --cache --fix"
   }
 }
