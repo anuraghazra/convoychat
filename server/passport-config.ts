@@ -4,7 +4,7 @@ import Auth0Strategy from "passport-auth0";
 import MockStrategy from "passport-mock-strategy";
 import UserModel, { User } from "./entities/User";
 import { generateUsername } from "./utils";
-import UpsertUser from './utils/upsert-user'
+import UpsertUser from "./utils/upsert-user";
 
 passport.serializeUser((user: User, done) => {
   return done(null, user._id);
@@ -15,7 +15,6 @@ passport.deserializeUser(async (id: string, done) => {
   const user = await UserModel.findById(id).populate("rooms");
   return done(null, user);
 });
-
 
 // Configure Passport to use Auth0
 const strategy = new Auth0Strategy(
@@ -43,7 +42,7 @@ const strategy = new Auth0Strategy(
         done
       );
     } catch (err) {
-      console.log(err)
+      console.log(err);
     }
   }
 );
@@ -52,9 +51,14 @@ const strategy = new Auth0Strategy(
 if (process.env.NODE_ENV === "development") {
   passport.use(
     new MockStrategy(
-      { name: "mock", user: ({ emails: [{ value: process.env.MOCK_EMAIL, type: 'gmail' }] } as any) },
+      {
+        name: "mock",
+        user: {
+          emails: [{ value: process.env.MOCK_EMAIL, type: "gmail" }],
+        } as any,
+      },
       async (data: any, done: any) => {
-        let user = await UserModel.findOne({ email: data.emails[0].value });
+        const user = await UserModel.findOne({ email: data.emails[0].value });
         done(null, user);
       }
     )

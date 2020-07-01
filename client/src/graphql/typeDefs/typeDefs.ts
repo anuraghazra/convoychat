@@ -12,7 +12,7 @@ const typeDefs = gql`
       username
     }
   }
-  
+
   fragment SubscriptionMessageParts on Message {
     id
     content
@@ -44,7 +44,7 @@ const typeDefs = gql`
       }
     }
   }
-  
+
   mutation deleteMessage($messageId: ObjectId!) {
     deletedMessage: deleteMessage(messageId: $messageId) {
       ...MessageParts
@@ -53,7 +53,7 @@ const typeDefs = gql`
 
   mutation editMessage($messageId: ObjectId!, $content: String!) {
     editedMessage: editMessage(messageId: $messageId, content: $content) {
-        ...MessageParts
+      ...MessageParts
     }
   }
 
@@ -75,14 +75,12 @@ const typeDefs = gql`
       ...SubscriptionMessageParts
     }
   }
-  
+
   subscription onUpdateMessage($roomId: ObjectId!) {
     onUpdateMessage(roomId: $roomId) {
       ...SubscriptionMessageParts
     }
   }
-`
+`;
 
-export {
-  typeDefs
-};
+export { typeDefs };

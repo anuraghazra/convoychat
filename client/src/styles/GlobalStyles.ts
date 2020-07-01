@@ -16,7 +16,8 @@ const ScrollBarStyles = css`
   *::-webkit-scrollbar {
     width: 12px;
   }
-  *::-webkit-scrollbar-track, *::-webkit-scrollbar-corner {
+  *::-webkit-scrollbar-track,
+  *::-webkit-scrollbar-corner {
     background: ${p => p.theme.colors.dark1};
   }
   *::-webkit-scrollbar-thumb {
@@ -25,7 +26,6 @@ const ScrollBarStyles = css`
     border: 2px solid ${p => p.theme.colors.dark1};
   }
 `;
-
 
 const GlobalStyles = createGlobalStyle`
   * {
@@ -156,10 +156,14 @@ const GlobalStyles = createGlobalStyle`
     height: 100%;
     padding: 2px;
     ${({ theme }) => css`
-    background: linear-gradient(90deg, ${theme.colors.primary} 50%, transparent 50%), 
-                linear-gradient(90deg, ${theme.colors.primary} 50%, transparent 50%),
-                linear-gradient(0deg, ${theme.colors.primary} 50%, transparent 50%),
-                linear-gradient(0deg, ${theme.colors.primary} 50%, transparent 50%);
+      background: linear-gradient(
+          90deg,
+          ${theme.colors.primary} 50%,
+          transparent 50%
+        ),
+        linear-gradient(90deg, ${theme.colors.primary} 50%, transparent 50%),
+        linear-gradient(0deg, ${theme.colors.primary} 50%, transparent 50%),
+        linear-gradient(0deg, ${theme.colors.primary} 50%, transparent 50%);
     `}
     background-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
     background-size: 15px 2px, 15px 2px, 2px 15px, 2px 15px;

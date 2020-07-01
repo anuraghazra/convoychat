@@ -23,8 +23,7 @@ const deleteMessageMutationUpdater: MutationUpdaterFn<DeleteMessageMutation> = (
     variables: { roomId, limit: MAX_MESSAGES },
     data: update(room, {
       messages: {
-        edges: e =>
-          e.filter(edge => edge.node.id !== data.deletedMessage.id),
+        edges: e => e.filter(edge => edge.node.id !== data.deletedMessage.id),
       },
     }),
   });

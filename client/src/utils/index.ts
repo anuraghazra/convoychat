@@ -13,11 +13,8 @@ const initOAuthWindow = (onSuccess: Function) => () => {
 };
 
 const formatDate = (date: string): string => {
-  return new Date(Number(date))
-    .toDateString()
-    .slice(4, 10)
-    .toLowerCase();
-}
+  return new Date(Number(date)).toDateString().slice(4, 10).toLowerCase();
+};
 
 // https://github.com/withspectrum/spectrum/blob/alpha/admin/src/helpers/utils.js
 const timeAgo = (time: string): string | number => {
@@ -29,44 +26,44 @@ const timeAgo = (time: string): string | number => {
 
   let current: any = new Date();
   let previous: any = new Date(time);
-  let elapsed = current - previous
+  let elapsed = current - previous;
 
   if (elapsed < MS_PER_MINUTE) {
-    return Math.round(elapsed / MS_PER_SECOND) + 's ago';
+    return Math.round(elapsed / MS_PER_SECOND) + "s ago";
   } else if (elapsed < MS_PER_HOUR) {
-    return Math.round(elapsed / MS_PER_MINUTE) + 'm ago';
+    return Math.round(elapsed / MS_PER_MINUTE) + "m ago";
   } else if (elapsed < MS_PER_DAY) {
-    return Math.round(elapsed / MS_PER_HOUR) + 'h ago';
+    return Math.round(elapsed / MS_PER_HOUR) + "h ago";
   } else if (elapsed < MS_PER_YEAR) {
-    return Math.round(elapsed / MS_PER_DAY) + 'd ago';
+    return Math.round(elapsed / MS_PER_DAY) + "d ago";
   } else {
-    return Math.round(elapsed / MS_PER_YEAR) + 'y ago';
+    return Math.round(elapsed / MS_PER_YEAR) + "y ago";
   }
-}
+};
 
 const scrollToBottom = (elm: HTMLElement) => {
   if (!elm || !(elm instanceof HTMLElement)) return;
   elm.scrollTop = elm.scrollTop = elm.scrollHeight - elm.clientHeight;
-}
+};
 
 const textareaAutoResize = (element: HTMLTextAreaElement) => {
   if (!element) return;
-  element.style.height = 'auto';
-  element.style.height = (element.scrollHeight) + 'px';
-}
+  element.style.height = "auto";
+  element.style.height = element.scrollHeight + "px";
+};
 
 const copyToClipboard = (str: string) => {
   if (!str) return;
-  let el = document.createElement('textarea');
+  let el = document.createElement("textarea");
   el.value = str;
-  el.setAttribute('readonly', '');
-  el.style.position = 'absolute';
-  el.style.left = '-9999px';
+  el.setAttribute("readonly", "");
+  el.style.position = "absolute";
+  el.style.left = "-9999px";
   document.body.appendChild(el);
   el.select();
-  document.execCommand('copy');
+  document.execCommand("copy");
   document.body.removeChild(el);
-}
+};
 
 const parseURL = (href: string) => {
   const match = href.match(
@@ -84,8 +81,7 @@ const parseURL = (href: string) => {
       hash: match[7],
     }
   );
-}
-
+};
 
 export {
   timeAgo,

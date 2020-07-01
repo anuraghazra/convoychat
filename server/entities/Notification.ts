@@ -1,13 +1,20 @@
 import Member from "./Member";
 import { User } from "./User";
-import { ObjectID } from 'mongodb';
+import { ObjectID } from "mongodb";
 import { GraphQLJSONObject } from "graphql-type-json";
 import { Field, registerEnumType, ID, ObjectType } from "type-graphql";
-import { prop, Ref, getModelForClass, modelOptions, index, Severity } from "@typegoose/typegoose";
+import {
+  prop,
+  Ref,
+  getModelForClass,
+  modelOptions,
+  index,
+  Severity,
+} from "@typegoose/typegoose";
 
 export enum NOTIFICATION_TYPE {
   INVITATION = "INVITATION",
-  MENTION = "MENTION"
+  MENTION = "MENTION",
 }
 registerEnumType(NOTIFICATION_TYPE, {
   name: "NOTIFICATION_TYPE",
@@ -19,12 +26,12 @@ registerEnumType(NOTIFICATION_TYPE, {
   options: {
     // https://github.com/typegoose/typegoose/issues/239
     allowMixed: Severity.ALLOW,
-    customName: 'notification',
+    customName: "notification",
   },
   schemaOptions: {
     timestamps: true,
-    collection: "notifications"
-  }
+    collection: "notifications",
+  },
 })
 @index(
   { createdAt: 1 },
@@ -38,11 +45,11 @@ export class Notification {
   createdAt!: Date;
 
   @Field(type => Member)
-  @prop({ ref: 'user', required: true })
+  @prop({ ref: "user", required: true })
   public sender!: Ref<User>;
 
   @Field(type => ID)
-  @prop({ ref: 'user', required: true })
+  @prop({ ref: "user", required: true })
   public receiver!: Ref<User>;
 
   @Field()
@@ -55,9 +62,9 @@ export class Notification {
 
   @Field(type => GraphQLJSONObject)
   @prop({ default: {} })
-  public payload?: Object
+  public payload?: Object;
 }
 
 const NotificationModel = getModelForClass(Notification);
 
-export default NotificationModel
+export default NotificationModel;

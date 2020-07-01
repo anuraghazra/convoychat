@@ -9,7 +9,12 @@ export default gql`
     createdAt
   }
 
-  query getRoom($roomId: ObjectId!, $limit: Int!, $after: String, $before: String) {
+  query getRoom(
+    $roomId: ObjectId!
+    $limit: Int!
+    $after: String
+    $before: String
+  ) {
     room: getRoom(id: $roomId) {
       id
       name
@@ -19,7 +24,12 @@ export default gql`
         ...RoomMember
       }
     }
-    messages: getMessages(roomId: $roomId, limit: $limit, after: $after, before: $before) {
+    messages: getMessages(
+      roomId: $roomId
+      limit: $limit
+      after: $after
+      before: $before
+    ) {
       pageInfo {
         hasNext
       }
@@ -66,4 +76,4 @@ export default gql`
       owner
     }
   }
-`
+`;

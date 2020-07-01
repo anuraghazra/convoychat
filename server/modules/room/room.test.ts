@@ -62,17 +62,17 @@ const queries = {
         owner
       }
     }
-  `
-}
+  `,
+};
 
 afterAll(async () => {
-  await dbHelper.clearDatabase()
-  await dbHelper.closeDatabase()
+  await dbHelper.clearDatabase();
+  await dbHelper.closeDatabase();
 });
 beforeAll(async () => {
   await dbHelper.connect();
   await dbHelper.populateUsers();
-})
+});
 // afterEach(async () => await dbHelper.clearDatabase());
 // beforeEach(async () => await dbHelper.populate());
 
@@ -81,7 +81,7 @@ describe("RoomResolver", () => {
   it("User should create room", async () => {
     const roomResult = await gCall({
       source: queries.createRoom,
-      variableValues: { name: ROOM_NAME }
+      variableValues: { name: ROOM_NAME },
     });
 
     expect(roomResult).toMatchObject({
@@ -91,58 +91,60 @@ describe("RoomResolver", () => {
           members: [{ name: fakeUser.name }],
           messages: [],
           owner: fakeUser.id,
-        }
-      }
-    })
+        },
+      },
+    });
 
-    const dbRoom = await RoomModel.findOne({ name: ROOM_NAME })
+    const dbRoom = await RoomModel.findOne({ name: ROOM_NAME });
     expect(dbRoom).toBeDefined();
   });
 
-
   it("ListRooms", async () => {
     const roomsResult = await gCall({
-      source: queries.listRooms
+      source: queries.listRooms,
     });
 
     expect(roomsResult).toMatchObject({
       data: {
-        listRooms: [{
-          name: ROOM_NAME,
-          owner: fakeUser.id,
-          members: [{ username: fakeUser.username }]
-        }]
-      }
-    })
+        listRooms: [
+          {
+            name: ROOM_NAME,
+            owner: fakeUser.id,
+            members: [{ username: fakeUser.username }],
+          },
+        ],
+      },
+    });
 
-    let allRooms = await RoomModel.find({});
+    const allRooms = await RoomModel.find({});
     expect(allRooms.length).toEqual(1);
-  })
-
+  });
 
   it("ListCurrentUserRooms", async () => {
     const roomsResult = await gCall({
-      source: queries.listCurrentUserRooms
+      source: queries.listCurrentUserRooms,
     });
 
     expect(roomsResult).toMatchObject({
       data: {
-        listCurrentUserRooms: [{
-          name: ROOM_NAME,
-          owner: fakeUser.id,
-        }]
-      }
-    })
+        listCurrentUserRooms: [
+          {
+            name: ROOM_NAME,
+            owner: fakeUser.id,
+          },
+        ],
+      },
+    });
 
-    let allRooms = await RoomModel.find({});
+    const allRooms = await RoomModel.find({});
     expect(allRooms.length).toEqual(1);
-  })
+  });
 
   it("getRoom", async () => {
-    const testRoom = await RoomModel.findOne({ name: ROOM_NAME })
+    const testRoom = await RoomModel.findOne({ name: ROOM_NAME });
     const roomResult = await gCall({
       source: queries.getRoom,
-      variableValues: { id: testRoom._id }
+      variableValues: { id: testRoom._id },
     });
 
     expect(roomResult).toMatchObject({
@@ -150,15 +152,15 @@ describe("RoomResolver", () => {
         getRoom: {
           name: ROOM_NAME,
           owner: fakeUser.id,
-        }
-      }
-    })
-  })
+        },
+      },
+    });
+  });
 
   it("removeMemberFromRoom", async () => {
     // Prepare (add member first)
-    const testRoom = await RoomModel.findOne({ name: ROOM_NAME })
-    const testUser = await UserModel.findOne({ email: fakeUser2.email })
+    const testRoom = await RoomModel.findOne({ name: ROOM_NAME });
+    const testUser = await UserModel.findOne({ email: fakeUser2.email });
     const roomId = testRoom.id;
     const memberId = testUser.id;
     // add user to the room
@@ -183,7 +185,7 @@ describe("RoomResolver", () => {
       variableValues: {
         roomId,
         memberId,
-      }
+      },
     });
 
     expect(roomResult).toMatchObject({
@@ -191,9 +193,9 @@ describe("RoomResolver", () => {
         removeMemberFromRoom: {
           name: fakeUser2.name,
           id: memberId,
-        }
-      }
-    })
+        },
+      },
+    });
 
     // Test SELF REMOVE
     const room2 = await gCall({
@@ -201,10 +203,12 @@ describe("RoomResolver", () => {
       variableValues: {
         roomId,
         memberId: fakeUser.id,
-      }
+      },
     });
 
-    expect(room2.errors[0].message).toEqual('Error: You cannot not remove yourself from room')
+    expect(room2.errors[0].message).toEqual(
+      "Error: You cannot not remove yourself from room"
+    );
 
     // Test Invalid RoomID REMOVE
     const room3 = await gCall({
@@ -212,18 +216,19 @@ describe("RoomResolver", () => {
       variableValues: {
         roomId: fakeUser.id, // invalid id
         memberId: memberId,
-      }
+      },
     });
 
-    expect(room3.errors[0].message).toEqual('Error: Could not remove member from room')
-  })
-
+    expect(room3.errors[0].message).toEqual(
+      "Error: Could not remove member from room"
+    );
+  });
 
   it("deleteRoom", async () => {
-    const testRoom = await RoomModel.findOne({ name: ROOM_NAME })
+    const testRoom = await RoomModel.findOne({ name: ROOM_NAME });
     const roomResult = await gCall({
       source: queries.deleteRoom,
-      variableValues: { roomId: testRoom._id }
+      variableValues: { roomId: testRoom._id },
     });
 
     expect(roomResult).toMatchObject({
@@ -231,12 +236,11 @@ describe("RoomResolver", () => {
         deleteRoom: {
           name: ROOM_NAME,
           owner: fakeUser.id,
-        }
-      }
-    })
+        },
+      },
+    });
 
     const dbRoom = await RoomModel.findOne({ name: ROOM_NAME });
-    expect(dbRoom).toBeNull()
-  })
-
-}) 
+    expect(dbRoom).toBeNull();
+  });
+});

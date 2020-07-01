@@ -14,6 +14,9 @@
     "develop": "concurrently \"npm run dev:tsc\" \"npm run dev:server\" \"npm run dev:client\"",
     "start": "tsc && node dist/server/index",
     "codegen": "cd client && npm run codegen",
+    "lint": "eslint ./server/**",
+    "lint:fix": "eslint ./server/** --fix",
+    "pretty-quick": "pretty-quick --staged && lint-staged",
     "prettier": "prettier --write **/*.{ts,js,css,html}"
   },
   "author": "Anurag Hazra",
@@ -63,15 +66,32 @@
     "@types/passport": "^1.0.3",
     "@types/passport-auth0": "^1.0.4",
     "@types/uniqid": "^5.2.0",
+    "@typescript-eslint/eslint-plugin": "^3.5.0",
+    "@typescript-eslint/parser": "^3.5.0",
     "concurrently": "^5.2.0",
+    "eslint": "^7.3.1",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-prettier": "^3.1.4",
+    "eslint-plugin-security": "^1.4.0",
+    "husky": "^4.2.5",
     "jest": "^26.0.1",
+    "lint-staged": "^10.2.11",
     "mongodb-memory-server-core": "^6.6.1",
     "nodemon": "^2.0.4",
     "passport-mock-strategy": "^2.0.0",
     "prettier": "^2.0.5",
+    "pretty-quick": "^2.0.1",
     "ts-jest": "^26.1.0",
     "ts-node": "^8.10.2",
     "ts-node-dev": "^1.0.0-pre.48",
     "typescript": "^3.9.5"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run pretty-quick"
+    }
+  },
+  "lint-staged": {
+    "*.{ts,js}": "eslint --cache --fix"
   }
 }

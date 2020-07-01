@@ -1,8 +1,8 @@
 import "reflect-metadata";
-import { ObjectID } from 'mongodb'
+import { ObjectID } from "mongodb";
 import { Context } from "../context.type";
 import { ApolloError } from "apollo-server-express";
-import { Resolver, Ctx, Arg, Authorized, Mutation, Query } from 'type-graphql';
+import { Resolver, Ctx, Arg, Authorized, Mutation, Query } from "type-graphql";
 
 import NotificationModel, { Notification } from "../../entities/Notification";
 
@@ -27,7 +27,7 @@ class NotificationResolver {
   @Authorized()
   @Mutation(() => Notification)
   async readNotification(
-    @Arg('id', { nullable: false }) id: ObjectID,
+    @Arg("id", { nullable: false }) id: ObjectID,
     @Ctx() context: Context
   ) {
     try {

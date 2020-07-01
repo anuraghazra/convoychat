@@ -5,7 +5,13 @@ import { Context } from "../modules/context.type";
 interface ISendNotification extends Omit<Notification, "_id" | "createdAt"> {
   context: Context;
 }
-async function sendNotification({ sender, receiver, payload, type, context }: ISendNotification) {
+async function sendNotification({
+  sender,
+  receiver,
+  payload,
+  type,
+  context,
+}: ISendNotification) {
   // SEND MENTION NOTIFICATION
   try {
     const noti = new NotificationModel({
@@ -17,8 +23,8 @@ async function sendNotification({ sender, receiver, payload, type, context }: IS
 
     // TODO: CLEAN THIS UP
     // NOTE THE POPULATE
-    let populated = await noti.populate('sender').execPopulate();
-    let subscribtionData = populated.toObject();
+    const populated = await noti.populate("sender").execPopulate();
+    const subscribtionData = populated.toObject();
     context.pubsub.publish(CONSTANTS.NEW_NOTIFICATION, {
       ...subscribtionData,
       id: subscribtionData._id,
@@ -31,4 +37,4 @@ async function sendNotification({ sender, receiver, payload, type, context }: IS
   }
 }
 
-export default sendNotification
+export default sendNotification;

@@ -1,8 +1,8 @@
 import "reflect-metadata";
-import { Room } from './Room';
-import { ObjectID } from 'mongodb'
+import { Room } from "./Room";
+import { ObjectID } from "mongodb";
 import { Ref } from "@typegoose/typegoose";
-import { Field, ObjectType, ID } from 'type-graphql';
+import { Field, ObjectType, ID } from "type-graphql";
 import { UserLinks } from "./User";
 
 @ObjectType()

@@ -1,6 +1,6 @@
-import { ArgsType, Field} from "type-graphql";
+import { ArgsType, Field } from "type-graphql";
 import { Length } from "class-validator";
-import { ObjectID } from 'mongodb';
+import { ObjectID } from "mongodb";
 
 @ArgsType()
 export class createRoomArgs {
