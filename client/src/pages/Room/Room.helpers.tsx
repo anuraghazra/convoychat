@@ -4,6 +4,7 @@ import { MAX_MESSAGES } from "../../constants";
 import { MutationUpdaterFn } from "apollo-client";
 import {
   Me,
+  Message as IMessage,
   GetRoomQuery,
   GetRoomDocument,
   SendMessageMutation,
@@ -43,14 +44,24 @@ const updateCacheAfterSendMessage: MutationUpdaterFn<SendMessageMutation> = (
     let roomId = data.sendMessage.roomId;
     let room = cache.readQuery<GetRoomQuery>({
       query: GetRoomDocument,
-      variables: { roomId, limit: MAX_MESSAGES, offset: 0 },
+      variables: { roomId, limit: MAX_MESSAGES },
     });
 
     cache.writeQuery({
       query: GetRoomDocument,
-      variables: { roomId, limit: MAX_MESSAGES, offset: 0 },
+      variables: { roomId, limit: MAX_MESSAGES },
       data: update(room, {
-        messages: { messages: { $push: [data.sendMessage] } },
+        messages: {
+          edges: {
+            $push: [
+              {
+                __typename: "MessageEdge",
+                cursor: btoa(data.sendMessage.id),
+                node: data.sendMessage as IMessage,
+              },
+            ],
+          },
+        },
       }),
     });
   } catch (err) {

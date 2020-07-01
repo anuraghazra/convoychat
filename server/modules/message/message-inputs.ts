@@ -30,6 +30,9 @@ export class getMessagesArgs {
   @Field(type => Int)
   limit: number;
 
-  @Field(type => Int)
-  offset: number;
+  @Field({ nullable: true })
+  before: string;
+  
+  @Field({ nullable: true })
+  after: string;
 }

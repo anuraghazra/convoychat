@@ -65,10 +65,14 @@ type Message {
   roomId: ID!
 }
 
+type MessageEdge {
+  cursor: ID!
+  node: Message!
+}
+
 type Messages {
-  messages: [Message!]!
-  totalDocs: Int
-  totalPages: Int
+  edges: [MessageEdge!]!
+  pageInfo: pageInfo
 }
 
 type Mutation {
@@ -107,9 +111,13 @@ enum NOTIFICATION_TYPE {
 """Mongo object id scalar type"""
 scalar ObjectId
 
+type pageInfo {
+  hasNext: Boolean!
+}
+
 type Query {
   getInvitationInfo(token: String!): InvitationDetails!
-  getMessages(limit: Int!, offset: Int!, roomId: ObjectId!): Messages!
+  getMessages(after: String, before: String, limit: Int!, roomId: ObjectId!): Messages!
   getNotifications: [Notification!]!
   getRoom(id: ObjectId!): Room!
   getUser(id: ObjectId!): User!
