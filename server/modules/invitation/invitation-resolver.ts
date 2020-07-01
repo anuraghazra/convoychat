@@ -134,6 +134,7 @@ class InvitationResolver {
           invitedBy: context.currentUser.id,
           token: token,
         });
+
         return invite.save();
       });
 
