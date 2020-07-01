@@ -13,7 +13,7 @@ import {
   useDeleteMessageMutation,
 } from "graphql/generated/graphql";
 
-import { timeAgo, copyToClipboard } from "utils";
+import { timeAgo } from "utils";
 import { Avatar, Flex } from "@convoy-ui";
 import { deleteMessageMutationUpdater } from "./Message.helpers";
 
@@ -84,15 +84,11 @@ const Message: React.FC<IMessage> = ({
     setIsEditing(false);
   };
 
-  const copyMessageLink = () => {
-    copyToClipboard(`http://localhost:3000/room/${roomId}/?message_id=${id}`);
-  };
-
   useEffect(() => {
     try {
       roomData.current = client.readQuery<GetRoomQuery>({
         query: GetRoomDocument,
-        variables: { roomId: roomId, limit: MAX_MESSAGES, offset: 0 },
+        variables: { roomId: roomId, limit: MAX_MESSAGES },
       });
     } catch (err) {
       console.log(err);
@@ -115,7 +111,6 @@ const Message: React.FC<IMessage> = ({
               align="center"
               nowrap
             >
-              <FaLink onClick={copyMessageLink} />
               {editLoading ? (
                 <FaSpinner className="spin" />
               ) : (

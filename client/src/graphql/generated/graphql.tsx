@@ -17,41 +17,31 @@ export type Scalars = {
   JSONObject: any;
 };
 
-export type Query = {
-  __typename?: 'Query';
-  me: Me;
-  listUsers: Array<Member>;
-  getUser: User;
-  getMessages: Messages;
-  listRooms: Array<Room>;
-  listCurrentUserRooms: Array<Room>;
-  getRoom: Room;
-  getNotifications: Array<Notification>;
-  getInvitationInfo: InvitationDetails;
+
+export type Invitation = {
+  __typename?: 'Invitation';
+  id: Scalars['ID'];
+  createdAt: Scalars['DateTime'];
+  invitedBy: Scalars['ID'];
+  userId: Scalars['ID'];
+  roomId: Scalars['ID'];
+  isPublic: Scalars['Boolean'];
 };
 
-
-export type QueryGetUserArgs = {
-  id: Scalars['ObjectId'];
+export type InvitationDetails = {
+  __typename?: 'InvitationDetails';
+  id: Scalars['ID'];
+  room?: Maybe<Room>;
+  invitedBy: Member;
+  isPublic: Scalars['Boolean'];
+  createdAt: Scalars['DateTime'];
 };
 
-
-export type QueryGetMessagesArgs = {
-  roomId: Scalars['ObjectId'];
-  limit: Scalars['Int'];
-  before?: Maybe<Scalars['String']>;
-  after?: Maybe<Scalars['String']>;
+export type InvitationLinkResult = {
+  __typename?: 'InvitationLinkResult';
+  link: Scalars['String'];
 };
 
-
-export type QueryGetRoomArgs = {
-  id: Scalars['ObjectId'];
-};
-
-
-export type QueryGetInvitationInfoArgs = {
-  token: Scalars['String'];
-};
 
 export type Me = {
   __typename?: 'Me';
@@ -65,18 +55,6 @@ export type Me = {
   links?: Maybe<UserLinks>;
 };
 
-
-export type Room = {
-  __typename?: 'Room';
-  id: Scalars['ObjectId'];
-  createdAt: Scalars['DateTime'];
-  name: Scalars['String'];
-  members: Array<Member>;
-  messages: Array<Message>;
-  owner: Scalars['ObjectId'];
-};
-
-
 export type Member = {
   __typename?: 'Member';
   id: Scalars['ID'];
@@ -89,14 +67,6 @@ export type Member = {
   color: Scalars['String'];
 };
 
-export type UserLinks = {
-  __typename?: 'UserLinks';
-  github?: Maybe<Scalars['String']>;
-  twitter?: Maybe<Scalars['String']>;
-  instagram?: Maybe<Scalars['String']>;
-  website?: Maybe<Scalars['String']>;
-};
-
 export type Message = {
   __typename?: 'Message';
   id: Scalars['ID'];
@@ -107,59 +77,16 @@ export type Message = {
   mentions: Array<Scalars['ID']>;
 };
 
-export type User = {
-  __typename?: 'User';
-  id: Scalars['ObjectId'];
-  createdAt: Scalars['DateTime'];
-  name: Scalars['String'];
-  username: Scalars['String'];
-  rooms: Array<Room>;
-  color: Scalars['String'];
-  links?: Maybe<UserLinks>;
-};
-
-export type Messages = {
-  __typename?: 'Messages';
-  pageInfo?: Maybe<PageInfo>;
-  edges: Array<MessageEdge>;
-};
-
-export type PageInfo = {
-  __typename?: 'pageInfo';
-  hasNext: Scalars['Boolean'];
-};
-
 export type MessageEdge = {
   __typename?: 'MessageEdge';
   cursor: Scalars['ID'];
   node: Message;
 };
 
-export type Notification = {
-  __typename?: 'Notification';
-  id: Scalars['ID'];
-  createdAt: Scalars['DateTime'];
-  sender: Member;
-  receiver: Scalars['ID'];
-  seen: Scalars['Boolean'];
-  type: Notification_Type;
-  payload: Scalars['JSONObject'];
-};
-
-/** Notification types enums */
-export enum Notification_Type {
-  Invitation = 'INVITATION',
-  Mention = 'MENTION'
-}
-
-
-export type InvitationDetails = {
-  __typename?: 'InvitationDetails';
-  id: Scalars['ID'];
-  room?: Maybe<Room>;
-  invitedBy: Member;
-  isPublic: Scalars['Boolean'];
-  createdAt: Scalars['DateTime'];
+export type Messages = {
+  __typename?: 'Messages';
+  pageInfo?: Maybe<PageInfo>;
+  edges: Array<MessageEdge>;
 };
 
 export type Mutation = {
@@ -246,19 +173,73 @@ export type MutationAcceptInvitationArgs = {
   token: Scalars['String'];
 };
 
-export type InvitationLinkResult = {
-  __typename?: 'InvitationLinkResult';
-  link: Scalars['String'];
-};
-
-export type Invitation = {
-  __typename?: 'Invitation';
+export type Notification = {
+  __typename?: 'Notification';
   id: Scalars['ID'];
   createdAt: Scalars['DateTime'];
-  invitedBy: Scalars['ID'];
-  userId: Scalars['ID'];
-  roomId: Scalars['ID'];
-  isPublic: Scalars['Boolean'];
+  sender: Member;
+  receiver: Scalars['ID'];
+  seen: Scalars['Boolean'];
+  type: Notification_Type;
+  payload: Scalars['JSONObject'];
+};
+
+/** Notification types enums */
+export enum Notification_Type {
+  Invitation = 'INVITATION',
+  Mention = 'MENTION'
+}
+
+
+export type PageInfo = {
+  __typename?: 'pageInfo';
+  hasNext: Scalars['Boolean'];
+};
+
+export type Query = {
+  __typename?: 'Query';
+  me: Me;
+  listUsers: Array<Member>;
+  getUser: User;
+  getMessages: Messages;
+  listRooms: Array<Room>;
+  listCurrentUserRooms: Array<Room>;
+  getRoom: Room;
+  getNotifications: Array<Notification>;
+  getInvitationInfo: InvitationDetails;
+};
+
+
+export type QueryGetUserArgs = {
+  id: Scalars['ObjectId'];
+};
+
+
+export type QueryGetMessagesArgs = {
+  roomId: Scalars['ObjectId'];
+  limit: Scalars['Int'];
+  before?: Maybe<Scalars['String']>;
+  after?: Maybe<Scalars['String']>;
+};
+
+
+export type QueryGetRoomArgs = {
+  id: Scalars['ObjectId'];
+};
+
+
+export type QueryGetInvitationInfoArgs = {
+  token: Scalars['String'];
+};
+
+export type Room = {
+  __typename?: 'Room';
+  id: Scalars['ObjectId'];
+  createdAt: Scalars['DateTime'];
+  name: Scalars['String'];
+  members: Array<Member>;
+  messages: Array<Message>;
+  owner: Scalars['ObjectId'];
 };
 
 export type Subscription = {
@@ -282,6 +263,25 @@ export type SubscriptionOnDeleteMessageArgs = {
 
 export type SubscriptionOnUpdateMessageArgs = {
   roomId: Scalars['ObjectId'];
+};
+
+export type User = {
+  __typename?: 'User';
+  id: Scalars['ObjectId'];
+  createdAt: Scalars['DateTime'];
+  name: Scalars['String'];
+  username: Scalars['String'];
+  rooms: Array<Room>;
+  color: Scalars['String'];
+  links?: Maybe<UserLinks>;
+};
+
+export type UserLinks = {
+  __typename?: 'UserLinks';
+  github?: Maybe<Scalars['String']>;
+  twitter?: Maybe<Scalars['String']>;
+  instagram?: Maybe<Scalars['String']>;
+  website?: Maybe<Scalars['String']>;
 };
 
 export type GetInvitationInfoQueryVariables = {
