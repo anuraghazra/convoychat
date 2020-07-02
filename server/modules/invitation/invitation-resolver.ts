@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import crypto from "crypto";
-import { ObjectID } from "mongodb";
+import { ObjectID, ObjectId } from "mongodb";
 import { Context } from "../context.type";
 import { Ref } from "@typegoose/typegoose";
 import { ApolloError } from "apollo-server-express";
@@ -48,11 +48,15 @@ class InvitationResolver {
       .populate("roomId")
       .populate("invitedBy");
 
-    const currentUserInvite =
-      `${context.currentUser.id}` === `${invite.userId}`;
-    const isInviteForUser = !invite.isPublic && currentUserInvite;
-    if (!invite || !isInviteForUser)
+    if (!invite) {
       throw new ApolloError("Could not get invitation info");
+    }
+
+    const userid = new ObjectID(context.currentUser.id);
+    const currentUserInvite = userid.equals(invite.userId as ObjectId);
+    if (!currentUserInvite && !invite.isPublic) {
+      throw new ApolloError("Could not get invitation info");
+    }
 
     return {
       id: invite.id,
