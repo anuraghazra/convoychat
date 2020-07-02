@@ -11,6 +11,7 @@ import {
   UserLinks,
   useSetUserSettingsMutation,
 } from "graphql/generated/graphql";
+
 import { Button, ButtonGroup, Spacer } from "@convoy-ui";
 import ColorPreview from "components/ColorPreview";
 import SocialLinkInput, { ILinkTypes } from "./SocialLinkInput";
@@ -98,12 +99,16 @@ const UserSettings: React.FC = () => {
           color={color}
           handleColorChange={handleColorChange}
           preview={
-            <Message
-              id="123"
-              author={{ ...user, color: color }}
-              content="Hello world"
-              date={"6/21/2020"}
-            />
+            <Message>
+              <Message.MetaInfo
+                author={{
+                  color: color,
+                  avatarUrl: user?.avatarUrl,
+                  name: user?.name,
+                }}
+              />
+              <Message.Content>Hello world</Message.Content>
+            </Message>
           }
         />
         <Spacer gap="huge" />

@@ -92,6 +92,7 @@ export const InputWrapper = styled.div`
 
 interface InputProps extends React.HTMLAttributes<HTMLInputElement> {
   name?: string;
+  type?: string;
   label?: string | React.ReactNode;
   icon?: any;
   postfixIcon?: any;

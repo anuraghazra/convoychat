@@ -1,7 +1,7 @@
 import React from "react";
 import { Member, MessageEdge } from "graphql/generated/graphql";
 
-import Message from "components/Message/Message";
+import MessageContainer from "components/Message/MessageContainer";
 import { useAuthContext } from "contexts/AuthContext";
 
 interface IMessageList {
@@ -15,7 +15,7 @@ const MessageList: React.FC<IMessageList> = ({ messages }) => {
     <>
       {messages?.map(({ node }) => {
         return (
-          <Message
+          <MessageContainer
             id={node.id}
             key={node.id}
             date={node.createdAt}
