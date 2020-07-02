@@ -81,6 +81,7 @@
     "@graphql-codegen/typescript": "^1.14.0",
     "@graphql-codegen/typescript-operations": "^1.14.0",
     "@graphql-codegen/typescript-react-apollo": "^1.14.0",
-    "jest-environment-jsdom-sixteen": "^1.0.3"
+    "jest-environment-jsdom-sixteen": "^1.0.3",
+    "prettier": "^2.0.5"
   }
 }
