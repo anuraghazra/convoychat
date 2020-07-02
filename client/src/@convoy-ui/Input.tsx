@@ -107,7 +107,6 @@ export const Textarea = styled(StyledInput).attrs(p => ({ as: "textarea" }))`
 `;
 
 export const Input: React.FC<InputProps> = ({
-  name,
   label,
   inputRef,
   errors,
@@ -117,7 +116,7 @@ export const Input: React.FC<InputProps> = ({
   ...props
 }) => {
   let _inputRef = useRef<HTMLInputElement>();
-  let hasErrors = errors && errors[name];
+  let hasErrors = errors && errors[props.name];
 
   return (
     <InputWrapper className="form--input__wrapper">
@@ -132,7 +131,7 @@ export const Input: React.FC<InputProps> = ({
               inputRef && inputRef(e);
             }}
             {...props}
-            aria-label={name}
+            aria-label={props.name}
           />
           {PostFixIcon && (
             <PostFixIcon
@@ -148,7 +147,7 @@ export const Input: React.FC<InputProps> = ({
           data-testid="input-error"
           className={`text--error ${hasErrors && "show-error"}`}
         >
-          <ErrorMessage errors={errors} name={name} />
+          <ErrorMessage errors={errors} name={props.name} />
         </div>
       )}
     </InputWrapper>
