@@ -49,10 +49,7 @@ const useModalContext = () => {
 };
 
 const ModalProvider: React.FC = ({ children }) => {
-  const [state, dispatch] = useReducer(modalReducer, {
-    isCreateRoomModalOpen: false,
-    isInviteMembersModalOpen: false,
-  });
+  const [state, dispatch] = useReducer(modalReducer, {});
 
   return (
     <ModalContext.Provider
