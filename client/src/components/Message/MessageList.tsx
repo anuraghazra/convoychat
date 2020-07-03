@@ -5,7 +5,7 @@ import MessageContainer from "components/Message/MessageContainer";
 import { useAuthContext } from "contexts/AuthContext";
 
 interface IMessageList {
-  messages?: MessageEdge[];
+  messages?: Partial<MessageEdge>[];
 }
 
 const MessageList: React.FC<IMessageList> = ({ messages }) => {
