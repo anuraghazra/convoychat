@@ -1,8 +1,7 @@
-import React, { useEffect, useRef, useCallback } from "react";
+import React, { useEffect, useRef } from "react";
 import { FaSmile, FaPaperPlane, FaImage } from "react-icons/fa";
 import { Picker } from "emoji-mart";
 import "emoji-mart/css/emoji-mart.css";
-import { useDropzone } from "react-dropzone";
 
 import {
   SendButton,
@@ -10,13 +9,11 @@ import {
   defaultMentionStyles,
 } from "./MessageInput.style";
 
-import {
-  RoomMemberFragment,
-  useUploadImageMutation,
-} from "graphql/generated/graphql";
+import { Member as IMember } from "graphql/generated/graphql";
 
+import useImageUpload from "./useImageUpload";
 import { textareaAutoResize } from "utils";
-import { Flex, Dropdown, IconButton, toast } from "@convoy-ui";
+import { Flex, Dropdown, IconButton } from "@convoy-ui";
 import { MentionsInput, Mention, OnChangeHandlerFunc } from "react-mentions";
 
 const mql = window.matchMedia(`(min-width: 800px)`);
@@ -26,15 +23,16 @@ interface IMessageInput {
   onCancel?: () => void;
   handleChange: OnChangeHandlerFunc;
   onEmojiClick?: (emoji: any) => void;
-  mentionSuggestions: RoomMemberFragment[];
+  mentionSuggestions: Partial<IMember>[];
   handleSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
   innerRef?: React.MutableRefObject<HTMLTextAreaElement | undefined>;
   setValue?: (value: React.SetStateAction<string>) => void;
-  [x: string]: any;
 }
 type ISuggestionsData = { display: any; id: string }[] | undefined;
+// prettier-ignore
+type MessageInputType = React.FC<IMessageInput> & React.HTMLAttributes<HTMLTextAreaElement>;
 
-const MessageInput: React.FC<IMessageInput> = ({
+const MessageInput: MessageInputType = ({
   value,
   innerRef,
   onCancel,
@@ -49,6 +47,17 @@ const MessageInput: React.FC<IMessageInput> = ({
   const formRef = useRef<HTMLFormElement>();
   const textareaRef = useRef<HTMLTextAreaElement>();
   const suggestionsData = useRef<ISuggestionsData>();
+
+  const {
+    open,
+    getRootProps,
+    isDragActive,
+    getInputProps,
+    uploadImageInProgress,
+  } = useImageUpload({
+    value,
+    setValue,
+  });
 
   const imparativeSubmit = (event: any) => {
     event.preventDefault();
@@ -85,53 +94,14 @@ const MessageInput: React.FC<IMessageInput> = ({
     });
   }, [mentionSuggestions]);
 
-  // Image uploading
-  const [
-    uploadImage,
-    { loading: uploadImageInProgress },
-  ] = useUploadImageMutation({
-    onCompleted(data) {
-      const replacedPlaceholder = value.replace(
-        "![Uplading image...](...please wait)",
-        `![Alt Text](${data.uploadImage.url})`
-      );
-      setValue && setValue(replacedPlaceholder);
-    },
-    onError(err) {
-      toast.error("Something went wrong uploading image.");
-    },
-  });
-
-  const handleOnDrop = useCallback(
-    acceptedFiles => {
-      uploadImage({
-        variables: {
-          file: acceptedFiles[0],
-        },
-      });
-    },
-    [uploadImage]
-  );
-
-  const { getRootProps, getInputProps, open, isDragActive } = useDropzone({
-    onDrop: handleOnDrop,
-    onDropAccepted: () => {
-      setValue && setValue(value + `\n\n![Uplading image...](...please wait)`);
-    },
-    accept: "image/jpeg, image/png",
-    multiple: false,
-    noClick: true,
-    noKeyboard: true,
-  });
-
   return (
     <MessageInputWrapper className="message__input">
       <Flex gap="large" align="center" justify="space-between" nowrap>
         <IconButton
+          onClick={open}
+          icon={<FaImage />}
           data-testid="upload-button"
           isLoading={uploadImageInProgress}
-          icon={<FaImage />}
-          onClick={open}
         />
 
         <form

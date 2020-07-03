@@ -1,31 +1,21 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import update from "immutability-helper";
 import styled from "styled-components";
 import Sidebar from "react-sidebar";
 
-import useMessageInput from "components/MessageInput/useMessageInput";
-import useResponsiveSidebar from "hooks/useResponsiveSidebar";
-
-import {
-  updateCacheAfterSendMessage,
-  sendMessageOptimisticResponse,
-} from "./Room.helpers";
-import {
-  MessageEdge,
-  useGetRoomQuery,
-  useSendMessageMutation,
-} from "graphql/generated/graphql";
+import { useGetRoomQuery } from "graphql/generated/graphql";
 import { Flex } from "@convoy-ui";
 import { scrollToBottom } from "utils";
 import { MAX_MESSAGES } from "../../constants";
 import { useAuthContext } from "contexts/AuthContext";
+import useResponsiveSidebar from "hooks/useResponsiveSidebar";
 
 import RoomHeader from "./RoomHeader";
+import SendMessage from "./SendMessage";
 import RightSidebar from "./RightSidebar";
 import subscribeToMessages from "./subscribeToMessages";
 import MessageList from "components/Message/MessageList";
-import MessageInput from "components/MessageInput/MessageInput";
 import BidirectionalScroller from "components/BidirectionalScroller";
 import { DashboardBody } from "pages/Dashboard/Dashboard.style";
 
@@ -51,13 +41,6 @@ const Room: React.FC = () => {
   const bodyRef = useRef<HTMLElement>();
 
   const { isDocked, isOpen, setIsOpen } = useResponsiveSidebar();
-  const {
-    value,
-    setValue,
-    textareaRef,
-    handleChange,
-    handleEmojiClick,
-  } = useMessageInput();
   const [isFetchingMore, setIsFetchingMore] = useState<boolean>(false);
 
   // fetch room query
@@ -79,33 +62,6 @@ const Room: React.FC = () => {
       limit: MAX_MESSAGES,
     },
   });
-
-  // send message mutation
-  const [sendMessage, { error: sendError }] = useSendMessageMutation({
-    optimisticResponse: sendMessageOptimisticResponse(roomId, value, user),
-    onError(err) {
-      console.log(err);
-    },
-    update: updateCacheAfterSendMessage,
-  });
-
-  // submit message
-  const onMessageSubmit = useCallback(
-    (event: React.FormEvent<HTMLFormElement>) => {
-      event.preventDefault();
-      sendMessage({
-        variables: {
-          content: (event.target as any).message.value,
-          roomId: roomId,
-        },
-      });
-      setValue("");
-      window.setTimeout(() => {
-        scrollToBottom(bodyRef?.current);
-      }, 50);
-    },
-    []
-  );
 
   useEffect(() => {
     subscribeToMessages(
@@ -140,6 +96,12 @@ const Room: React.FC = () => {
     });
   };
 
+  const handleOnReachTop = (restoreScroll: () => void) => {
+    if (roomData?.messages?.pageInfo?.hasNext) {
+      fetchPreviousMessages().then(restoreScroll);
+    }
+  };
+
   return (
     <>
       <Sidebar
@@ -154,7 +116,6 @@ const Room: React.FC = () => {
         }
       >
         <RoomBody>
-          {sendError && <span>{sendError?.message}</span>}
           {fetchRoomError && <span>{fetchRoomError?.message}</span>}
 
           <Flex
@@ -169,25 +130,15 @@ const Room: React.FC = () => {
               <BidirectionalScroller
                 innerRef={bodyRef}
                 topLoading={isFetchingMore}
-                onReachTop={restoreScroll => {
-                  if (roomData?.messages?.pageInfo?.hasNext) {
-                    fetchPreviousMessages().then(restoreScroll);
-                  }
-                }}
+                onReachTop={handleOnReachTop}
               >
-                <MessageList
-                  messages={roomData?.messages?.edges as MessageEdge[]}
-                />
+                <MessageList messages={roomData?.messages?.edges} />
               </BidirectionalScroller>
 
-              <MessageInput
-                value={value}
-                setValue={setValue}
-                innerRef={textareaRef}
-                handleSubmit={onMessageSubmit}
-                handleChange={handleChange}
-                onEmojiClick={handleEmojiClick}
-                mentionSuggestions={roomData?.room?.members}
+              <SendMessage
+                roomId={roomId}
+                bodyRef={bodyRef}
+                members={roomData?.room?.members}
               />
             </MessagesWrapper>
           </Flex>
