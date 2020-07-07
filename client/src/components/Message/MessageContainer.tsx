@@ -146,4 +146,4 @@ MessageContainer.defaultProps = {
   date: new Date().toString(),
 };
 
-export default MessageContainer;
+export default React.memo(MessageContainer);

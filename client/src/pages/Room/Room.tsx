@@ -132,7 +132,10 @@ const Room: React.FC = () => {
                 topLoading={isFetchingMore}
                 onReachTop={handleOnReachTop}
               >
-                <MessageList messages={roomData?.messages?.edges} />
+                <MessageList
+                  isLoading={fetchRoomLoading && !isFetchingMore}
+                  messages={roomData?.messages?.edges}
+                />
               </BidirectionalScroller>
 
               <SendMessage

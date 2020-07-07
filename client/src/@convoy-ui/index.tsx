@@ -5,6 +5,7 @@ export * from "./Flex";
 export * from "./IconButton";
 export * from "./Input";
 export * from "./Loading";
+export * from "./LogoLoader";
 export * from "./Spacer";
 export * from "./Toast";
 export * from "./Tooltip";
