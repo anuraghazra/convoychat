@@ -54,7 +54,9 @@ const Room: React.FC = () => {
     notifyOnNetworkStatusChange: true,
     onCompleted() {
       if (!isFetchingMore) {
-        scrollToBottom(bodyRef?.current);
+        window.setTimeout(() => {
+          scrollToBottom(bodyRef?.current);
+        }, 10);
       }
     },
     variables: {

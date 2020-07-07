@@ -179,6 +179,14 @@ const GlobalStyles = createGlobalStyle`
     }
   }
 
+  /* To fix react-notification-component Portal render */
+  .react-notification-root  {
+    top: 0;
+  }
+  .notification-item {
+    box-shadow: none;
+  }
+
   ${ReactModalStyles}
   ${EmojiMartStyles}
 `;

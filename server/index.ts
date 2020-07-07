@@ -54,7 +54,7 @@ app.use(xss()); // sanitize data
 const sessionMiddleware = cookieSession({
   secure: process.env.NODE_ENV === "production",
   name: "session",
-  keys: [process.env.SESSION_SECRECT as any],
+  keys: [process.env.SESSION_SECRECT],
   maxAge: 24 * 60 * 60 * 1000, // session will expire after 24 hours
 });
 const passportMiddleware = passport.initialize();
