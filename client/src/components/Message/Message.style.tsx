@@ -1,9 +1,15 @@
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
-const StyledMessage = styled.section`
+const StyledMessage = styled.section<{ isHighlighted?: boolean }>`
   font-size: 14px;
   padding: ${p => p.theme.space.xlarge}px;
   word-break: break-word;
+
+  ${p =>
+    p.isHighlighted &&
+    css`
+      border: 1px solid ${p.theme.colors.primary};
+    `};
 
   p {
     margin: 0;
@@ -49,6 +55,17 @@ const StyledMessage = styled.section`
       color: #758af6;
       &:hover {
         color: ${p => p.theme.colors.primary};
+      }
+    }
+
+    img {
+      max-width: 100%;
+      height: auto;
+      border-radius: ${p => p.theme.radius.small}px;
+    }
+    @media (${p => p.theme.media.tablet}) {
+      img {
+        max-width: 100%;
       }
     }
   }

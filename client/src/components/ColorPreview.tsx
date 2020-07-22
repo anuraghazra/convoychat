@@ -74,7 +74,7 @@ const ColorPreview: React.FC<IColorPreview> = ({
               <FaPalette />
             </div>
           </Dropdown.Toggle>
-          <Dropdown.Content>
+          <Dropdown.Content style={{ right: "initial" }}>
             <ChromePicker color={color} onChange={handleColorChange} />
           </Dropdown.Content>
         </Dropdown>

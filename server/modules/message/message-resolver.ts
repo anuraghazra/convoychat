@@ -12,6 +12,7 @@ import {
   Resolver,
   Mutation,
   Authorized,
+  UseMiddleware,
 } from "type-graphql";
 
 import Member from "../../entities/Member";
@@ -20,29 +21,56 @@ import MessageModel, { Message } from "../../entities/Message";
 
 import CONSTANTS from "../../constants";
 import { Messages } from "./message-types";
+import { b64decode, b64encode } from "../../utils";
 import parseMentions from "../../utils/mention-parser";
 import sendNotification from "../../utils/sendNotification";
 import { NOTIFICATION_TYPE } from "../../entities/Notification";
-import { sendMessageArgs, editMessageArgs, getMessagesArgs } from "./message-inputs";
-
+import {
+  sendMessageArgs,
+  editMessageArgs,
+  getMessagesArgs,
+} from "./message-inputs";
+import RateLimit from "../rate-limiter-middleware";
 
 @Resolver(of => Message)
 class MessageResolver {
   @Authorized()
   @Query(() => Messages)
-  async getMessages(@Args() { limit, offset, roomId }: getMessagesArgs) {
-    let messages = await MessageModel.find({ roomId: roomId })
-      .sort({ createdAt: -1 })
-      .populate("author");
+  async getMessages(@Args() { after, before, limit, roomId }: getMessagesArgs) {
+    const afterQuery = after && { $gt: new ObjectID(b64decode(after)) };
+    const beforeQuery = before && { $lt: new ObjectID(b64decode(before)) };
+    const criteria =
+      afterQuery || beforeQuery
+        ? {
+            _id: { ...afterQuery, ...beforeQuery },
+          }
+        : {};
+
+    let messages = await MessageModel.find({ roomId: roomId, ...criteria })
+      .limit(limit + 1)
+      .sort({ createdAt: afterQuery ? 0 : -1 })
+      .populate("author")
+      .lean();
+
+    const hasNext = messages.length > limit - 1;
+    if (hasNext) {
+      messages = messages.slice(0, messages.length - 1);
+    }
+    const edges = messages.map(edge => ({
+      cursor: b64encode(edge._id.toHexString()),
+      node: edge,
+    }));
 
     return {
-      totalDocs: messages.length,
-      totalPages: Math.floor(messages.length / limit),
-      messages: messages.slice(offset, limit + offset).reverse(),
+      pageInfo: {
+        hasNext: hasNext,
+      },
+      edges: edges.reverse(),
     };
   }
 
   @Authorized()
+  @UseMiddleware(RateLimit({ limit: 1000 }))
   @Mutation(() => Message)
   async sendMessage(
     @Args() { roomId, content }: sendMessageArgs,
@@ -50,7 +78,7 @@ class MessageResolver {
     @PubSub() pubsub: PubSubEngine
   ) {
     try {
-      let room = await RoomModel.findOne({
+      const room = await RoomModel.findOne({
         _id: roomId,
         members: { $in: [context.currentUser.id] },
       }).populate("members");
@@ -67,7 +95,7 @@ class MessageResolver {
       // check if mentioned users are member of the room
       const mentioned_users = mentions
         .map(m => {
-          let found = room?.members.find((i: Member) => i.username === m);
+          const found = room?.members.find((i: Member) => i.username === m);
           if (found) {
             return (found as any)._id;
           }
@@ -79,7 +107,7 @@ class MessageResolver {
           return `${userId}` !== `${context.currentUser.id}`;
         });
 
-      let message = new MessageModel({
+      const message = new MessageModel({
         content: content,
         roomId: roomId,
         author: context.currentUser.id,
@@ -88,7 +116,7 @@ class MessageResolver {
       message.populate("author").execPopulate();
 
       // filter out the current User id to prevent self notification sending
-      let mentionNotifications = message.mentions.map(async id => {
+      const mentionNotifications = message.mentions.map(async id => {
         return sendNotification({
           context: context,
           sender: context.currentUser.id,
@@ -106,7 +134,7 @@ class MessageResolver {
       await Promise.all(mentionNotifications);
 
       (message as any).$roomId = roomId;
-      let savedMessage = await message.save();
+      const savedMessage = await message.save();
       pubsub.publish(CONSTANTS.NEW_MESSAGE, savedMessage.toObject());
 
       return savedMessage;
@@ -116,6 +144,7 @@ class MessageResolver {
   }
 
   @Authorized()
+  @UseMiddleware(RateLimit({ limit: 1000 }))
   @Mutation(() => Message)
   async deleteMessage(
     @Arg("messageId") messageId: ObjectID,
@@ -123,7 +152,7 @@ class MessageResolver {
     @PubSub() pubsub: PubSubEngine
   ) {
     try {
-      let message = await MessageModel.findOneAndDelete({
+      const message = await MessageModel.findOneAndDelete({
         _id: messageId,
         author: context.currentUser.id,
       });
@@ -140,6 +169,7 @@ class MessageResolver {
   }
 
   @Authorized()
+  @UseMiddleware(RateLimit({ limit: 2000 }))
   @Mutation(() => Message)
   async editMessage(
     @Args() { messageId, content }: editMessageArgs,
@@ -147,7 +177,7 @@ class MessageResolver {
     @PubSub() pubsub: PubSubEngine
   ) {
     try {
-      let message = await MessageModel.findOneAndUpdate(
+      const message = await MessageModel.findOneAndUpdate(
         {
           _id: messageId,
           author: context.currentUser.id,

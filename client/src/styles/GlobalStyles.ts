@@ -16,7 +16,8 @@ const ScrollBarStyles = css`
   *::-webkit-scrollbar {
     width: 12px;
   }
-  *::-webkit-scrollbar-track, *::-webkit-scrollbar-corner {
+  *::-webkit-scrollbar-track,
+  *::-webkit-scrollbar-corner {
     background: ${p => p.theme.colors.dark1};
   }
   *::-webkit-scrollbar-thumb {
@@ -25,7 +26,6 @@ const ScrollBarStyles = css`
     border: 2px solid ${p => p.theme.colors.dark1};
   }
 `;
-
 
 const GlobalStyles = createGlobalStyle`
   * {
@@ -148,6 +148,43 @@ const GlobalStyles = createGlobalStyle`
     @media (${p => p.theme.media.tablet}) {
       width: 100%;
     }
+  }
+
+  /* border animation */
+  .active-animation {
+    width: 100%;
+    height: 100%;
+    padding: 2px;
+    ${({ theme }) => css`
+      background: linear-gradient(
+          90deg,
+          ${theme.colors.primary} 50%,
+          transparent 50%
+        ),
+        linear-gradient(90deg, ${theme.colors.primary} 50%, transparent 50%),
+        linear-gradient(0deg, ${theme.colors.primary} 50%, transparent 50%),
+        linear-gradient(0deg, ${theme.colors.primary} 50%, transparent 50%);
+    `}
+    background-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
+    background-size: 15px 2px, 15px 2px, 2px 15px, 2px 15px;
+    background-position: left top, right bottom, left bottom, right   top;
+    animation: border-dance 1s infinite linear;
+  }
+  @keyframes border-dance {
+    0% {
+      background-position: left top, right bottom, left bottom, right   top;
+    }
+    100% {
+      background-position: left 15px top, right 15px bottom , left bottom 15px , right   top 15px;
+    }
+  }
+
+  /* To fix react-notification-component Portal render */
+  .react-notification-root  {
+    top: 0;
+  }
+  .notification-item {
+    box-shadow: none;
   }
 
   ${ReactModalStyles}

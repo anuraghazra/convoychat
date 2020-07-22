@@ -1,8 +1,7 @@
 import React from "react";
 import { Route, Redirect } from "react-router-dom";
 import { useAuthContext } from "contexts/AuthContext";
-import Loading from "../@convoy-ui/Loading";
-
+import { ConvoyChatLoader } from "@convoy-ui";
 interface AuthRouteProps {
   component: Function;
   [x: string]: any;
@@ -19,7 +18,7 @@ const AuthRoute: React.FC<AuthRouteProps> = ({
       {...rest}
       render={props =>
         isLoading ? (
-          <Loading />
+          <ConvoyChatLoader />
         ) : isAuthenticated ? (
           <Component {...props} />
         ) : (

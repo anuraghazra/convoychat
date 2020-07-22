@@ -16,9 +16,10 @@ interface ButtonProps extends StyledButtonProps {
   [x: string]: any;
 }
 
-type IStyledButton = StyledButtonProps & React.HTMLAttributes<HTMLDivElement>;
+type IStyledButton = StyledButtonProps &
+  React.HTMLAttributes<HTMLButtonElement>;
 
-const StyledButton = styled.button<IStyledButton>`
+export const StyledButton = styled.button<IStyledButton>`
   width: ${p => p.width};
   height: fit-content;
   margin: 10px 0;

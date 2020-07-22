@@ -1,11 +1,11 @@
 import { buildSchema } from "type-graphql";
 import useAuth from "../utils/auth-checker";
 import { TypegooseMiddleware } from "../utils/typegoose-middleware";
-import { ObjectID } from 'mongodb'
+import { ObjectID } from "mongodb";
 
 import UserResolver from "./user/user-resolver";
-import MessageResolver from "./message/message-resolver";
 import RoomResolver from "./room/room-resolver";
+import MessageResolver from "./message/message-resolver";
 import NotificationResolver from "./notification/notification-resolver";
 import InvitationResolver from "./invitation/invitation-resolver";
 import MessageSubscriptions from "./message/message-subscriptions";
@@ -21,10 +21,10 @@ export const createSchema = () => {
       InvitationResolver,
       NotificationResolver,
       MessageSubscriptions,
-      NotificationsSubscriptions
+      NotificationsSubscriptions,
     ],
     globalMiddlewares: [TypegooseMiddleware],
     scalarsMap: [{ type: ObjectID, scalar: ObjectIdScalar }],
     authChecker: useAuth,
-  })
-}
+  });
+};

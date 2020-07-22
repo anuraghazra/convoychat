@@ -15,16 +15,15 @@ const deleteMessageMutationUpdater: MutationUpdaterFn<DeleteMessageMutation> = (
   let roomId = data.deletedMessage.roomId;
   let room = cache.readQuery<GetRoomQuery>({
     query: GetRoomDocument,
-    variables: { roomId, limit: MAX_MESSAGES, offset: 0 },
+    variables: { roomId, limit: MAX_MESSAGES },
   });
 
   cache.writeQuery({
     query: GetRoomDocument,
-    variables: { roomId, limit: MAX_MESSAGES, offset: 0 },
+    variables: { roomId, limit: MAX_MESSAGES },
     data: update(room, {
       messages: {
-        messages: m =>
-          m.filter(message => message.id !== data.deletedMessage.id),
+        edges: e => e.filter(edge => edge.node.id !== data.deletedMessage.id),
       },
     }),
   });

@@ -12,7 +12,7 @@ import {
   instagramUsernameRegex,
   githubUsernameRegex,
   twitterUsernameRegex,
-} from '../../utils'
+} from "../../utils";
 import { Validate } from "class-validator";
 import { ArgsType, Field } from "type-graphql";
 
@@ -40,23 +40,26 @@ export class setUserLinksArgs {
   @Field({ nullable: true })
   @Length(5, 100)
   @Matches(githubUsernameRegex, { message: "Invalid Github username" })
-  public github?: string
+  public github?: string;
 
   @Field({ nullable: true })
   @Length(5, 100)
   @Matches(twitterUsernameRegex, { message: "Invalid Twitter username" })
-  public twitter?: string
+  public twitter?: string;
 
   @Field({ nullable: true })
   @Matches(instagramUsernameRegex, { message: "Invalid Instagram Link" })
   @Length(5, 150)
-  public instagram?: string
+  public instagram?: string;
 
   @Field({ nullable: true })
   @Length(5, 100)
-  @IsUrl({
-    disallow_auth: true,
-    allow_protocol_relative_urls: false
-  }, { message: "Invalid website URL" })
-  public website?: string
+  @IsUrl(
+    {
+      disallow_auth: true,
+      allow_protocol_relative_urls: false,
+    },
+    { message: "Invalid website URL" }
+  )
+  public website?: string;
 }

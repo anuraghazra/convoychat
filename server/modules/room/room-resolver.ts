@@ -1,13 +1,23 @@
 import "reflect-metadata";
-import { ObjectID } from 'mongodb'
+import { ObjectID } from "mongodb";
 import { Context } from "../context.type";
 import { ApolloError } from "apollo-server-express";
-import { Resolver, Query, Ctx, Arg, Authorized, Mutation, Args } from 'type-graphql';
+import {
+  Resolver,
+  Query,
+  Ctx,
+  Arg,
+  Authorized,
+  Mutation,
+  Args,
+  UseMiddleware,
+} from "type-graphql";
 
 import UserModel from "../../entities/User";
 import RoomModel, { Room } from "../../entities/Room";
 import { createRoomArgs, removeMembersArgs } from "./room-inputs";
 import Member from "../../entities/Member";
+import RateLimit from "../rate-limiter-middleware";
 
 @Resolver(of => Room)
 class RoomResolver {
@@ -15,7 +25,7 @@ class RoomResolver {
   @Query(() => [Room])
   async listRooms(): Promise<Room[]> {
     try {
-      let rooms = await RoomModel.find({})
+      const rooms = await RoomModel.find({})
         .populate("members")
         .populate({
           path: "messages",
@@ -33,7 +43,7 @@ class RoomResolver {
   @Query(() => [Room])
   async listCurrentUserRooms(@Ctx() context: Context): Promise<Room[]> {
     try {
-      let rooms = await RoomModel.find({ members: context.currentUser.id })
+      const rooms = await RoomModel.find({ members: context.currentUser.id })
         .populate("members")
         .populate({
           path: "messages",
@@ -50,11 +60,11 @@ class RoomResolver {
   @Authorized()
   @Query(() => Room)
   async getRoom(
-    @Arg('id', { nullable: false }) id: ObjectID,
+    @Arg("id", { nullable: false }) id: ObjectID,
     @Ctx() context: Context
   ): Promise<Room> {
     try {
-      let user = await RoomModel.findOne({
+      const user = await RoomModel.findOne({
         _id: id,
         members: { $in: [context.currentUser] },
       })
@@ -73,13 +83,11 @@ class RoomResolver {
   }
 
   @Authorized()
+  @UseMiddleware(RateLimit({ limit: 20 }))
   @Mutation(() => Room)
-  async createRoom(
-    @Args() { name }: createRoomArgs,
-    @Ctx() context: Context
-  ) {
+  async createRoom(@Args() { name }: createRoomArgs, @Ctx() context: Context) {
     try {
-      let room = new RoomModel({
+      const room = new RoomModel({
         name: name,
         messages: [],
         members: [context.currentUser.id],
@@ -100,15 +108,14 @@ class RoomResolver {
     }
   }
 
-
   @Authorized()
   @Mutation(() => Room, { nullable: true })
   async deleteRoom(
-    @Arg('roomId', { nullable: false }) roomId: ObjectID,
+    @Arg("roomId", { nullable: false }) roomId: ObjectID,
     @Ctx() context: Context
   ) {
     try {
-      let room = await RoomModel.findOneAndDelete({
+      const room = await RoomModel.findOneAndDelete({
         _id: roomId,
         owner: context.currentUser.id,
       });
@@ -128,6 +135,7 @@ class RoomResolver {
   }
 
   @Authorized()
+  @UseMiddleware(RateLimit())
   @Mutation(() => Member, { nullable: true })
   async removeMemberFromRoom(
     @Args() { roomId, memberId }: removeMembersArgs,

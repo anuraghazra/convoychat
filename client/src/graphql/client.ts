@@ -1,14 +1,14 @@
 import { ApolloClient } from "apollo-client";
 import { InMemoryCache } from "apollo-cache-inmemory";
-import { HttpLink } from "apollo-link-http";
 import { onError } from "apollo-link-error";
 import { ApolloLink, split } from "apollo-link";
+import { createUploadLink } from "apollo-upload-client";
 
 import { WebSocketLink } from "apollo-link-ws";
 import { getMainDefinition } from "apollo-utilities";
 import { toast } from "@convoy-ui";
 
-const httpLink = new HttpLink({
+const uploadLink = createUploadLink({
   uri: "/graphql",
   credentials: "include",
 });
@@ -31,7 +31,7 @@ const link = split(
     );
   },
   wsLink,
-  httpLink
+  uploadLink
 );
 
 const client = new ApolloClient({
@@ -45,7 +45,7 @@ const client = new ApolloClient({
       }
       if (networkError) {
         console.log(`[Network error]: ${networkError}`);
-        toast.error(networkError?.message)
+        toast.error(networkError?.message);
       }
     }),
     link,

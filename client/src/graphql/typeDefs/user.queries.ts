@@ -82,8 +82,18 @@ export default gql`
     }
   }
 
-  mutation setUserLinks($github: String, $twitter: String, $instagram: String, $website: String) {
-    setUserLinks(github: $github, twitter: $twitter, instagram: $instagram, website: $website) {
+  mutation setUserLinks(
+    $github: String
+    $twitter: String
+    $instagram: String
+    $website: String
+  ) {
+    setUserLinks(
+      github: $github
+      twitter: $twitter
+      instagram: $instagram
+      website: $website
+    ) {
       id
       links {
         github
@@ -94,22 +104,21 @@ export default gql`
     }
   }
 
-
   mutation setUserSettings(
-    $color: String!,
-    $github: String,
-    $twitter: String,
-    $instagram: String,
-    $website: String  
+    $color: String!
+    $github: String
+    $twitter: String
+    $instagram: String
+    $website: String
   ) {
     setColor(color: $color) {
       id
       color
     }
     setUserLinks(
-      github: $github, 
-      twitter: $twitter, 
-      instagram: $instagram, 
+      github: $github
+      twitter: $twitter
+      instagram: $instagram
       website: $website
     ) {
       id
@@ -131,4 +140,4 @@ export default gql`
   mutation logout {
     logout
   }
-`
+`;

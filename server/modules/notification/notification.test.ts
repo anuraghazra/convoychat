@@ -6,7 +6,9 @@ import { gCall, createFakeContext } from "../../test-utils/gcall";
 
 import UserModel from "../../entities/User";
 import sendNotification from "../../utils/sendNotification";
-import NotificationModel, { NOTIFICATION_TYPE } from "../../entities/Notification";
+import NotificationModel, {
+  NOTIFICATION_TYPE,
+} from "../../entities/Notification";
 
 const ROOM_NAME = "Test Room";
 let ROOM_ID: Maybe<ObjectID> = null;
@@ -39,11 +41,10 @@ const queries = {
       }
     }
   `,
-}
-
+};
 
 const initialize = async () => {
-  let result = await gCall({
+  const result = await gCall({
     source: `
       mutation createRoom($name: String!) {
         createRoom(name: $name) {
@@ -52,12 +53,12 @@ const initialize = async () => {
         }
       }
     `,
-    variableValues: { name: ROOM_NAME }
+    variableValues: { name: ROOM_NAME },
   });
   ROOM_ID = result.data.createRoom.id;
 
   const context = createFakeContext();
-  sender = await UserModel.findOne({ username: fakeUser2.username })
+  sender = await UserModel.findOne({ username: fakeUser2.username });
   await sendNotification({
     context: context as any,
     sender: new ObjectID(sender.id),
@@ -65,13 +66,12 @@ const initialize = async () => {
     type: NOTIFICATION_TYPE.MENTION,
     payload: {
       roomName: result.data.createRoom?.name,
-      message: 'Hello world',
-      messageId: '12345',
+      message: "Hello world",
+      messageId: "12345",
       roomId: result.data.createRoom?.id,
     },
   });
-}
-
+};
 
 afterAll(async () => {
   await dbHelper.clearDatabase();
@@ -81,11 +81,10 @@ afterAll(async () => {
 beforeAll(async () => {
   await dbHelper.connect();
   await dbHelper.populateUsers();
-  await initialize()
-})
+  await initialize();
+});
 // afterEach(async () => await dbHelper.clearDatabase());
 // beforeEach(async () => await dbHelper.populate());
-
 
 describe("NotificationResolver", () => {
   it("Should get notifications", async () => {
@@ -95,18 +94,22 @@ describe("NotificationResolver", () => {
 
     expect(notificationResult?.data).toEqual(
       expect.objectContaining({
-        getNotifications: [{
-          seen: false,
-          payload: {
-            messageId: "12345",
-            message: "Hello world",
-            roomId: ROOM_ID, roomName: "Test Room"
+        getNotifications: [
+          {
+            seen: false,
+            payload: {
+              messageId: "12345",
+              message: "Hello world",
+              roomId: ROOM_ID,
+              roomName: "Test Room",
+            },
+            receiver: fakeUser.id,
+            sender: { name: fakeUser2.name },
+            type: NOTIFICATION_TYPE.MENTION,
           },
-          receiver: fakeUser.id,
-          sender: { name: fakeUser2.name }, type: NOTIFICATION_TYPE.MENTION
-        }]
+        ],
       })
-    )
+    );
   });
 
   it("Should read notification", async () => {
@@ -114,8 +117,8 @@ describe("NotificationResolver", () => {
     const notificationResult = await gCall({
       source: queries.readNotification,
       variableValues: {
-        id: noti._id
-      }
+        id: noti._id,
+      },
     });
 
     expect(notificationResult?.data).toEqual(
@@ -125,12 +128,14 @@ describe("NotificationResolver", () => {
           payload: {
             messageId: "12345",
             message: "Hello world",
-            roomId: ROOM_ID, roomName: "Test Room"
+            roomId: ROOM_ID,
+            roomName: "Test Room",
           },
           receiver: fakeUser.id,
-          sender: { name: fakeUser2.name }, type: NOTIFICATION_TYPE.MENTION
-        }
+          sender: { name: fakeUser2.name },
+          type: NOTIFICATION_TYPE.MENTION,
+        },
       })
-    )
+    );
   });
-})
+});

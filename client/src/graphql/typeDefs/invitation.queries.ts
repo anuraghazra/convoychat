@@ -36,4 +36,4 @@ export default gql`
   mutation acceptInvitation($token: String!) {
     acceptInvitation(token: $token)
   }
-`
+`;

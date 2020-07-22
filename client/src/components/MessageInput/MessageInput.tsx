@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { FaSmile, FaPaperPlane } from "react-icons/fa";
+import { FaSmile, FaPaperPlane, FaImage } from "react-icons/fa";
 import { Picker } from "emoji-mart";
 import "emoji-mart/css/emoji-mart.css";
 
@@ -9,11 +9,12 @@ import {
   defaultMentionStyles,
 } from "./MessageInput.style";
 
+import { Member as IMember } from "graphql/generated/graphql";
+
+import useImageUpload from "./useImageUpload";
 import { textareaAutoResize } from "utils";
 import { Flex, Dropdown, IconButton } from "@convoy-ui";
-import { RoomMemberFragment } from "graphql/generated/graphql";
 import { MentionsInput, Mention, OnChangeHandlerFunc } from "react-mentions";
-import { useAuthContext } from "contexts/AuthContext";
 
 const mql = window.matchMedia(`(min-width: 800px)`);
 
@@ -22,13 +23,16 @@ interface IMessageInput {
   onCancel?: () => void;
   handleChange: OnChangeHandlerFunc;
   onEmojiClick?: (emoji: any) => void;
-  mentionSuggestions: RoomMemberFragment[];
+  mentionSuggestions: Partial<IMember>[];
   handleSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
   innerRef?: React.MutableRefObject<HTMLTextAreaElement | undefined>;
-  [x: string]: any;
+  setValue?: (value: React.SetStateAction<string>) => void;
 }
+type ISuggestionsData = { display: any; id: string }[] | undefined;
+// prettier-ignore
+type MessageInputType = React.FC<IMessageInput> & React.HTMLAttributes<HTMLTextAreaElement>;
 
-const MessageInput: React.FC<IMessageInput> = ({
+const MessageInput: MessageInputType = ({
   value,
   innerRef,
   onCancel,
@@ -36,12 +40,24 @@ const MessageInput: React.FC<IMessageInput> = ({
   handleChange,
   onEmojiClick,
   mentionSuggestions,
+  setValue,
   ...props
 }) => {
   const isMobile = !mql.matches;
   const formRef = useRef<HTMLFormElement>();
   const textareaRef = useRef<HTMLTextAreaElement>();
-  const suggestionsData = useRef<{ display: any; id: string }[] | undefined>();
+  const suggestionsData = useRef<ISuggestionsData>();
+
+  const {
+    open,
+    getRootProps,
+    isDragActive,
+    getInputProps,
+    uploadImageInProgress,
+  } = useImageUpload({
+    value,
+    setValue,
+  });
 
   const imparativeSubmit = (event: any) => {
     event.preventDefault();
@@ -49,7 +65,6 @@ const MessageInput: React.FC<IMessageInput> = ({
   };
 
   const handleKeydown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    textareaAutoResize(textareaRef?.current);
     if (event.key === "Escape") {
       onCancel && onCancel();
     }
@@ -59,9 +74,16 @@ const MessageInput: React.FC<IMessageInput> = ({
     }
   };
 
+  const getRef: any = (e: any) => {
+    textareaRef.current = e;
+    if (innerRef) {
+      innerRef.current = e;
+    }
+  };
+
   useEffect(() => {
     textareaAutoResize(textareaRef?.current);
-  }, []);
+  }, [value]);
 
   useEffect(() => {
     suggestionsData.current = mentionSuggestions?.map(curr => {
@@ -72,38 +94,45 @@ const MessageInput: React.FC<IMessageInput> = ({
     });
   }, [mentionSuggestions]);
 
-  const getRef: any = (e: any) => {
-    textareaRef.current = e;
-    if (innerRef) {
-      innerRef.current = e;
-    }
-  };
-
   return (
     <MessageInputWrapper className="message__input">
       <Flex gap="large" align="center" justify="space-between" nowrap>
-        <form ref={formRef} onSubmit={handleSubmit}>
-          <MentionsInput
-            data-testid="messageInput"
-            name={"message"}
-            inputRef={getRef}
-            autoComplete={"off"}
-            placeholder="Write something"
-            value={value}
-            onChange={handleChange}
-            onKeyDown={handleKeydown}
-            style={defaultMentionStyles}
-            allowSuggestionsAboveCursor={true}
-            {...props}
-          >
-            <Mention
-              trigger="@"
-              data={suggestionsData?.current || []}
-              displayTransform={id =>
-                `@${suggestionsData.current.find(i => i.id === id).display} `
-              }
-            />
-          </MentionsInput>
+        <IconButton
+          onClick={open}
+          icon={<FaImage />}
+          data-testid="upload-button"
+          isLoading={uploadImageInProgress}
+        />
+
+        <form
+          ref={formRef}
+          onSubmit={handleSubmit}
+          className={isDragActive ? "active-animation" : ""}
+        >
+          <div {...getRootProps({ className: "dropzone" })}>
+            <MentionsInput
+              data-testid="messageInput"
+              name={"message"}
+              inputRef={getRef}
+              autoComplete={"off"}
+              placeholder="Write something"
+              value={value}
+              onChange={handleChange}
+              onKeyDown={handleKeydown}
+              style={defaultMentionStyles}
+              allowSuggestionsAboveCursor={true}
+              {...props}
+            >
+              <Mention
+                trigger="@"
+                data={suggestionsData?.current || []}
+                displayTransform={id =>
+                  `@${suggestionsData.current.find(i => i.id === id).display} `
+                }
+              />
+            </MentionsInput>
+            <input {...getInputProps()} data-testid="dropzone" />
+          </div>
         </form>
         {isMobile && (
           <SendButton

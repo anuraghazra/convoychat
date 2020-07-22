@@ -4,7 +4,7 @@ import { AuthenticationError } from "apollo-server-express";
 
 const useAuth: AuthChecker<Context> = (
   { root, args, context, info },
-  _roles,
+  _roles
 ) => {
   // here we can read the user from context
   // and check his permission in the db against the `roles` argument
@@ -14,4 +14,4 @@ const useAuth: AuthChecker<Context> = (
   }
   return true;
 };
-export default useAuth
+export default useAuth;

@@ -17,6 +17,26 @@ import {
 import Invitation from "./Invitation";
 import NotificationsWithPortal from "../../NotificationWithPortal";
 
+export const data_mocks = {
+  me: {
+    links: null,
+    color: "#ffffff",
+    id: "5ed7bf9ea4df011004898efb",
+    name: "Test user",
+    email: "testuser@gmail.com",
+    avatarUrl:
+      "https://lh3.googleusercontent.com/a-/AOh14GhxgedFrKCXdKlxuMoXRFBRXlLEfSSz65AEQzIY6hg",
+    username: "testuser_kazhysow",
+    rooms: [
+      {
+        id: "5eda02c6f761de0bcc90cbfa",
+        name: "Lets do it again",
+        owner: "5ed7bf9ea4df091004898efb",
+      },
+    ],
+  },
+};
+
 const FAKE_TOKEN = "1ace01d808072fc4905f1796203f8ffa";
 const mocks = [
   {
@@ -71,25 +91,7 @@ const mocks = [
       query: CurrentUserDocument,
     },
     result: {
-      data: {
-        me: {
-          links: null,
-          color: "#ffffff",
-          id: "5ed7bf9ea4df011004898efb",
-          name: "Test user",
-          email: "testuser@gmail.com",
-          avatarUrl:
-            "https://lh3.googleusercontent.com/a-/AOh14GhxgedFrKCXdKlxuMoXRFBRXlLEfSSz65AEQzIY6hg",
-          username: "testuser_kazhysow",
-          rooms: [
-            {
-              id: "5eda02c6f761de0bcc90cbfa",
-              name: "Lets do it again",
-              owner: "5ed7bf9ea4df091004898efb",
-            },
-          ],
-        },
-      },
+      data: { me: data_mocks.me },
     },
   },
 ];

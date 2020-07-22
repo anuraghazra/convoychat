@@ -90,14 +90,15 @@ export const InputWrapper = styled.div`
   }
 `;
 
-interface InputProps {
+interface InputProps extends React.HTMLAttributes<HTMLInputElement> {
+  name?: string;
+  type?: string;
   label?: string | React.ReactNode;
   icon?: any;
   postfixIcon?: any;
   inputRef?: any;
   errors?: any;
   onPostfixIconClick?: (input?: HTMLInputElement) => void;
-  [x: string]: any;
 }
 
 export const Textarea = styled(StyledInput).attrs(p => ({ as: "textarea" }))`
@@ -115,7 +116,7 @@ export const Input: React.FC<InputProps> = ({
   ...props
 }) => {
   let _inputRef = useRef<HTMLInputElement>();
-  let hasErrors = errors && errors[props?.name];
+  let hasErrors = errors && errors[props.name];
 
   return (
     <InputWrapper className="form--input__wrapper">
@@ -123,17 +124,19 @@ export const Input: React.FC<InputProps> = ({
         {label && <span>{label}</span>}
 
         <Flex align="center" className={!!Icon ? "input__wrapper" : ""}>
-          {Icon && <Icon className="input__icon" />}
+          {Icon && <Icon data-testid="input-icon" className="input__icon" />}
           <StyledInput
             ref={e => {
               _inputRef.current = e;
               inputRef && inputRef(e);
             }}
             {...props}
+            aria-label={props.name}
           />
           {PostFixIcon && (
             <PostFixIcon
               onClick={() => onPostfixIconClick(_inputRef?.current)}
+              data-testid="input-postfix-icon"
               className="input__icon postfix-icon"
             />
           )}
@@ -144,7 +147,7 @@ export const Input: React.FC<InputProps> = ({
           data-testid="input-error"
           className={`text--error ${hasErrors && "show-error"}`}
         >
-          <ErrorMessage errors={errors} name={props?.name} />
+          <ErrorMessage errors={errors} name={props.name} />
         </div>
       )}
     </InputWrapper>
