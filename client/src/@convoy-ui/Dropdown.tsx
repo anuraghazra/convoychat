@@ -158,6 +158,8 @@ const StyledDropdownContent = styled.div<{ isOpen?: boolean }>`
   transform: translateY(-25px);
   transition: 0.2s;
   z-index: 1;
+  box-shadow: 0px 3px 20px -10px rgba(0, 0, 0, 1);
+
   ${p =>
     p.isOpen &&
     css`

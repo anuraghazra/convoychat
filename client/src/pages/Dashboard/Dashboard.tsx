@@ -1,8 +1,9 @@
 import React from "react";
+import Sidebar from "react-sidebar";
 import { Switch } from "react-router-dom";
 
 import Room from "pages/Room/Room";
-import Sidebar from "react-sidebar";
+import Welcome from "pages/Welcome/Welcome";
 import AuthRoute from "components/AuthRoute";
 import { DashboardWrapper } from "./Dashboard.style";
 import SidebarContent from "components/Sidebar/Sidebar";
@@ -31,6 +32,7 @@ const Dashboard = () => {
       >
         <Switch>
           <AuthRoute path="/room/:roomId" component={Room} />
+          <AuthRoute path="/room" component={Welcome} />
         </Switch>
       </Sidebar>
     </DashboardWrapper>

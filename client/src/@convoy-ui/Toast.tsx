@@ -69,7 +69,7 @@ const defaultConfig = {
   animationIn: ["animated", "fadeIn"],
   animationOut: ["animated", "fadeOut"],
   dismiss: {
-    duration: 50000,
+    duration: 5000,
     onScreen: false,
     pauseOnHover: true,
     waitForAnimation: false,
