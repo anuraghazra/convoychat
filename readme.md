@@ -46,7 +46,7 @@ Before you get started make sure you sign up for these service providers
 
 #### Step-1
 
-clone this repo
+Clone this repo
 
 ```sh
 https://github.com/anuraghazra/convoychat.git
@@ -72,9 +72,9 @@ Environment variables
 
 _Now this is a bit tricky._
 
-- create a new file .env in the root folder
-- open [.env.EXAMPLE](./.env.EXAMPLE)
-- copy the contents and paste it to the .env
+- Create a new file .env in the root folder
+- Open [.env.EXAMPLE](./.env.EXAMPLE)
+- Copy the contents and paste it to the .env
 
 And change all the dummy keys with your own valid ones.
 
@@ -128,7 +128,7 @@ npm run develop
 
 ## :v: Contributing
 
-You wanna contribute? wow amazing. thats great to hear.
+You wanna contribute? Wow amazing. Thats great to hear.
 
 After cloning & setting up the local project you can push the changes to your github fork and make a pull request.
 
